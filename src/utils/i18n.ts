@@ -176,6 +176,7 @@ export interface Translations {
     breakthroughAdvanced: string;
     maxQiIncreased: string;
     elementCultivationEnabled: string;
+    unlockedElements: string;
   };
 }
 
@@ -338,6 +339,7 @@ export const translations: Record<Language, Translations> = {
       breakthroughAdvanced: '🚀 Breakthrough successful! Advanced to {realm} realm!',
       maxQiIncreased: '💎 Max Qi increased to {maxQi}',
       elementCultivationEnabled: '🌟 New elements available for cultivation: {elements}',
+      unlockedElements: '🔓 Unlocked elements: {elements}',
     },
   },
   vi: {
@@ -498,6 +500,7 @@ export const translations: Record<Language, Translations> = {
       breakthroughAdvanced: '🚀 Đột phá thành công! Tiến lên cảnh giới {realm}!',
       maxQiIncreased: '💎 Khí tối đa tăng lên {maxQi}',
       elementCultivationEnabled: '🌟 Ngũ hành mới có thể tu luyện: {elements}',
+      unlockedElements: '🔓 Ngũ hành đã mở khóa: {elements}',
     },
   },
 };

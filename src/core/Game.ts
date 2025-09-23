@@ -800,6 +800,17 @@ export class Game {
       status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌'
     }));
 
+    // Log unlocked elements for cultivation
+    const primaryElement = this.getPrimaryElement();
+    if (primaryElement) {
+      const complementaryElements = this.getComplementaryElements(primaryElement, player.realm);
+      const allUnlockedElements = [primaryElement, ...complementaryElements];
+      const elementNames = allUnlockedElements.map(element =>
+        `${i18n.getElementName(Object.values(Element).indexOf(element))} (${player.elements[element].toFixed(1)}%)`
+      ).join(', ');
+      console.log(i18n.t('messages.unlockedElements', { elements: elementNames }));
+    }
+
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
       console.log(i18n.t('messages.breakthroughRequirementsMet', { tribulation: 'heavenly' }));
       // Heavenly tribulation: Minor lightning tribulation
@@ -850,6 +861,16 @@ export class Game {
       status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌'
     }));
 
+    // Log unlocked elements for cultivation
+    if (primaryElement) {
+      const complementaryElements = this.getComplementaryElements(primaryElement, player.realm);
+      const allUnlockedElements = [primaryElement, ...complementaryElements];
+      const elementNames = allUnlockedElements.map(element =>
+        `${i18n.getElementName(Object.values(Element).indexOf(element))} (${player.elements[element].toFixed(1)}%)`
+      ).join(', ');
+      console.log(i18n.t('messages.unlockedElements', { elements: elementNames }));
+    }
+
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
       console.log(i18n.t('messages.breakthroughRequirementsMet', { tribulation: 'heart demon' }));
       // Heart demon tribulation
@@ -899,6 +920,16 @@ export class Game {
       required: elementRequirement,
       status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌'
     }));
+    
+    if (primaryElement) {
+      const complementaryElements = this.getComplementaryElements(primaryElement, player.realm);
+      const allUnlockedElements = [primaryElement, ...complementaryElements];
+      const elementNames = allUnlockedElements.map(element =>
+        `${i18n.getElementName(Object.values(Element).indexOf(element))} (${player.elements[element].toFixed(1)}%)`
+      ).join(', ');
+      // console.log(i18n.t('messages.unlockedElements', player.elements));
+      console.log(player.elements);
+    }
 
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
       console.log(i18n.t('messages.breakthroughRequirementsMet', { tribulation: 'elemental' }));
@@ -949,6 +980,16 @@ export class Game {
       required: elementRequirement,
       status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌'
     }));
+
+    // Log unlocked elements for cultivation
+    if (primaryElement) {
+      const complementaryElements = this.getComplementaryElements(primaryElement, player.realm);
+      const allUnlockedElements = [primaryElement, ...complementaryElements];
+      const elementNames = allUnlockedElements.map(element =>
+        `${i18n.getElementName(Object.values(Element).indexOf(element))} (${player.elements[element].toFixed(1)}%)`
+      ).join(', ');
+      console.log(i18n.t('messages.unlockedElements', { elements: elementNames }));
+    }
 
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
       console.log(i18n.t('messages.breakthroughRequirementsMet', { tribulation: 'karmic' }));
