@@ -34,8 +34,10 @@ export enum CombatType {
 // Game State
 export interface GameState {
   player: Player;
+  soul: Soul;
   time: number;
   isRunning: boolean;
+  seed: number; // For reproducible randomization
 }
 
 // Player Entity
@@ -50,6 +52,68 @@ export interface Player {
   talent: number; // 1-100 scale
   artifacts: Artifact[];
   lifetime: number; // in days
+}
+
+// Soul Entity (persistent across reincarnations)
+export interface Soul {
+  id: string;
+  lifetimeCount: number; // Number of reincarnations
+  totalLifetime: number; // Total days across all lives
+  cultivationInsights: CultivationInsights; // Knowledge carried over
+  karmicBalance: number; // Good/bad karma affecting rebirth
+  maxRealmAchieved: CultivationRealm;
+  artifacts: Artifact[]; // Soul-bound artifacts
+}
+
+// Cultivation Insights (knowledge carried over)
+export interface CultivationInsights {
+  realmBreakthroughs: CultivationRealm[];
+  techniqueMastery: TechniqueMastery[];
+  elementalUnderstanding: ElementAffinities;
+  tribulationSurvivals: number;
+}
+
+// Technique Mastery
+export interface TechniqueMastery {
+  name: string;
+  level: number; // 1-100
+  element?: Element;
+}
+
+// Enemy/NPC Entity
+export interface Enemy {
+  id: string;
+  name: string;
+  realm: CultivationRealm;
+  qi: number;
+  maxQi: number;
+  elements: ElementAffinities;
+  combatType: CombatType;
+  aggression: number; // 1-100 (how likely to attack)
+  lootTable: LootItem[];
+}
+
+// Loot Item
+export interface LootItem {
+  type: 'artifact' | 'resource' | 'insight';
+  item: Artifact | Resource | CultivationInsight;
+  dropRate: number; // 0-1
+}
+
+// Basic Resource
+export interface Resource {
+  type: 'spirit_stone' | 'elemental_crystal' | 'herb';
+  element?: Element;
+  quality: number; // 1-100
+}
+
+// Cultivation Insight (droppable knowledge)
+export interface CultivationInsight {
+  type: 'realm_knowledge' | 'technique' | 'elemental_affinity';
+  realm?: CultivationRealm;
+  technique?: string;
+  element?: Element;
+  value: number; // Knowledge/understanding gained
 }
 
 // Meridian System

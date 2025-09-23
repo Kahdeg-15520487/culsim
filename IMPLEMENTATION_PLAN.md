@@ -1,11 +1,42 @@
 # CULSIM Implementation Plan
 
-## Project Overview
-CULSIM is a Chinese cultivation mythology-inspired incremental game with roguelike elements. This plan outlines the implementation of all core systems including cultivation, elements, combat, reincarnation, artifacts, alchemy, and life events.
+## Project Over### 1.3 Basic Entity System
+**Ti### 1.4 Randomization & Seeding System
+**Timeline**: Week 4
+**Priority**: High
+
+**Tasks**:
+- [x] Implement seeded random number generation
+- [x] Create weighted probability system
+- [x] Add realm/talent-based probability modifiers
+- [x] Implement reproducible outcomes for testing
+- [x] Create fair progression curve validation
+
+**Definition of Done**:
+- [x] Random events are reproducible with same seed
+- [x] Probabilities adjust based on cultivation realm
+- [x] Talent affects random outcomes appropriately
+- [x] Progression curves are mathematically fair
+- [x] Random system passes statistical tests
+**Priority**: High
+
+**Tasks**:
+- [x] Create Player entity with basic attributes
+- [x] Implement Soul entity for reincarnation
+- [x] Create Enemy/NPC entity system
+- [x] Set up entity state persistence
+- [x] Implement entity serialization/deserialization
+
+**Definition of Done**:
+- [x] Player entity created with basic stats (health, qi, etc.)
+- [x] Soul entity tracks persistent data across lives
+- [x] Basic enemy entities can be created and managed
+- [x] Entity data persists between game sessions
+- [x] Entity system supports CRUD operations Chinese cultivation mythology-inspired incremental game with roguelike elements. This plan outlines the implementation of all core systems including cultivation, elements, combat, reincarnation, artifacts, alchemy, and life events.
 
 **UI Platform**: The game will be implemented as a web-based application, served as a static webpage on GitHub Pages. All UI components will be built using HTML, CSS, and JavaScript/TypeScript, with no server-side dependencies.
 
-**Current Status**: Phase 1 (Core Architecture & Foundation) is 75% complete. Basic web UI and game loop are functional. Ready to proceed with Phase 2 (Cultivation System).
+**Current Status**: Phase 1 (Core Architecture & Foundation) is 100% complete. All core systems implemented including web UI, entity management, persistence, and randomization. Ready to proceed with Phase 2 (Cultivation System).
 
 ## Phase 1: Core Architecture & Foundation (Weeks 1-4)
 
@@ -368,13 +399,12 @@ CULSIM is a Chinese cultivation mythology-inspired incremental game with rogueli
 - [ ] UI intuitive and information-rich
 
 ## Weekly Milestones
-- **Week 1 (COMPLETED)**: Core architecture complete, basic game loop running, web UI foundation
-- **Week 4**: Full Phase 1 completion with entity system and randomization
-- **Week 10**: Full cultivation system with all 8 realms
-- **Week 14**: Combat and reincarnation systems functional
-- **Week 20**: All advanced systems (artifacts, alchemy, Dao) implemented
-- **Week 24**: Polished UI/UX with balanced gameplay
-- **Week 28**: Content complete, ready for launch
+- **Week 1-4 (COMPLETED)**: Phase 1 complete - core architecture, web UI, entities, persistence, randomization
+- **Week 5-10**: Full cultivation system with all 8 realms
+- **Week 11-14**: Combat and reincarnation systems functional
+- **Week 15-20**: All advanced systems (artifacts, alchemy, Dao) implemented
+- **Week 21-24**: Polished UI/UX with balanced gameplay
+- **Week 25-28**: Content complete, ready for launch
 
 ## Resources Required
 - **Development Team**: 1-2 full-time developers

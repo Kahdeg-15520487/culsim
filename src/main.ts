@@ -9,6 +9,19 @@ const startBtn = document.getElementById('start-btn') as HTMLButtonElement;
 const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement;
 const cultivateBtn = document.getElementById('cultivate-btn') as HTMLButtonElement;
 
+// Add save/load buttons
+const saveBtn = document.createElement('button');
+saveBtn.textContent = 'Save Game';
+saveBtn.id = 'save-btn';
+const loadBtn = document.createElement('button');
+loadBtn.textContent = 'Load Game';
+loadBtn.id = 'load-btn';
+
+// Add buttons to controls
+const controlsEl = document.querySelector('.controls')!;
+controlsEl.appendChild(saveBtn);
+controlsEl.appendChild(loadBtn);
+
 // Game instance
 let game: Game;
 let isRunning = false;
@@ -19,6 +32,7 @@ function updateUI() {
 
   const state = game.getState();
   const player = state.player;
+  const soul = state.soul;
 
   playerStatusEl.innerHTML = `
     <strong>Name:</strong> ${player.name}<br>
@@ -29,12 +43,16 @@ function updateUI() {
   cultivationInfoEl.innerHTML = `
     <strong>Talent:</strong> ${player.talent}/100<br>
     <strong>Meridians Open:</strong> ${player.meridians.filter(m => m.isOpen).length}/12<br>
-    <strong>Lifetime:</strong> ${player.lifetime} days
+    <strong>Lifetime:</strong> ${player.lifetime} days<br>
+    <strong>Reincarnations:</strong> ${soul.lifetimeCount}<br>
+    <strong>Max Realm:</strong> ${soul.maxRealmAchieved}<br>
+    <strong>Karmic Balance:</strong> ${soul.karmicBalance > 0 ? '+' : ''}${soul.karmicBalance}
   `;
 
   timeInfoEl.innerHTML = `
     <strong>Game Time:</strong> Day ${state.time}<br>
-    <strong>Status:</strong> ${state.isRunning ? 'Running' : 'Paused'}
+    <strong>Status:</strong> ${state.isRunning ? 'Running' : 'Paused'}<br>
+    <strong>Seed:</strong> ${state.seed}
   `;
 }
 
@@ -84,6 +102,25 @@ pauseBtn.addEventListener('click', () => {
 cultivateBtn.addEventListener('click', () => {
   // For now, just log status
   logMessage('Cultivate - feature coming soon!');
+});
+
+saveBtn.addEventListener('click', () => {
+  if (game) {
+    game.saveGame();
+    updateUI();
+  }
+});
+
+loadBtn.addEventListener('click', () => {
+  if (!game) {
+    game = new Game();
+  }
+  const loaded = game.loadGame();
+  if (loaded) {
+    updateUI();
+  } else {
+    logMessage('No saved game found.');
+  }
 });
 
 // Initial UI update
