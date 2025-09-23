@@ -656,7 +656,7 @@ export class Game {
     // Manual cultivation gives a boost to qi absorption
     // TODO: base this manual boost on player actions/choices
     const manualBoost = 2.0; // 2x normal cultivation rate
-    const qiGain = this.calculateQiGatheringSpeed() * manualBoost;
+    const qiGain = this.calculateQiGatheringForRealm(player.realm) * manualBoost;
 
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
 
