@@ -136,10 +136,7 @@ export class Game {
       this.processRandomEvent();
     }
 
-    // Display status every 10 seconds
-    if (this.state.time % 10 === 0) {
-      this.displayStatus();
-    }
+    // Status updates are now handled by the UI in real-time
   }
 
   /**

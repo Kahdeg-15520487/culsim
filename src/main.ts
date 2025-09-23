@@ -25,6 +25,7 @@ controlsEl.appendChild(loadBtn);
 // Game instance
 let game: Game;
 let isRunning = false;
+let uiUpdateInterval: NodeJS.Timeout | null = null;
 
 // Update UI with game state
 function updateUI() {
@@ -56,6 +57,22 @@ function updateUI() {
   `;
 }
 
+// Start UI update loop
+function startUIUpdates() {
+  if (uiUpdateInterval) {
+    clearInterval(uiUpdateInterval);
+  }
+  uiUpdateInterval = setInterval(updateUI, 1000); // Update UI every second
+}
+
+// Stop UI update loop
+function stopUIUpdates() {
+  if (uiUpdateInterval) {
+    clearInterval(uiUpdateInterval);
+    uiUpdateInterval = null;
+  }
+}
+
 // Log messages to the game output area
 function logMessage(message: string) {
   gameOutputEl.textContent += message + '\n';
@@ -77,17 +94,20 @@ startBtn.addEventListener('click', () => {
     game.start();
     isRunning = true;
     startBtn.textContent = 'Stop Game';
+    startUIUpdates();
     logMessage('Game started!');
   } else {
     if (isRunning) {
       game.stop();
       isRunning = false;
       startBtn.textContent = 'Start Game';
+      stopUIUpdates();
       logMessage('Game stopped.');
     } else {
       game.start();
       isRunning = true;
       startBtn.textContent = 'Stop Game';
+      startUIUpdates();
       logMessage('Game started!');
     }
   }
@@ -118,6 +138,7 @@ loadBtn.addEventListener('click', () => {
   const loaded = game.loadGame();
   if (loaded) {
     updateUI();
+    logMessage('Game loaded successfully!');
   } else {
     logMessage('No saved game found.');
   }
