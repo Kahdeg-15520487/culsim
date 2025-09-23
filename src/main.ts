@@ -1,6 +1,7 @@
 import { Game } from './core/Game';
 import { Player, Element } from './types/index';
 import { i18n } from './utils/i18n';
+import { MERIDIAN_CONSTANTS } from './core/constants';
 
 // Web UI elements
 const playerStatusEl = document.getElementById('player-status')!;
@@ -178,7 +179,7 @@ function updateUI() {
     const purity = meridian.isOpen ? ` (${meridian.purity.toFixed(1)}%)` : '';
     const name = i18n.getMeridianName(index);
     const displayName = name.length > 15 ? name.substring(0, 12) + '...' : name;
-    const info = meridian.isOpen ? '' : ` (${i18n.t('ui.meridianReq', { qi: 50 + (index * 25) })})`;
+    const info = meridian.isOpen ? '' : ` (${i18n.t('ui.meridianReq', { qi: MERIDIAN_CONSTANTS.OPENING_BASE_COST + (index * MERIDIAN_CONSTANTS.OPENING_COST_INCREMENT) })})`;
     return `${status} ${displayName}${purity}${info}`;
   }).join('<br>');
 
@@ -254,7 +255,7 @@ function updateMeridianSelect() {
     closedMeridians.forEach(({ meridian, index }) => {
       const option = document.createElement('option');
       option.value = index.toString();
-      option.textContent = `${i18n.getMeridianName(index)} (${i18n.t('ui.meridianReq', { qi: 50 + (index * 25) })})`;
+      option.textContent = `${i18n.getMeridianName(index)} (${i18n.t('ui.meridianReq', { qi: MERIDIAN_CONSTANTS.OPENING_BASE_COST + (index * MERIDIAN_CONSTANTS.OPENING_COST_INCREMENT) })})`;
       meridianSelectEl.appendChild(option);
     });
     unlockMeridianBtn.disabled = false;
@@ -374,7 +375,7 @@ unlockMeridianBtn.addEventListener('click', () => {
   const player = game.getState().player;
   if (selectedIndex >= 0 && selectedIndex < player.meridians.length && !player.meridians[selectedIndex].isOpen) {
     // Check if player has enough qi
-    const qiRequirement = 50 + (selectedIndex * 25);
+    const qiRequirement = MERIDIAN_CONSTANTS.OPENING_BASE_COST + (selectedIndex * MERIDIAN_CONSTANTS.OPENING_COST_INCREMENT);
     if (player.qi >= qiRequirement) {
       // Attempt meridian opening
       game.attemptMeridianOpening(selectedIndex);

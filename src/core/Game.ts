@@ -7,13 +7,26 @@
 import { GameState, Player, Soul, Enemy, TimeTick, CultivationRealm, Element, ElementAffinities, CombatType } from '../types';
 import { Random } from '../utils/Random';
 import { i18n } from '../utils/i18n';
+import {
+  INITIAL_GAME_VALUES,
+  AUTO_SAVE,
+  BREAKTHROUGH_REQUIREMENTS,
+  MERIDIAN_CONSTANTS,
+  PURITY_THRESHOLDS,
+  TRIBULATION_SUCCESS_RATES,
+  BREAKTHROUGH_EFFECTS,
+  CULTIVATION_RATES,
+  MULTIPLIERS,
+  COMBAT_CONSTANTS,
+  RANDOM_EVENTS,
+} from './constants';
 
 export class Game {
   private state: GameState;
   private gameLoop: NodeJS.Timeout | null = null;
   private random: Random;
   private lastAutoSaveTime: number = 0;
-  private readonly AUTO_SAVE_INTERVAL_DAYS = 10; // Auto-save every 10 days
+  private readonly AUTO_SAVE_INTERVAL_DAYS = AUTO_SAVE.INTERVAL_DAYS; // Auto-save every 10 days
 
   constructor(seed?: number) {
     this.random = new Random(seed);
@@ -29,10 +42,10 @@ export class Game {
       name: 'Cultivator',
       realm: CultivationRealm.Mortal, // Mortal
       qi: 0,
-      maxQi: 100,
+      maxQi: INITIAL_GAME_VALUES.MAX_QI,
       meridians: this.createInitialMeridians(),
       elements: this.initializeElementAffinities(),
-      talent: 50, // Average talent
+      talent: INITIAL_GAME_VALUES.TALENT, // Average talent
       artifacts: [],
       lifetime: 0
     };
@@ -102,7 +115,7 @@ export class Game {
     };
 
     // Primary element gets initial affinity
-    affinities[primaryElement] = 10 + this.random.int(0, 10); // 10-20 base affinity
+    affinities[primaryElement] = this.random.int(INITIAL_GAME_VALUES.ELEMENT_AFFINITY_BASE.min, INITIAL_GAME_VALUES.ELEMENT_AFFINITY_BASE.max); // 10-20 base affinity
 
     return affinities;
   }
@@ -286,7 +299,7 @@ export class Game {
    */
   private basicQiAbsorption(): void {
     const player = this.state.player;
-    const qiGain = 0.1 + (player.talent / 1000);
+    const qiGain = CULTIVATION_RATES.BASE_QI_ABSORPTION + (player.talent / MULTIPLIERS.TALENT_QI_ABSORPTION);
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
   }
 
@@ -508,17 +521,17 @@ export class Game {
       : this.random.choice(closedMeridians);
 
     // Success chance based on qi level and talent
-    const qiRequirement = 50 + (target.index * 25); // Increasing difficulty
+    const qiRequirement = MERIDIAN_CONSTANTS.OPENING_BASE_COST + (target.index * MERIDIAN_CONSTANTS.OPENING_COST_INCREMENT); // Increasing difficulty
     const talentBonus = player.talent / 200;
     const successChance = Math.min(0.8, (player.qi / qiRequirement) * (0.5 + talentBonus));
 
     // Consume 1/4th of the qi requirement for the attempt
-    const qiCost = Math.floor(qiRequirement / 4);
+    const qiCost = Math.floor(qiRequirement * MERIDIAN_CONSTANTS.OPENING_ATTEMPT_COST_FRACTION);
     player.qi = Math.max(0, player.qi - qiCost);
 
     if (this.random.chance(successChance)) {
       player.meridians[target.index].isOpen = true;
-      player.meridians[target.index].purity = 10; // Start with some purity
+      player.meridians[target.index].purity = MERIDIAN_CONSTANTS.INITIAL_PURITY; // Start with some purity
       console.log(i18n.t('ui.meridianOpened', { meridian: i18n.getMeridianName(target.index) }));
     } else {
       console.log(i18n.t('messages.meridianOpeningFailed', { 
@@ -599,11 +612,11 @@ export class Game {
     const player = this.state.player;
 
     // Requirements for Mortal -> Qi Condensation breakthrough
-    const qiRequirement = 100; // 10^2
-    const meridianRequirement = 1; // At least 1 meridian open
-    const elementRequirement = 1; // 1 element fully cultivated (100% affinity)
+    const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.Mortal].qi;
+    const meridianRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.Mortal].meridians;
+    const elementRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.Mortal].elements;
     const openMeridians = player.meridians.filter(m => m.isOpen).length;
-    const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= 100).length;
+    const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= CULTIVATION_RATES.MAX_ELEMENT_AFFINITY).length;
 
     console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.QiCondensation) }));
     console.log(i18n.t('messages.breakthroughQiRequirement', { 
@@ -625,7 +638,7 @@ export class Game {
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
       console.log(i18n.t('messages.breakthroughRequirementsMet', { tribulation: 'heavenly' }));
       // Heavenly tribulation: Minor lightning tribulation
-      this.performTribulation('lightning', 0.8, () => {
+      this.performTribulation('lightning', TRIBULATION_SUCCESS_RATES[CultivationRealm.Mortal], () => {
         this.performBreakthrough(CultivationRealm.QiCondensation);
       });
     } else {
@@ -640,9 +653,9 @@ export class Game {
     const player = this.state.player;
 
     // Requirements for Qi Condensation -> Foundation Establishment
-    const qiRequirement = 10000; // 10^4
-    const meridianRequirement = 6; // At least 6 meridians open
-    const elementRequirement = 2; // 2 elements fully cultivated (generating or controlling)
+    const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.QiCondensation].qi;
+    const meridianRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.QiCondensation].meridians;
+    const elementRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.QiCondensation].elements;
     const openMeridians = player.meridians.filter(m => m.isOpen).length;
 
     // Check for fully cultivated elements (must be generating or controlling elements)
@@ -675,7 +688,7 @@ export class Game {
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
       console.log(i18n.t('messages.breakthroughRequirementsMet', { tribulation: 'heart demon' }));
       // Heart demon tribulation
-      this.performTribulation('heart_demon', 0.7, () => {
+      this.performTribulation('heart_demon', TRIBULATION_SUCCESS_RATES[CultivationRealm.QiCondensation], () => {
         this.performBreakthrough(CultivationRealm.FoundationEstablishment);
       });
     } else {
@@ -690,9 +703,9 @@ export class Game {
     const player = this.state.player;
 
     // Requirements for Foundation Establishment -> Core Formation
-    const qiRequirement = 100000; // 10^5
-    const meridianRequirement = 12; // All 12 meridians open
-    const elementRequirement = 3; // 3 elements fully cultivated
+    const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.FoundationEstablishment].qi;
+    const meridianRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.FoundationEstablishment].meridians;
+    const elementRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.FoundationEstablishment].elements;
     const openMeridians = player.meridians.filter(m => m.isOpen).length;
 
     // Check for fully cultivated elements
@@ -725,7 +738,7 @@ export class Game {
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
       console.log(i18n.t('messages.breakthroughRequirementsMet', { tribulation: 'elemental' }));
       // Elemental tribulation
-      this.performTribulation('elemental', 0.6, () => {
+      this.performTribulation('elemental', TRIBULATION_SUCCESS_RATES[CultivationRealm.FoundationEstablishment], () => {
         this.performBreakthrough(CultivationRealm.CoreFormation);
       });
     } else {
@@ -740,10 +753,10 @@ export class Game {
     const player = this.state.player;
 
     // Requirements for Core Formation -> Nascent Soul
-    const qiRequirement = 1000000; // 10^6
-    const meridianRequirement = 12; // All meridians at 80%+ purity
-    const elementRequirement = 4; // 4 elements fully cultivated
-    const openMeridians = player.meridians.filter(m => m.isOpen && m.purity >= 80).length;
+    const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.CoreFormation].qi;
+    const meridianRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.CoreFormation].meridians;
+    const elementRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.CoreFormation].elements;
+    const openMeridians = player.meridians.filter(m => m.isOpen && m.purity >= PURITY_THRESHOLDS.PURIFIED).length;
 
     // Check for fully cultivated elements
     const primaryElement = this.getPrimaryElement();
@@ -775,7 +788,7 @@ export class Game {
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
       console.log(i18n.t('messages.breakthroughRequirementsMet', { tribulation: 'karmic' }));
       // Karmic tribulation
-      this.performTribulation('karmic', 0.5, () => {
+      this.performTribulation('karmic', TRIBULATION_SUCCESS_RATES[CultivationRealm.CoreFormation], () => {
         this.performBreakthrough(CultivationRealm.NascentSoul);
       });
     } else {
@@ -790,11 +803,11 @@ export class Game {
     const player = this.state.player;
 
     // Requirements for Nascent Soul -> Divine Transformation
-    const qiRequirement = 10000000; // 10^7
-    const meridianRequirement = 12; // All meridians at 95%+ purity
-    const elementRequirement = 5; // All 5 elements fully cultivated
-    const openMeridians = player.meridians.filter(m => m.isOpen && m.purity >= 95).length;
-    const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= 100).length;
+    const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.NascentSoul].qi;
+    const meridianRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.NascentSoul].meridians;
+    const elementRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.NascentSoul].elements;
+    const openMeridians = player.meridians.filter(m => m.isOpen && m.purity >= PURITY_THRESHOLDS.HIGHLY_PURIFIED).length;
+    const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= CULTIVATION_RATES.MAX_ELEMENT_AFFINITY).length;
 
     console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.DivineTransformation) }));
     console.log(i18n.t('messages.breakthroughQiRequirement', { 
@@ -816,7 +829,7 @@ export class Game {
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
       console.log(i18n.t('messages.breakthroughRequirementsMet', { tribulation: 'heavenly lightning' }));
       // Heavenly lightning tribulation
-      this.performTribulation('lightning', 0.4, () => {
+      this.performTribulation('lightning', TRIBULATION_SUCCESS_RATES[CultivationRealm.NascentSoul], () => {
         this.performBreakthrough(CultivationRealm.DivineTransformation);
       });
     } else {
@@ -831,11 +844,11 @@ export class Game {
     const player = this.state.player;
 
     // Requirements for Divine Transformation -> Void Refinement
-    const qiRequirement = 100000000; // 10^8
-    const meridianRequirement = 12; // All meridians at 100% purity
-    const elementRequirement = 5; // All 5 elements at divine level
-    const openMeridians = player.meridians.filter(m => m.isOpen && m.purity >= 100).length;
-    const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= 100).length;
+    const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.DivineTransformation].qi;
+    const meridianRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.DivineTransformation].meridians;
+    const elementRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.DivineTransformation].elements;
+    const openMeridians = player.meridians.filter(m => m.isOpen && m.purity >= PURITY_THRESHOLDS.PERFECT).length;
+    const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= CULTIVATION_RATES.MAX_ELEMENT_AFFINITY).length;
 
     console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.VoidRefinement) }));
     console.log(i18n.t('messages.breakthroughQiRequirement', { 
@@ -857,7 +870,7 @@ export class Game {
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
       console.log(i18n.t('messages.breakthroughRequirementsMet', { tribulation: 'elemental void' }));
       // Elemental void tribulation
-      this.performTribulation('elemental', 0.3, () => {
+      this.performTribulation('elemental', TRIBULATION_SUCCESS_RATES[CultivationRealm.DivineTransformation], () => {
         this.performBreakthrough(CultivationRealm.VoidRefinement);
       });
     } else {
@@ -872,11 +885,11 @@ export class Game {
     const player = this.state.player;
 
     // Requirements for Void Refinement -> Immortal Ascension
-    const qiRequirement = 1000000000; // 10^9
-    const meridianRequirement = 12; // All meridians at 100% purity
-    const elementRequirement = 5; // All 5 elements at divine level
-    const openMeridians = player.meridians.filter(m => m.isOpen && m.purity >= 100).length;
-    const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= 100).length;
+    const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.VoidRefinement].qi;
+    const meridianRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.VoidRefinement].meridians;
+    const elementRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.VoidRefinement].elements;
+    const openMeridians = player.meridians.filter(m => m.isOpen && m.purity >= PURITY_THRESHOLDS.PERFECT).length;
+    const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= CULTIVATION_RATES.MAX_ELEMENT_AFFINITY).length;
 
     console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.ImmortalAscension) }));
     console.log(i18n.t('messages.breakthroughQiRequirement', { 
@@ -898,7 +911,7 @@ export class Game {
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
       console.log(i18n.t('messages.breakthroughRequirementsMet', { tribulation: 'final heart demon' }));
       // Final heart demon tribulation
-      this.performTribulation('heart_demon', 0.2, () => {
+      this.performTribulation('heart_demon', TRIBULATION_SUCCESS_RATES[CultivationRealm.VoidRefinement], () => {
         this.performBreakthrough(CultivationRealm.ImmortalAscension);
       });
     } else {
@@ -913,15 +926,15 @@ export class Game {
     const player = this.state.player;
 
     player.meridians.forEach((meridian, index) => {
-      if (meridian.isOpen && meridian.purity < 100) {
+      if (meridian.isOpen && meridian.purity < MERIDIAN_CONSTANTS.MAX_PURITY) {
         // Purification rate based on realm and qi level
-        const basePurification = 0.1; // Base purity gain per day
+        const basePurification = CULTIVATION_RATES.BASE_MERIDIAN_PURIFICATION; // Base purity gain per day
         const realmMultiplier = Math.max(1, player.realm + 1); // Higher realms purify faster
         const qiBonus = player.qi / player.maxQi * 0.5; // More qi = faster purification
-        const talentBonus = player.talent / 1000;
+        const talentBonus = player.talent / MULTIPLIERS.TALENT_MERIDIAN_PURIFICATION;
 
         const purificationRate = basePurification * realmMultiplier * (1 + qiBonus + talentBonus);
-        meridian.purity = Math.min(100, meridian.purity + purificationRate);
+        meridian.purity = Math.min(MERIDIAN_CONSTANTS.MAX_PURITY, meridian.purity + purificationRate);
       }
     });
   }
@@ -934,8 +947,8 @@ export class Game {
     const oldRealm = player.realm;
 
     player.realm = newRealm;
-    player.maxQi *= 100; // 100x max qi on breakthrough to match exponential requirements
-    player.qi = Math.max(10, player.qi * 0.1); // Reset qi but keep some
+    player.maxQi *= BREAKTHROUGH_EFFECTS.MAX_QI_MULTIPLIER; // 100x max qi on breakthrough to match exponential requirements
+    player.qi = Math.max(BREAKTHROUGH_EFFECTS.MIN_QI_RETAINED, player.qi * BREAKTHROUGH_EFFECTS.QI_RETENTION_PERCENTAGE); // Reset qi but keep some
 
     // Record breakthrough in soul
     this.state.soul.cultivationInsights.realmBreakthroughs.push(oldRealm);
