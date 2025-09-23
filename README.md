@@ -31,21 +31,33 @@ npm install
 
 ### Development
 ```bash
-# Build the project
+# Install dependencies
+npm install
+
+# Start development server (opens browser automatically)
+npm run dev
+
+# Build for production
 npm run build
 
-# Run the game
-npm start
+# Preview production build
+npm run preview
 
 # Run tests
 npm test
 
 # Run tests with coverage
 npm run test:coverage
-
-# Development mode (watch for changes)
-npm run dev
 ```
+
+### Deployment
+The game is designed as a static web application that can be deployed to GitHub Pages:
+
+1. Build the project: `npm run build`
+2. The `dist/` folder contains all static files
+3. Deploy the `dist/` folder contents to GitHub Pages
+
+For automatic deployment, enable GitHub Pages in your repository settings and set the source to "GitHub Actions" if using the provided workflow, or "Deploy from a branch" with the `dist` folder.
 
 ## Project Structure
 

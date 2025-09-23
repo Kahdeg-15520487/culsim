@@ -3,6 +3,8 @@
 ## Project Overview
 CULSIM is a Chinese cultivation mythology-inspired incremental game with roguelike elements. This plan outlines the implementation of all core systems including cultivation, elements, combat, reincarnation, artifacts, alchemy, and life events.
 
+**UI Platform**: The game will be implemented as a web-based application, served as a static webpage on GitHub Pages. All UI components will be built using HTML, CSS, and JavaScript/TypeScript, with no server-side dependencies.
+
 ## Phase 1: Core Architecture & Foundation (Weeks 1-4)
 
 ### 1.1 Project Setup & Core Architecture
@@ -245,25 +247,27 @@ CULSIM is a Chinese cultivation mythology-inspired incremental game with rogueli
 - [ ] Ascension ritual properly implemented
 - [ ] Endgame content satisfying
 
-## Phase 5: UI/UX & Polish (Weeks 21-24)
+## Phase 5: Web UI/UX & Polish (Weeks 21-24)
 
-### 5.1 User Interface Implementation
+### 5.1 Web User Interface Implementation
 **Timeline**: Weeks 21-22
 **Priority**: High
 
 **Tasks**:
-- [ ] Create main game UI layout
-- [ ] Implement cultivation progress displays
-- [ ] Add combat interface
-- [ ] Create inventory and artifact management UI
-- [ ] Add settings and options menu
+- [ ] Create responsive HTML layout with CSS styling
+- [ ] Implement real-time game state display (cultivation, elements, stats)
+- [ ] Add interactive controls for cultivation, combat, and crafting
+- [ ] Create inventory and artifact management interface
+- [ ] Add settings and options menu with local storage persistence
+- [ ] Implement visual effects for elemental interactions and breakthroughs
 
 **Definition of Done**:
-- [ ] All major game screens implemented
-- [ ] UI responsive and intuitive
-- [ ] Information clearly displayed
+- [ ] All major game screens implemented as web components
+- [ ] UI responsive and works on desktop/mobile browsers
+- [ ] Real-time updates without page refresh
+- [ ] Information clearly displayed with appropriate styling
 - [ ] Navigation smooth and logical
-- [ ] UI works on target platforms
+- [ ] Game state persists in browser local storage
 
 ### 5.2 Game Balancing & Testing
 **Timeline**: Weeks 23-24
@@ -320,6 +324,26 @@ CULSIM is a Chinese cultivation mythology-inspired incremental game with rogueli
 - [ ] Performance meets target requirements
 - [ ] Documentation complete and accurate
 - [ ] Ready for public release
+
+## Deployment & Distribution
+
+### Static Site Deployment
+**Timeline**: Week 28
+**Priority**: Critical
+
+**Tasks**:
+- [ ] Configure Vite build for static site generation
+- [ ] Set up GitHub Pages deployment workflow
+- [ ] Optimize bundle size and loading performance
+- [ ] Add service worker for offline functionality (optional)
+- [ ] Test deployment on GitHub Pages environment
+
+**Definition of Done**:
+- [ ] Game builds successfully to static files
+- [ ] GitHub Pages deployment automated
+- [ ] Game loads and runs in browser
+- [ ] Performance optimized for web delivery
+- [ ] Game accessible at GitHub Pages URL
 
 ## Risk Assessment & Mitigation
 
