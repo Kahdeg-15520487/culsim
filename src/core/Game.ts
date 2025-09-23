@@ -219,20 +219,7 @@ export class Game {
   private cultivateMortalRealm(): void {
     const player = this.state.player;
 
-    // Basic qi absorption even without meridians (very slow spiritual awareness)
-    const basicAbsorption = REALM_QI_GATHERING[CultivationRealm.Mortal].BASIC_ABSORPTION; // Noticeable base absorption for mortals
-    const talentMultiplier = 1 + (player.talent / 500); // Reduced talent impact for basic absorption
-    let qiGain = basicAbsorption * talentMultiplier;
-
-    // Enhanced absorption with open meridians
-    const openMeridians = player.meridians.filter(m => m.isOpen).length;
-    if (openMeridians > 0) {
-      const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.Mortal].ENHANCED_ABSORPTION; // Base qi per day with meridians
-      const meridianBonus = this.calculateMeridianBonus();
-      const enhancedGain = baseAbsorption * talentMultiplier * meridianBonus;
-      qiGain += enhancedGain;
-    }
-
+    const qiGain = this.calculateQiGatheringForRealm(CultivationRealm.Mortal);
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
 
     // Element cultivation - basic awareness
@@ -247,12 +234,7 @@ export class Game {
   private cultivateQiCondensationRealm(): void {
     const player = this.state.player;
 
-    // Higher absorption rate in Qi Condensation
-    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.QiCondensation].BASE_ABSORPTION; // Base qi per day
-    const talentMultiplier = 1 + (player.talent / 150);
-    const meridianBonus = this.calculateMeridianBonus();
-    const qiGain = baseAbsorption * talentMultiplier * meridianBonus;
-
+    const qiGain = this.calculateQiGatheringForRealm(CultivationRealm.QiCondensation);
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
 
     // Element cultivation - basic awareness
@@ -267,12 +249,7 @@ export class Game {
   private cultivateFoundationEstablishmentRealm(): void {
     const player = this.state.player;
 
-    // Even higher absorption rate in Foundation Establishment
-    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.FoundationEstablishment].BASE_ABSORPTION; // Base qi per day
-    const talentMultiplier = 1 + (player.talent / 120);
-    const meridianBonus = this.calculateMeridianBonus();
-    const qiGain = baseAbsorption * talentMultiplier * meridianBonus;
-
+    const qiGain = this.calculateQiGatheringForRealm(CultivationRealm.FoundationEstablishment);
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
 
     // Foundation Establishment focuses on stability and defense
@@ -311,6 +288,61 @@ export class Game {
   }
 
   /**
+   * Calculate qi gathering rate for a specific realm
+   */
+  private calculateQiGatheringForRealm(realm: CultivationRealm): number {
+    const player = this.state.player;
+
+    if (realm === CultivationRealm.Mortal) {
+      // Special case: Mortal realm has basic + enhanced absorption
+      const basicAbsorption = REALM_QI_GATHERING[CultivationRealm.Mortal].BASIC_ABSORPTION;
+      const talentMultiplier = 1 + (player.talent / 500); // Reduced talent impact for basic absorption
+      let qiGain = basicAbsorption * talentMultiplier;
+
+      // Enhanced absorption with open meridians
+      const openMeridians = player.meridians.filter(m => m.isOpen).length;
+      if (openMeridians > 0) {
+        const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.Mortal].ENHANCED_ABSORPTION;
+        const meridianBonus = this.calculateMeridianBonus();
+        const enhancedGain = baseAbsorption * talentMultiplier * meridianBonus;
+        qiGain += enhancedGain;
+      }
+
+      return qiGain;
+    } else {
+      // Standard calculation for all other realms
+      const realmConfig = REALM_QI_GATHERING[realm];
+      const baseAbsorption = realmConfig.BASE_ABSORPTION;
+
+      // Talent divisor varies by realm
+      const talentDivisors: Record<CultivationRealm, number> = {
+        [CultivationRealm.Mortal]: 500, // Not used for mortal
+        [CultivationRealm.QiCondensation]: 150,
+        [CultivationRealm.FoundationEstablishment]: 120,
+        [CultivationRealm.CoreFormation]: 300,
+        [CultivationRealm.NascentSoul]: 250,
+        [CultivationRealm.DivineTransformation]: 200,
+        [CultivationRealm.VoidRefinement]: 150,
+        [CultivationRealm.ImmortalAscension]: 100,
+      };
+
+      const talentMultiplier = 1 + (player.talent / talentDivisors[realm]);
+      const meridianBonus = this.calculateMeridianBonus();
+      const realmMultiplier = (realmConfig as any).REALM_MULTIPLIER || 1;
+
+      // Special karmic bonuses for higher realms
+      let karmicBonus = 1;
+      if (realm === CultivationRealm.VoidRefinement) {
+        karmicBonus = 1 + (this.state.soul.karmicBalance / 1000); // Karmic influence
+      } else if (realm === CultivationRealm.ImmortalAscension) {
+        karmicBonus = 1 + (this.state.soul.karmicBalance / 500); // Strong karmic influence
+      }
+
+      return baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier * karmicBonus;
+    }
+  }
+
+  /**
    * Basic qi absorption for unimplemented realms
    */
   private basicQiAbsorption(): void {
@@ -325,13 +357,7 @@ export class Game {
   private cultivateCoreFormationRealm(): void {
     const player = this.state.player;
 
-    // Enhanced qi absorption with core formation techniques
-    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.CoreFormation].BASE_ABSORPTION; // Base qi per day
-    const talentMultiplier = 1 + (player.talent / 300);
-    const meridianBonus = this.calculateMeridianBonus();
-    const realmMultiplier = REALM_QI_GATHERING[CultivationRealm.CoreFormation].REALM_MULTIPLIER; // Core formation bonus
-
-    const qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier;
+    const qiGain = this.calculateQiGatheringForRealm(CultivationRealm.CoreFormation);
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
 
     // Element cultivation - core compression
@@ -346,13 +372,7 @@ export class Game {
   private cultivateNascentSoulRealm(): void {
     const player = this.state.player;
 
-    // Advanced qi absorption with soul techniques
-    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.NascentSoul].BASE_ABSORPTION; // Base qi per day
-    const talentMultiplier = 1 + (player.talent / 250);
-    const meridianBonus = this.calculateMeridianBonus();
-    const realmMultiplier = REALM_QI_GATHERING[CultivationRealm.NascentSoul].REALM_MULTIPLIER; // Nascent soul bonus
-
-    const qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier;
+    const qiGain = this.calculateQiGatheringForRealm(CultivationRealm.NascentSoul);
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
 
     // Element cultivation - soul projection
@@ -367,13 +387,7 @@ export class Game {
   private cultivateDivineTransformationRealm(): void {
     const player = this.state.player;
 
-    // Divine qi absorption with heavenly techniques
-    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.DivineTransformation].BASE_ABSORPTION; // Base qi per day
-    const talentMultiplier = 1 + (player.talent / 200);
-    const meridianBonus = this.calculateMeridianBonus();
-    const realmMultiplier = REALM_QI_GATHERING[CultivationRealm.DivineTransformation].REALM_MULTIPLIER; // Divine transformation bonus
-
-    const qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier;
+    const qiGain = this.calculateQiGatheringForRealm(CultivationRealm.DivineTransformation);
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
 
     // Element cultivation - divine fusion
@@ -388,14 +402,7 @@ export class Game {
   private cultivateVoidRefinementRealm(): void {
     const player = this.state.player;
 
-    // Void qi absorption with karmic techniques
-    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.VoidRefinement].BASE_ABSORPTION; // Base qi per day
-    const talentMultiplier = 1 + (player.talent / 150);
-    const meridianBonus = this.calculateMeridianBonus();
-    const realmMultiplier = REALM_QI_GATHERING[CultivationRealm.VoidRefinement].REALM_MULTIPLIER; // Void refinement bonus
-    const karmicBonus = 1 + (this.state.soul.karmicBalance / 1000); // Karmic influence
-
-    const qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier * karmicBonus;
+    const qiGain = this.calculateQiGatheringForRealm(CultivationRealm.VoidRefinement);
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
 
     // Element cultivation - karmic void
@@ -410,14 +417,7 @@ export class Game {
   private cultivateImmortalAscensionRealm(): void {
     const player = this.state.player;
 
-    // Immortal qi absorption with Dao techniques
-    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.ImmortalAscension].BASE_ABSORPTION; // Base qi per day
-    const talentMultiplier = 1 + (player.talent / 100);
-    const meridianBonus = this.calculateMeridianBonus();
-    const realmMultiplier = REALM_QI_GATHERING[CultivationRealm.ImmortalAscension].REALM_MULTIPLIER; // Immortal ascension bonus
-    const karmicBonus = 1 + (this.state.soul.karmicBalance / 500); // Strong karmic influence
-
-    const qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier * karmicBonus;
+    const qiGain = this.calculateQiGatheringForRealm(CultivationRealm.ImmortalAscension);
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
 
     // Element cultivation - master all elements
@@ -974,7 +974,7 @@ export class Game {
     const openMeridians = player.meridians.filter(m => m.isOpen && m.purity >= PURITY_THRESHOLDS.HIGHLY_PURIFIED).length;
     const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= CULTIVATION_RATES.MAX_ELEMENT_AFFINITY).length;
 
-    console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.DivineTransformation) }));
+    console.log(i18n.t('messages.breakthroughRequirements', { realm: this.getRealmName(CultivationRealm.DivineTransformation) }));
     console.log(i18n.t('messages.breakthroughQiRequirement', {
       current: player.qi.toFixed(1),
       required: qiRequirement,
@@ -1015,7 +1015,7 @@ export class Game {
     const openMeridians = player.meridians.filter(m => m.isOpen && m.purity >= PURITY_THRESHOLDS.PERFECT).length;
     const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= CULTIVATION_RATES.MAX_ELEMENT_AFFINITY).length;
 
-    console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.VoidRefinement) }));
+    console.log(i18n.t('messages.breakthroughRequirements', { realm: this.getRealmName(CultivationRealm.VoidRefinement) }));
     console.log(i18n.t('messages.breakthroughQiRequirement', {
       current: player.qi.toFixed(1),
       required: qiRequirement,
