@@ -4,7 +4,7 @@
  * Main game controller that manages the game loop, state, and core systems.
  */
 
-import { GameState, Player, Soul, Enemy, TimeTick, CultivationRealm, Element, ElementAffinities, CombatType } from '../types';
+import { GameState, Player, Soul, Enemy, TimeTick, CultivationRealm, Element, ElementAffinities, CombatType, Meridian } from '../types';
 import { Random } from '../utils/Random';
 import { i18n } from '../utils/i18n';
 import {
@@ -16,9 +16,11 @@ import {
   TRIBULATION_SUCCESS_RATES,
   BREAKTHROUGH_EFFECTS,
   CULTIVATION_RATES,
+  REALM_QI_GATHERING,
   MULTIPLIERS,
   COMBAT_CONSTANTS,
   RANDOM_EVENTS,
+  MERIDIAN_BREAKTHROUGH,
 } from './constants';
 
 export class Game {
@@ -94,7 +96,8 @@ export class Game {
       id: `meridian-${index}`,
       name,
       isOpen: false,
-      purity: 0
+      purity: 0,
+      breakthroughStage: 0
     }));
   }
 
@@ -217,14 +220,14 @@ export class Game {
     const player = this.state.player;
 
     // Basic qi absorption even without meridians (very slow spiritual awareness)
-    const basicAbsorption = 0.1; // Noticeable base absorption for mortals
+    const basicAbsorption = REALM_QI_GATHERING[CultivationRealm.Mortal].BASIC_ABSORPTION; // Noticeable base absorption for mortals
     const talentMultiplier = 1 + (player.talent / 500); // Reduced talent impact for basic absorption
     let qiGain = basicAbsorption * talentMultiplier;
 
     // Enhanced absorption with open meridians
     const openMeridians = player.meridians.filter(m => m.isOpen).length;
     if (openMeridians > 0) {
-      const baseAbsorption = 0.05; // Base qi per day with meridians
+      const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.Mortal].ENHANCED_ABSORPTION; // Base qi per day with meridians
       const meridianBonus = this.calculateMeridianBonus();
       const enhancedGain = baseAbsorption * talentMultiplier * meridianBonus;
       qiGain += enhancedGain;
@@ -245,7 +248,7 @@ export class Game {
     const player = this.state.player;
 
     // Higher absorption rate in Qi Condensation
-    const baseAbsorption = 0.2; // Base qi per day
+    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.QiCondensation].BASE_ABSORPTION; // Base qi per day
     const talentMultiplier = 1 + (player.talent / 150);
     const meridianBonus = this.calculateMeridianBonus();
     const qiGain = baseAbsorption * talentMultiplier * meridianBonus;
@@ -265,7 +268,7 @@ export class Game {
     const player = this.state.player;
 
     // Even higher absorption rate in Foundation Establishment
-    const baseAbsorption = 0.5; // Base qi per day
+    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.FoundationEstablishment].BASE_ABSORPTION; // Base qi per day
     const talentMultiplier = 1 + (player.talent / 120);
     const meridianBonus = this.calculateMeridianBonus();
     const qiGain = baseAbsorption * talentMultiplier * meridianBonus;
@@ -276,6 +279,19 @@ export class Game {
     this.cultivateElements();
 
     // Manual breakthrough required - no automatic advancement
+  }
+
+  /**
+   * Get the effective purity cap for a meridian based on its breakthrough stage (public for UI access)
+   */
+  public getMeridianEffectiveCap(meridian: Meridian): number {
+    switch (meridian.breakthroughStage) {
+      case 0: return PURITY_THRESHOLDS.NATURAL_CAP; // 50%
+      case 1: return PURITY_THRESHOLDS.PURIFIED; // 80%
+      case 2: return PURITY_THRESHOLDS.HIGHLY_PURIFIED; // 95%
+      case 3: return PURITY_THRESHOLDS.PERFECT; // 100%
+      default: return PURITY_THRESHOLDS.NATURAL_CAP;
+    }
   }
 
   /**
@@ -291,7 +307,7 @@ export class Game {
     const baseBonus = openMeridians.length * 0.1; // 10% per meridian
     const purityBonus = openMeridians.reduce((sum, m) => sum + (m.purity / 1000), 0); // 0.1% per purity point
 
-    return 1 + baseBonus + purityBonus;
+    return 1 + baseBonus * 2 + purityBonus * 4;
   }
 
   /**
@@ -310,10 +326,10 @@ export class Game {
     const player = this.state.player;
 
     // Enhanced qi absorption with core formation techniques
-    const baseAbsorption = 1.0; // Base qi per day
+    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.CoreFormation].BASE_ABSORPTION; // Base qi per day
     const talentMultiplier = 1 + (player.talent / 300);
     const meridianBonus = this.calculateMeridianBonus();
-    const realmMultiplier = 1.5; // Core formation bonus
+    const realmMultiplier = REALM_QI_GATHERING[CultivationRealm.CoreFormation].REALM_MULTIPLIER; // Core formation bonus
 
     const qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier;
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
@@ -331,10 +347,10 @@ export class Game {
     const player = this.state.player;
 
     // Advanced qi absorption with soul techniques
-    const baseAbsorption = 2.0; // Base qi per day
+    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.NascentSoul].BASE_ABSORPTION; // Base qi per day
     const talentMultiplier = 1 + (player.talent / 250);
     const meridianBonus = this.calculateMeridianBonus();
-    const realmMultiplier = 2.0; // Nascent soul bonus
+    const realmMultiplier = REALM_QI_GATHERING[CultivationRealm.NascentSoul].REALM_MULTIPLIER; // Nascent soul bonus
 
     const qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier;
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
@@ -352,10 +368,10 @@ export class Game {
     const player = this.state.player;
 
     // Divine qi absorption with heavenly techniques
-    const baseAbsorption = 3.0; // Base qi per day
+    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.DivineTransformation].BASE_ABSORPTION; // Base qi per day
     const talentMultiplier = 1 + (player.talent / 200);
     const meridianBonus = this.calculateMeridianBonus();
-    const realmMultiplier = 2.5; // Divine transformation bonus
+    const realmMultiplier = REALM_QI_GATHERING[CultivationRealm.DivineTransformation].REALM_MULTIPLIER; // Divine transformation bonus
 
     const qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier;
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
@@ -373,10 +389,10 @@ export class Game {
     const player = this.state.player;
 
     // Void qi absorption with karmic techniques
-    const baseAbsorption = 4.0; // Base qi per day
+    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.VoidRefinement].BASE_ABSORPTION; // Base qi per day
     const talentMultiplier = 1 + (player.talent / 150);
     const meridianBonus = this.calculateMeridianBonus();
-    const realmMultiplier = 3.0; // Void refinement bonus
+    const realmMultiplier = REALM_QI_GATHERING[CultivationRealm.VoidRefinement].REALM_MULTIPLIER; // Void refinement bonus
     const karmicBonus = 1 + (this.state.soul.karmicBalance / 1000); // Karmic influence
 
     const qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier * karmicBonus;
@@ -395,10 +411,10 @@ export class Game {
     const player = this.state.player;
 
     // Immortal qi absorption with Dao techniques
-    const baseAbsorption = 5.0; // Base qi per day
+    const baseAbsorption = REALM_QI_GATHERING[CultivationRealm.ImmortalAscension].BASE_ABSORPTION; // Base qi per day
     const talentMultiplier = 1 + (player.talent / 100);
     const meridianBonus = this.calculateMeridianBonus();
-    const realmMultiplier = 4.0; // Immortal ascension bonus
+    const realmMultiplier = REALM_QI_GATHERING[CultivationRealm.ImmortalAscension].REALM_MULTIPLIER; // Immortal ascension bonus
     const karmicBonus = 1 + (this.state.soul.karmicBalance / 500); // Strong karmic influence
 
     const qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier * karmicBonus;
@@ -534,10 +550,99 @@ export class Game {
       player.meridians[target.index].purity = MERIDIAN_CONSTANTS.INITIAL_PURITY; // Start with some purity
       console.log(i18n.t('ui.meridianOpened', { meridian: i18n.getMeridianName(target.index) }));
     } else {
-      console.log(i18n.t('messages.meridianOpeningFailed', { 
+      console.log(i18n.t('messages.meridianOpeningFailed', {
         meridian: i18n.getMeridianName(target.index),
         chance: (successChance * 100).toFixed(1),
         qi: qiCost
+      }));
+    }
+  }
+
+  /**
+   * Attempt meridian breakthrough to increase purity beyond natural cap
+   */
+  public attemptMeridianBreakthrough(meridianIndex: number): void {
+    const player = this.state.player;
+
+    if (meridianIndex < 0 || meridianIndex >= player.meridians.length) {
+      console.log(i18n.t('messages.meridianBreakthroughInvalidIndex'));
+      return;
+    }
+
+    const meridian = player.meridians[meridianIndex];
+
+    if (!meridian.isOpen) {
+      console.log(i18n.t('messages.meridianBreakthroughNotOpen', { meridian: i18n.getMeridianName(meridianIndex) }));
+      return;
+    }
+
+    if (meridian.purity < PURITY_THRESHOLDS.NATURAL_CAP) {
+      console.log(i18n.t('messages.meridianBreakthroughNotReady', {
+        meridian: i18n.getMeridianName(meridianIndex),
+        required: PURITY_THRESHOLDS.NATURAL_CAP
+      }));
+      return;
+    }
+
+    if (meridian.purity >= MERIDIAN_CONSTANTS.MAX_PURITY) {
+      console.log(i18n.t('messages.meridianBreakthroughAlreadyPerfect', { meridian: i18n.getMeridianName(meridianIndex) }));
+      return;
+    }
+
+    // Calculate breakthrough cost and chance
+    const baseQiCost = (meridianIndex + 1) * MERIDIAN_BREAKTHROUGH.QI_COST_MULTIPLIER;
+    const stageMultiplier = 1 + (meridian.breakthroughStage * 10); // 10x cost per breakthrough stage
+    const qiCost = baseQiCost * stageMultiplier;
+    const baseChance = MERIDIAN_BREAKTHROUGH.BASE_SUCCESS_CHANCE;
+    const talentBonus = player.talent / MERIDIAN_BREAKTHROUGH.TALENT_BONUS_DIVISOR;
+    const successChance = Math.min(0.95, baseChance + talentBonus);
+
+    console.log(i18n.t('messages.meridianBreakthroughAttempt', {
+      meridian: i18n.getMeridianName(meridianIndex),
+      qi: qiCost,
+      chance: (successChance * 100).toFixed(1)
+    }));
+
+    if (player.qi < qiCost) {
+      console.log(i18n.t('messages.meridianBreakthroughNotEnoughQi', { qi: qiCost }));
+      return;
+    }
+
+    // Consume qi for the attempt
+    const attemptCost = Math.floor(qiCost * MERIDIAN_BREAKTHROUGH.ATTEMPT_COST_FRACTION);
+    player.qi = Math.max(0, player.qi - attemptCost);
+
+    if (this.random.chance(successChance)) {
+      // Successful breakthrough - advance to next stage
+      const oldStage = meridian.breakthroughStage;
+      meridian.breakthroughStage = Math.min(3, meridian.breakthroughStage + 1); // Max stage 3
+      const purityGain = MERIDIAN_BREAKTHROUGH.BREAKTHROUGH_PURITY_GAIN;
+      const oldPurity = meridian.purity;
+      meridian.purity = Math.min(MERIDIAN_CONSTANTS.MAX_PURITY, meridian.purity + purityGain);
+
+      console.log(i18n.t('messages.meridianBreakthroughSuccess', {
+        meridian: i18n.getMeridianName(meridianIndex),
+        oldPurity: oldPurity.toFixed(1),
+        newPurity: meridian.purity.toFixed(1),
+        qi: attemptCost
+      }));
+
+      if (meridian.breakthroughStage > oldStage) {
+        console.log(i18n.t('messages.meridianBreakthroughStageAdvanced', {
+          meridian: i18n.getMeridianName(meridianIndex),
+          oldStage: oldStage,
+          newStage: meridian.breakthroughStage
+        }));
+      }
+    } else {
+      // Failed breakthrough - small purity loss
+      const purityLoss = this.random.int(1, 5);
+      meridian.purity = Math.max(PURITY_THRESHOLDS.NATURAL_CAP, meridian.purity - purityLoss);
+
+      console.log(i18n.t('messages.meridianBreakthroughFailed', {
+        meridian: i18n.getMeridianName(meridianIndex),
+        purityLoss: purityLoss.toFixed(1),
+        qi: attemptCost
       }));
     }
   }
@@ -549,11 +654,9 @@ export class Game {
     const player = this.state.player;
 
     // Manual cultivation gives a boost to qi absorption
+    // TODO: base this manual boost on player actions/choices
     const manualBoost = 2.0; // 2x normal cultivation rate
-    const baseAbsorption = 0.1; // Base qi per manual cultivation
-    const talentMultiplier = 1 + (player.talent / 500);
-    const meridianBonus = this.calculateMeridianBonus();
-    const qiGain = baseAbsorption * talentMultiplier * meridianBonus * manualBoost;
+    const qiGain = this.calculateQiGatheringSpeed() * manualBoost;
 
     player.qi = Math.min(player.qi + qiGain, player.maxQi);
 
@@ -564,6 +667,68 @@ export class Game {
     this.processMeridianPurification();
 
     console.log(i18n.t('ui.manualCultivationComplete', { qi: qiGain.toFixed(2) }));
+  }
+
+  /**
+   * Debug method - add qi to player (for testing purposes)
+   */
+  public debugAddQi(): void {
+    const player = this.state.player;
+    const amount = player.maxQi * 0.1; // Add 10% of max qi
+    player.qi = Math.min(player.qi + amount, player.maxQi);
+    console.log(`🐛 Debug: Added ${amount} qi to player. Current qi: ${player.qi.toFixed(1)}/${player.maxQi}`);
+  }
+
+  /**
+   * Debug method - add meridian progress (for testing purposes)
+   */
+  public debugAddMeridianProgress(amount: number = 10): void {
+    const player = this.state.player;
+    let modifiedCount = 0;
+
+    player.meridians.forEach(meridian => {
+      if (meridian.isOpen) {
+        // Respect the current breakthrough stage cap
+        const effectiveCap = this.getMeridianEffectiveCap(meridian);
+        const oldPurity = meridian.purity;
+        meridian.purity = Math.min(effectiveCap, meridian.purity + amount);
+        if (meridian.purity > oldPurity) {
+          modifiedCount++;
+        }
+      }
+    });
+
+    console.log(`🐛 Debug: Added ${amount}% purity to ${modifiedCount} open meridians (respecting breakthrough requirements)`);
+  }
+
+  /**
+   * Debug method - add element progress (for testing purposes)
+   */
+  public debugAddElementProgress(amount: number = 10): void {
+    const player = this.state.player;
+    const primaryElement = this.getPrimaryElement();
+    let modifiedCount = 0;
+
+    if (primaryElement) {
+      // Always allow progress on primary element
+      const oldAffinity = player.elements[primaryElement];
+      player.elements[primaryElement] = Math.min(CULTIVATION_RATES.MAX_ELEMENT_AFFINITY, player.elements[primaryElement] + amount);
+      if (player.elements[primaryElement] > oldAffinity) {
+        modifiedCount++;
+      }
+
+      // Allow progress on complementary elements based on current realm
+      const complementaryElements = this.getComplementaryElements(primaryElement, player.realm);
+      complementaryElements.forEach(element => {
+        const oldAffinity = player.elements[element];
+        player.elements[element] = Math.min(CULTIVATION_RATES.MAX_ELEMENT_AFFINITY, player.elements[element] + amount);
+        if (player.elements[element] > oldAffinity) {
+          modifiedCount++;
+        }
+      });
+    }
+
+    console.log(`🐛 Debug: Added ${amount}% affinity to ${modifiedCount} unlocked elements`);
   }
 
   /**
@@ -619,20 +784,20 @@ export class Game {
     const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= CULTIVATION_RATES.MAX_ELEMENT_AFFINITY).length;
 
     console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.QiCondensation) }));
-    console.log(i18n.t('messages.breakthroughQiRequirement', { 
-      current: player.qi.toFixed(1), 
-      required: qiRequirement, 
-      status: player.qi >= qiRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughQiRequirement', {
+      current: player.qi.toFixed(1),
+      required: qiRequirement,
+      status: player.qi >= qiRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughMeridianRequirement', { 
-      current: openMeridians, 
-      required: meridianRequirement, 
-      status: openMeridians >= meridianRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughMeridianRequirement', {
+      current: openMeridians,
+      required: meridianRequirement,
+      status: openMeridians >= meridianRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughElementRequirement', { 
-      current: fullyCultivatedElements, 
-      required: elementRequirement, 
-      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughElementRequirement', {
+      current: fullyCultivatedElements,
+      required: elementRequirement,
+      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌'
     }));
 
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
@@ -669,20 +834,20 @@ export class Game {
     }
 
     console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.FoundationEstablishment) }));
-    console.log(i18n.t('messages.breakthroughQiRequirement', { 
-      current: player.qi.toFixed(1), 
-      required: qiRequirement, 
-      status: player.qi >= qiRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughQiRequirement', {
+      current: player.qi.toFixed(1),
+      required: qiRequirement,
+      status: player.qi >= qiRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughMeridianRequirement', { 
-      current: openMeridians, 
-      required: meridianRequirement, 
-      status: openMeridians >= meridianRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughMeridianRequirement', {
+      current: openMeridians,
+      required: meridianRequirement,
+      status: openMeridians >= meridianRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughElementRequirement', { 
-      current: fullyCultivatedElements, 
-      required: elementRequirement, 
-      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughElementRequirement', {
+      current: fullyCultivatedElements,
+      required: elementRequirement,
+      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌'
     }));
 
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
@@ -719,20 +884,20 @@ export class Game {
     }
 
     console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.CoreFormation) }));
-    console.log(i18n.t('messages.breakthroughQiRequirement', { 
-      current: player.qi.toFixed(1), 
-      required: qiRequirement, 
-      status: player.qi >= qiRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughQiRequirement', {
+      current: player.qi.toFixed(1),
+      required: qiRequirement,
+      status: player.qi >= qiRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughMeridianRequirement', { 
-      current: openMeridians, 
-      required: meridianRequirement, 
-      status: openMeridians >= meridianRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughMeridianRequirement', {
+      current: openMeridians,
+      required: meridianRequirement,
+      status: openMeridians >= meridianRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughElementRequirement', { 
-      current: fullyCultivatedElements, 
-      required: elementRequirement, 
-      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughElementRequirement', {
+      current: fullyCultivatedElements,
+      required: elementRequirement,
+      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌'
     }));
 
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
@@ -769,20 +934,20 @@ export class Game {
     }
 
     console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.NascentSoul) }));
-    console.log(i18n.t('messages.breakthroughQiRequirement', { 
-      current: player.qi.toFixed(1), 
-      required: qiRequirement, 
-      status: player.qi >= qiRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughQiRequirement', {
+      current: player.qi.toFixed(1),
+      required: qiRequirement,
+      status: player.qi >= qiRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughPurifiedMeridianRequirement', { 
-      current: openMeridians, 
-      required: meridianRequirement, 
-      status: openMeridians >= meridianRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughPurifiedMeridianRequirement', {
+      current: openMeridians,
+      required: meridianRequirement,
+      status: openMeridians >= meridianRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughElementRequirement', { 
-      current: fullyCultivatedElements, 
-      required: elementRequirement, 
-      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughElementRequirement', {
+      current: fullyCultivatedElements,
+      required: elementRequirement,
+      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌'
     }));
 
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
@@ -810,20 +975,20 @@ export class Game {
     const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= CULTIVATION_RATES.MAX_ELEMENT_AFFINITY).length;
 
     console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.DivineTransformation) }));
-    console.log(i18n.t('messages.breakthroughQiRequirement', { 
-      current: player.qi.toFixed(1), 
-      required: qiRequirement, 
-      status: player.qi >= qiRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughQiRequirement', {
+      current: player.qi.toFixed(1),
+      required: qiRequirement,
+      status: player.qi >= qiRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughHighlyPurifiedMeridianRequirement', { 
-      current: openMeridians, 
-      required: meridianRequirement, 
-      status: openMeridians >= meridianRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughHighlyPurifiedMeridianRequirement', {
+      current: openMeridians,
+      required: meridianRequirement,
+      status: openMeridians >= meridianRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughAllElementsRequirement', { 
-      current: fullyCultivatedElements, 
-      required: elementRequirement, 
-      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughAllElementsRequirement', {
+      current: fullyCultivatedElements,
+      required: elementRequirement,
+      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌'
     }));
 
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
@@ -851,20 +1016,20 @@ export class Game {
     const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= CULTIVATION_RATES.MAX_ELEMENT_AFFINITY).length;
 
     console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.VoidRefinement) }));
-    console.log(i18n.t('messages.breakthroughQiRequirement', { 
-      current: player.qi.toFixed(1), 
-      required: qiRequirement, 
-      status: player.qi >= qiRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughQiRequirement', {
+      current: player.qi.toFixed(1),
+      required: qiRequirement,
+      status: player.qi >= qiRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughPerfectMeridianRequirement', { 
-      current: openMeridians, 
-      required: meridianRequirement, 
-      status: openMeridians >= meridianRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughPerfectMeridianRequirement', {
+      current: openMeridians,
+      required: meridianRequirement,
+      status: openMeridians >= meridianRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughDivineElementsRequirement', { 
-      current: fullyCultivatedElements, 
-      required: elementRequirement, 
-      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughDivineElementsRequirement', {
+      current: fullyCultivatedElements,
+      required: elementRequirement,
+      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌'
     }));
 
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
@@ -891,21 +1056,21 @@ export class Game {
     const openMeridians = player.meridians.filter(m => m.isOpen && m.purity >= PURITY_THRESHOLDS.PERFECT).length;
     const fullyCultivatedElements = Object.values(player.elements).filter(affinity => affinity >= CULTIVATION_RATES.MAX_ELEMENT_AFFINITY).length;
 
-    console.log(i18n.t('messages.breakthroughRequirements', { realm: i18n.getRealmName(CultivationRealm.ImmortalAscension) }));
-    console.log(i18n.t('messages.breakthroughQiRequirement', { 
-      current: player.qi.toFixed(1), 
-      required: qiRequirement, 
-      status: player.qi >= qiRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughRequirements', { realm: this.getRealmName(CultivationRealm.ImmortalAscension) }));
+    console.log(i18n.t('messages.breakthroughQiRequirement', {
+      current: player.qi.toFixed(1),
+      required: qiRequirement,
+      status: player.qi >= qiRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughPerfectMeridianRequirement', { 
-      current: openMeridians, 
-      required: meridianRequirement, 
-      status: openMeridians >= meridianRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughPerfectMeridianRequirement', {
+      current: openMeridians,
+      required: meridianRequirement,
+      status: openMeridians >= meridianRequirement ? '✅' : '❌'
     }));
-    console.log(i18n.t('messages.breakthroughDivineElementsRequirement', { 
-      current: fullyCultivatedElements, 
-      required: elementRequirement, 
-      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌' 
+    console.log(i18n.t('messages.breakthroughDivineElementsRequirement', {
+      current: fullyCultivatedElements,
+      required: elementRequirement,
+      status: fullyCultivatedElements >= elementRequirement ? '✅' : '❌'
     }));
 
     if (player.qi >= qiRequirement && openMeridians >= meridianRequirement && fullyCultivatedElements >= elementRequirement) {
@@ -927,14 +1092,24 @@ export class Game {
 
     player.meridians.forEach((meridian, index) => {
       if (meridian.isOpen && meridian.purity < MERIDIAN_CONSTANTS.MAX_PURITY) {
-        // Purification rate based on realm and qi level
-        const basePurification = CULTIVATION_RATES.BASE_MERIDIAN_PURIFICATION; // Base purity gain per day
-        const realmMultiplier = Math.max(1, player.realm + 1); // Higher realms purify faster
-        const qiBonus = player.qi / player.maxQi * 0.5; // More qi = faster purification
-        const talentBonus = player.talent / MULTIPLIERS.TALENT_MERIDIAN_PURIFICATION;
+        // Reset breakthrough stage if purity drops below natural cap
+        if (meridian.purity < PURITY_THRESHOLDS.NATURAL_CAP) {
+          meridian.breakthroughStage = 0;
+        }
 
-        const purificationRate = basePurification * realmMultiplier * (1 + qiBonus + talentBonus);
-        meridian.purity = Math.min(MERIDIAN_CONSTANTS.MAX_PURITY, meridian.purity + purificationRate);
+        // Get effective cap based on breakthrough stage
+        const effectiveCap = this.getMeridianEffectiveCap(meridian);
+
+        if (meridian.purity < effectiveCap) {
+          // Purification rate based on realm and qi level
+          const basePurification = CULTIVATION_RATES.BASE_MERIDIAN_PURIFICATION; // Base purity gain per day
+          const realmMultiplier = Math.max(1, player.realm + 1); // Higher realms purify faster
+          const qiBonus = player.qi / player.maxQi * 0.5; // More qi = faster purification
+          const talentBonus = player.talent / MULTIPLIERS.TALENT_MERIDIAN_PURIFICATION;
+
+          const purificationRate = basePurification * realmMultiplier * (1 + qiBonus + talentBonus);
+          meridian.purity = Math.min(effectiveCap, meridian.purity + purificationRate);
+        }
       }
     });
   }
@@ -950,6 +1125,9 @@ export class Game {
     player.maxQi *= BREAKTHROUGH_EFFECTS.MAX_QI_MULTIPLIER; // 100x max qi on breakthrough to match exponential requirements
     player.qi = Math.max(BREAKTHROUGH_EFFECTS.MIN_QI_RETAINED, player.qi * BREAKTHROUGH_EFFECTS.QI_RETENTION_PERCENTAGE); // Reset qi but keep some
 
+    // Enable cultivation of complementary elements based on new realm
+    this.enableComplementaryElementCultivation(newRealm);
+
     // Record breakthrough in soul
     this.state.soul.cultivationInsights.realmBreakthroughs.push(oldRealm);
     if (newRealm > this.state.soul.maxRealmAchieved) {
@@ -958,6 +1136,31 @@ export class Game {
 
     console.log(i18n.t('messages.breakthroughAdvanced', { realm: this.getRealmName(newRealm) }));
     console.log(i18n.t('messages.maxQiIncreased', { maxQi: player.maxQi }));
+  }
+
+  /**
+   * Enable cultivation of complementary elements based on realm breakthrough
+   */
+  private enableComplementaryElementCultivation(newRealm: CultivationRealm): void {
+    const player = this.state.player;
+    const primaryElement = this.getPrimaryElement();
+
+    if (!primaryElement) return;
+
+    const oldComplementaryElements = this.getComplementaryElements(primaryElement, player.realm - 1);
+    const newComplementaryElements = this.getComplementaryElements(primaryElement, newRealm);
+
+    // Find newly unlocked elements
+    const newlyUnlockedElements = newComplementaryElements.filter(
+      element => !oldComplementaryElements.includes(element)
+    );
+
+    if (newlyUnlockedElements.length > 0) {
+      const elementNames = newlyUnlockedElements.map(element =>
+        i18n.getElementName(Object.values(Element).indexOf(element))
+      ).join(', ');
+      console.log(i18n.t('messages.elementCultivationEnabled', { elements: elementNames }));
+    }
   }
 
   /**
@@ -1000,7 +1203,7 @@ export class Game {
       const maxLossPercent = 0.03 + (player.realm * 0.01); // 3% for Mortal, 4% for Qi Condensation, etc.
       const lossPercent = this.random.float(baseLossPercent, maxLossPercent);
       const qiLoss = Math.max(1, Math.floor(player.qi * lossPercent));
-      
+
       player.qi = Math.max(0, player.qi - qiLoss);
       console.log(i18n.t('messages.tribulationChallengeFailure', { qi: qiLoss }));
     }
@@ -1020,11 +1223,11 @@ export class Game {
    */
   private enemyEncounter(): void {
     const enemy = this.generateRandomEnemy();
-    console.log(i18n.t('messages.enemyEncounter', { 
-      enemy: enemy.name, 
-      realm: enemy.realm, 
-      qi: enemy.qi, 
-      maxQi: enemy.maxQi 
+    console.log(i18n.t('messages.enemyEncounter', {
+      enemy: enemy.name,
+      realm: enemy.realm,
+      qi: enemy.qi,
+      maxQi: enemy.maxQi
     }));
 
     // Improved combat resolution with realm-scaled damage
@@ -1041,7 +1244,7 @@ export class Game {
       const maxDamagePercent = 0.08 + (player.realm * 0.02); // 8% for Mortal, 10% for Qi Condensation, etc.
       const damagePercent = this.random.float(baseDamagePercent, maxDamagePercent);
       const damage = Math.max(1, Math.floor(player.qi * damagePercent));
-      
+
       player.qi = Math.max(0, player.qi - damage);
       console.log(i18n.t('messages.enemyDefeatedBy', { enemy: enemy.name, damage: damage }));
     }
@@ -1176,7 +1379,7 @@ export class Game {
     // Scale enemy qi based on realm for better balance
     let qiMin = 20, qiMax = 80; // Base values for Mortal realm
     let maxQiMin = 50, maxQiMax = 150;
-    
+
     if (realm >= CultivationRealm.QiCondensation) {
       qiMin = 50; qiMax = 150;
       maxQiMin = 100; maxQiMax = 250;
@@ -1283,13 +1486,13 @@ export class Game {
       let baseAbsorption = 0;
       switch (player.realm) {
         case CultivationRealm.Mortal:
-          baseAbsorption = 0.05;
+          baseAbsorption = REALM_QI_GATHERING[CultivationRealm.Mortal].ENHANCED_ABSORPTION;
           break;
         case CultivationRealm.QiCondensation:
-          baseAbsorption = 0.2;
+          baseAbsorption = REALM_QI_GATHERING[CultivationRealm.QiCondensation].BASE_ABSORPTION;
           break;
         case CultivationRealm.FoundationEstablishment:
-          baseAbsorption = 0.5;
+          baseAbsorption = REALM_QI_GATHERING[CultivationRealm.FoundationEstablishment].BASE_ABSORPTION;
           break;
         default:
           baseAbsorption = 0.1; // Default for unimplemented realms
@@ -1330,9 +1533,9 @@ export class Game {
       successRate += Math.abs(soul.karmicBalance) / 1000; // Karma helps with karmic tribulations
     }
 
-    console.log(i18n.t('messages.tribulationStart', { 
-      type: type.toUpperCase(), 
-      rate: (successRate * 100).toFixed(1) 
+    console.log(i18n.t('messages.tribulationStart', {
+      type: type.toUpperCase(),
+      rate: (successRate * 100).toFixed(1)
     }));
 
     if (this.random.chance(successRate)) {
@@ -1349,6 +1552,10 @@ export class Game {
         if (openMeridians.length > 0) {
           const damagedMeridian = this.random.choice(openMeridians);
           damagedMeridian.purity = Math.max(0, damagedMeridian.purity - this.random.int(10, 30));
+          // Reset breakthrough stage if purity drops below natural cap
+          if (damagedMeridian.purity < PURITY_THRESHOLDS.NATURAL_CAP) {
+            damagedMeridian.breakthroughStage = 0;
+          }
           console.log(`💔 Meridian ${i18n.getMeridianName(player.meridians.indexOf(damagedMeridian))} damaged! Purity reduced.`);
         }
       }

@@ -52,6 +52,13 @@ export interface Translations {
     breakthrough: string;
     alreadyMaxRealm: string;
     breakthroughNotAvailable: string;
+    debugPanel: string;
+    addQi: string;
+    debugTitle: string;
+    addCultivation: string;
+    addMeridians: string;
+    addElements: string;
+    qiUnit: string;
   };
 
   // Game Status
@@ -125,6 +132,15 @@ export interface Translations {
     meridianAttemptFailed: string;
     meridianPurified: string;
     meridianOpeningFailed: string;
+    meridianBreakthroughAttempt: string;
+    meridianBreakthroughSuccess: string;
+    meridianBreakthroughStageAdvanced: string;
+    meridianBreakthroughFailed: string;
+    meridianBreakthroughNotEnoughQi: string;
+    meridianBreakthroughNotOpen: string;
+    meridianBreakthroughNotReady: string;
+    meridianBreakthroughAlreadyPerfect: string;
+    meridianBreakthroughInvalidIndex: string;
     breakthroughAttempt: string;
     breakthroughSuccess: string;
     breakthroughFailed: string;
@@ -159,6 +175,7 @@ export interface Translations {
     tribulationSuccess: string;
     breakthroughAdvanced: string;
     maxQiIncreased: string;
+    elementCultivationEnabled: string;
   };
 }
 
@@ -209,6 +226,13 @@ export const translations: Record<Language, Translations> = {
       breakthrough: 'Breakthrough',
       alreadyMaxRealm: 'Already at maximum realm!',
       breakthroughNotAvailable: 'Breakthrough not available for current realm.',
+      debugPanel: 'Debug Panel',
+      addQi: 'Add 10 Qi',
+      debugTitle: 'Debug Panel',
+      addCultivation: 'Add Cultivation (10 Qi + 10% Meridians + 10% Elements)',
+      addMeridians: 'Add 10% Meridians',
+      addElements: 'Add 10% Elements',
+      qiUnit: 'qi',
     },
     status: {
       player: 'Player',
@@ -270,6 +294,15 @@ export const translations: Record<Language, Translations> = {
       meridianAttemptFailed: '❌ Failed to open {meridian} meridian.',
       meridianPurified: '✨ {meridian} purified to {purity}%',
       meridianOpeningFailed: '❌ Failed to open {meridian} meridian. Success chance: {chance}%. Consumed {qi} qi.',
+      meridianBreakthroughAttempt: '🔥 Attempting meridian breakthrough for {meridian}. Cost: {qi} qi. Success chance: {chance}%',
+      meridianBreakthroughSuccess: '🎉 Meridian breakthrough successful! {meridian} purity increased from {oldPurity}% to {newPurity}%. Consumed {qi} qi.',
+      meridianBreakthroughStageAdvanced: '⭐ {meridian} breakthrough stage advanced from {oldStage} to {newStage}!',
+      meridianBreakthroughFailed: '💔 Meridian breakthrough failed. {meridian} purity decreased by {purityLoss}%. Consumed {qi} qi.',
+      meridianBreakthroughNotEnoughQi: '❌ Not enough qi for meridian breakthrough. Required: {qi} qi.',
+      meridianBreakthroughNotOpen: '❌ Cannot breakthrough {meridian} - meridian is not open.',
+      meridianBreakthroughNotReady: '❌ Cannot breakthrough {meridian} - requires {required}% purity first.',
+      meridianBreakthroughAlreadyPerfect: '✨ {meridian} is already at perfect purity.',
+      meridianBreakthroughInvalidIndex: '❌ Invalid meridian index.',
       breakthroughAttempt: '⚡ Attempting breakthrough to {realm}...',
       breakthroughSuccess: '🎉 Breakthrough successful! Reached {realm}!',
       breakthroughFailed: '💔 Breakthrough failed. Cultivation insights gained.',
@@ -304,6 +337,7 @@ export const translations: Record<Language, Translations> = {
       tribulationSuccess: '✨ Tribulation overcome! Breakthrough successful!',
       breakthroughAdvanced: '🚀 Breakthrough successful! Advanced to {realm} realm!',
       maxQiIncreased: '💎 Max Qi increased to {maxQi}',
+      elementCultivationEnabled: '🌟 New elements available for cultivation: {elements}',
     },
   },
   vi: {
@@ -352,6 +386,13 @@ export const translations: Record<Language, Translations> = {
       breakthrough: 'Đột Phá',
       alreadyMaxRealm: 'Đã đạt cảnh giới cao nhất!',
       breakthroughNotAvailable: 'Đột phá không khả dụng cho cảnh giới hiện tại.',
+      debugPanel: 'Bảng Gỡ Lỗi',
+      addQi: 'Thêm 10 Khí',
+      debugTitle: 'Bảng Gỡ Lỗi',
+      addCultivation: 'Thêm Tu Luyện (10 Khí + 10% Kinh Mạch + 10% Ngũ Hành)',
+      addMeridians: 'Thêm 10% Kinh Mạch',
+      addElements: 'Thêm 10% Ngũ Hành',
+      qiUnit: 'khí',
     },
     status: {
       player: 'Người Chơi',
@@ -413,6 +454,15 @@ export const translations: Record<Language, Translations> = {
       meridianAttemptFailed: '❌ Thất bại khi mở kinh mạch {meridian}.',
       meridianPurified: '✨ Kinh mạch {meridian} tinh lọc đạt {purity}%',
       meridianOpeningFailed: '❌ Thất bại khi mở kinh mạch {meridian}. Tỷ lệ thành công: {chance}%. Tiêu thụ {qi} khí.',
+      meridianBreakthroughAttempt: '🔥 Thử đột phá kinh mạch {meridian}. Chi phí: {qi} khí. Tỷ lệ thành công: {chance}%',
+      meridianBreakthroughSuccess: '🎉 Đột phá kinh mạch thành công! {meridian} độ tinh khiết tăng từ {oldPurity}% lên {newPurity}%. Tiêu thụ {qi} khí.',
+      meridianBreakthroughStageAdvanced: '⭐ {meridian} cấp độ đột phá tăng từ {oldStage} lên {newStage}!',
+      meridianBreakthroughFailed: '💔 Đột phá kinh mạch thất bại. {meridian} độ tinh khiết giảm {purityLoss}%. Tiêu thụ {qi} khí.',
+      meridianBreakthroughNotEnoughQi: '❌ Không đủ khí để đột phá kinh mạch. Cần: {qi} khí.',
+      meridianBreakthroughNotOpen: '❌ Không thể đột phá {meridian} - kinh mạch chưa mở.',
+      meridianBreakthroughNotReady: '❌ Không thể đột phá {meridian} - cần đạt {required}% độ tinh khiết trước.',
+      meridianBreakthroughAlreadyPerfect: '✨ {meridian} đã đạt độ tinh khiết hoàn hảo.',
+      meridianBreakthroughInvalidIndex: '❌ Chỉ số kinh mạch không hợp lệ.',
       breakthroughAttempt: '⚡ Đang thử đột phá lên {realm}...',
       breakthroughSuccess: '🎉 Đột phá thành công! Đạt {realm}!',
       breakthroughFailed: '💔 Đột phá thất bại. Nhận được hiểu biết tu luyện.',
@@ -447,6 +497,7 @@ export const translations: Record<Language, Translations> = {
       tribulationSuccess: '✨ Vượt qua kiếp nạn! Đột phá thành công!',
       breakthroughAdvanced: '🚀 Đột phá thành công! Tiến lên cảnh giới {realm}!',
       maxQiIncreased: '💎 Khí tối đa tăng lên {maxQi}',
+      elementCultivationEnabled: '🌟 Ngũ hành mới có thể tu luyện: {elements}',
     },
   },
 };

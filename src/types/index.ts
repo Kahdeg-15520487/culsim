@@ -122,6 +122,7 @@ export interface Meridian {
   name: string;
   isOpen: boolean;
   purity: number; // 0-100
+  breakthroughStage: number; // 0 = natural cap (50%), 1 = purified (80%), 2 = highly purified (95%), 3 = perfect (100%)
 }
 
 // Element Affinities

@@ -1,7 +1,7 @@
 import { Game } from './core/Game';
 import { Player, Element } from './types/index';
 import { i18n } from './utils/i18n';
-import { MERIDIAN_CONSTANTS } from './core/constants';
+import { MERIDIAN_CONSTANTS, PURITY_THRESHOLDS, MERIDIAN_BREAKTHROUGH } from './core/constants';
 
 // Web UI elements
 const playerStatusEl = document.getElementById('player-status')!;
@@ -25,6 +25,10 @@ const cultivationTitleEl = document.getElementById('cultivation-title')!;
 const meridiansTitleEl = document.getElementById('meridians-title')!;
 const elementsTitleEl = document.getElementById('elements-title')!;
 const timeTitleEl = document.getElementById('time-title')!;
+const debugTitleEl = document.getElementById('debug-title')!;
+const debugAddQiBtn = document.getElementById('debug-add-qi-btn') as HTMLButtonElement;
+const debugAddMeridianBtn = document.getElementById('debug-add-meridian-btn') as HTMLButtonElement;
+const debugAddElementBtn = document.getElementById('debug-add-element-btn') as HTMLButtonElement;
 
 // Utility function to format days into years/months/days
 function formatDays(days: number): string {
@@ -85,7 +89,12 @@ clearBtn.id = 'clear-btn';
 
 // Add language selector to controls
 const controlsEl = document.querySelector('.controls')!;
-controlsEl.appendChild(languageSelect);
+const languageContainer = document.createElement('div');
+languageContainer.style.display = 'inline-block';
+languageContainer.style.marginRight = '20px';
+languageContainer.innerHTML = '<label for="language-select" style="margin-right: 5px;">🌐 Language:</label>';
+languageContainer.appendChild(languageSelect);
+controlsEl.insertBefore(languageContainer, controlsEl.firstChild);
 
 // Add spacing between language selector and save/load buttons
 const spacer = document.createElement('span');
@@ -180,10 +189,21 @@ function updateUI() {
     const name = i18n.getMeridianName(index);
     const displayName = name.length > 15 ? name.substring(0, 12) + '...' : name;
     const info = meridian.isOpen ? '' : ` (${i18n.t('ui.meridianReq', { qi: MERIDIAN_CONSTANTS.OPENING_BASE_COST + (index * MERIDIAN_CONSTANTS.OPENING_COST_INCREMENT) })})`;
-    return `${status} ${displayName}${purity}${info}`;
-  }).join('<br>');
 
-  // Update elements info with primary/complementary distinction
+    // Add breakthrough button if meridian is eligible
+    const currentCap = game.getMeridianEffectiveCap(meridian);
+    const isBreakthroughEligible = meridian.isOpen && meridian.purity >= currentCap && meridian.breakthroughStage < 3;
+    const breakthroughButton = isBreakthroughEligible
+      ? (() => {
+          const baseQiCost = (index + 1) * MERIDIAN_BREAKTHROUGH.QI_COST_MULTIPLIER;
+          const stageMultiplier = 1 + (meridian.breakthroughStage * 10);
+          const qiCost = baseQiCost * stageMultiplier;
+          return `<button class="meridian-breakthrough-btn" data-meridian-index="${index}" style="background: #007bff; color: white; border: none; padding: 2px 6px; margin-right: 5px; cursor: pointer; border-radius: 3px; font-size: 0.8em;">${qiCost} ${i18n.t('ui.qiUnit')}</button>`;
+        })()
+      : '';
+
+    return `${status} ${breakthroughButton}${displayName}${purity}${info}`;
+  }).join('<br>');  // Update elements info with primary/complementary distinction
   const primaryElement = game.getPrimaryElement();
   const complementaryElements = primaryElement ? game.getComplementaryElements(primaryElement, player.realm) : [];
 
@@ -214,12 +234,16 @@ function updateUIText() {
   meridiansTitleEl.textContent = i18n.t('ui.meridianInfo');
   elementsTitleEl.textContent = i18n.t('status.elements');
   timeTitleEl.textContent = i18n.t('ui.timeInfo');
+  debugTitleEl.textContent = i18n.t('ui.debugTitle');
 
   // Update button texts
   startBtn.textContent = isRunning ? i18n.t('ui.stopGame') : i18n.t('ui.startGame');
   pauseBtn.textContent = i18n.t('ui.pauseGame');
   cultivateBtn.textContent = i18n.t('ui.cultivate');
   unlockMeridianBtn.textContent = i18n.t('ui.unlockSelectedMeridian');
+  debugAddQiBtn.textContent = i18n.t('ui.addQi');
+  debugAddMeridianBtn.textContent = i18n.t('ui.addMeridians');
+  debugAddElementBtn.textContent = i18n.t('ui.addElements');
   saveBtn.textContent = i18n.t('ui.saveGame');
   loadBtn.textContent = i18n.t('ui.loadGame');
   clearBtn.textContent = i18n.t('ui.clearSavedGame');
@@ -335,6 +359,30 @@ breakthroughBtn.addEventListener('click', () => {
   updateUI(); // Refresh UI to show changes
 });
 
+debugAddQiBtn.addEventListener('click', () => {
+  if (!game) return;
+
+  // Debug: Add 10 qi to player
+  game.debugAddQi();
+  updateUI(); // Refresh UI to show changes
+});
+
+debugAddMeridianBtn.addEventListener('click', () => {
+  if (!game) return;
+
+  // Debug: Add 10% to meridians
+  game.debugAddMeridianProgress(10);
+  updateUI(); // Refresh UI to show changes
+});
+
+debugAddElementBtn.addEventListener('click', () => {
+  if (!game) return;
+
+  // Debug: Add 10% to elements
+  game.debugAddElementProgress(10);
+  updateUI(); // Refresh UI to show changes
+});
+
 saveBtn.addEventListener('click', () => {
   if (game) {
     game.saveGame();
@@ -359,7 +407,19 @@ clearBtn.addEventListener('click', () => {
   if (typeof window !== 'undefined' && window.localStorage) {
     const confirmed = confirm(i18n.t('ui.confirmClearSavedGame'));
     if (confirmed) {
+      // Stop current game if running
+      if (game && isRunning) {
+        game.stop();
+        isRunning = false;
+        stopUIUpdates();
+      }
+
+      // Clear saved game
       localStorage.removeItem('culsim-save');
+
+      // Start new game
+      startNewGame();
+
       logMessage(i18n.t('ui.savedGameCleared'));
     }
   }
@@ -389,16 +449,25 @@ unlockMeridianBtn.addEventListener('click', () => {
   }
 });
 
+// Meridian breakthrough event listener (event delegation for dynamic buttons)
+meridianInfoEl.addEventListener('click', (event) => {
+  const target = event.target as HTMLElement;
+  if (target.classList.contains('meridian-breakthrough-btn')) {
+    const meridianIndex = parseInt(target.getAttribute('data-meridian-index') || '-1');
+    if (meridianIndex >= 0 && game) {
+      // Attempt meridian breakthrough
+      game.attemptMeridianBreakthrough(meridianIndex);
+      updateUI(); // Refresh UI to show changes
+    }
+  }
+});
+
 // Language selector event listener
 languageSelect.addEventListener('change', () => {
   const selectedLanguage = languageSelect.value as 'en' | 'vi';
   i18n.setLanguage(selectedLanguage);
-
-  // Update all UI text
-  updateUIText();
-
-  // Refresh UI with new language
-  updateUI();
+  updateUIText(); // Update all UI text elements
+  updateUI(); // Refresh UI to show changes
 });
 
 // Initial UI setup

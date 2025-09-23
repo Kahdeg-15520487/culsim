@@ -94,6 +94,8 @@ export const MERIDIAN_CONSTANTS = {
  * Purity thresholds for breakthrough requirements
  */
 export const PURITY_THRESHOLDS = {
+  /** Natural purification cap without breakthrough */
+  NATURAL_CAP: 50,
   /** Minimum purity for Core Formation breakthrough */
   PURIFIED: 80,
   /** Minimum purity for Nascent Soul breakthrough */
@@ -139,6 +141,56 @@ export const CULTIVATION_RATES = {
   BASE_ELEMENT_GROWTH: 0.1,
   /** Maximum element affinity */
   MAX_ELEMENT_AFFINITY: 100,
+} as const;
+
+/**
+ * Realm-specific qi gathering rates (base absorption per day)
+ */
+export const REALM_QI_GATHERING = {
+  [CultivationRealm.Mortal]: {
+    /** Basic qi absorption without meridians */
+    BASIC_ABSORPTION: 0.1,
+    /** Enhanced qi absorption with open meridians */
+    ENHANCED_ABSORPTION: 0.05,
+  },
+  [CultivationRealm.QiCondensation]: {
+    /** Base qi absorption for Qi Condensation realm */
+    BASE_ABSORPTION: 0.2,
+  },
+  [CultivationRealm.FoundationEstablishment]: {
+    /** Base qi absorption for Foundation Establishment realm */
+    BASE_ABSORPTION: 0.5,
+  },
+  [CultivationRealm.CoreFormation]: {
+    /** Base qi absorption for Core Formation realm */
+    BASE_ABSORPTION: 1.0,
+    /** Additional realm multiplier */
+    REALM_MULTIPLIER: 1.5,
+  },
+  [CultivationRealm.NascentSoul]: {
+    /** Base qi absorption for Nascent Soul realm */
+    BASE_ABSORPTION: 2.0,
+    /** Additional realm multiplier */
+    REALM_MULTIPLIER: 2.0,
+  },
+  [CultivationRealm.DivineTransformation]: {
+    /** Base qi absorption for Divine Transformation realm */
+    BASE_ABSORPTION: 3.0,
+    /** Additional realm multiplier */
+    REALM_MULTIPLIER: 2.5,
+  },
+  [CultivationRealm.VoidRefinement]: {
+    /** Base qi absorption for Void Refinement realm */
+    BASE_ABSORPTION: 4.0,
+    /** Additional realm multiplier */
+    REALM_MULTIPLIER: 3.0,
+  },
+  [CultivationRealm.ImmortalAscension]: {
+    /** Base qi absorption for Immortal Ascension realm */
+    BASE_ABSORPTION: 5.0,
+    /** Additional realm multiplier */
+    REALM_MULTIPLIER: 4.0,
+  },
 } as const;
 
 /**
@@ -203,4 +255,20 @@ export const RANDOM_EVENTS = {
 export const UI_CONSTANTS = {
   /** UI update interval in milliseconds */
   UPDATE_INTERVAL_MS: 1000,
+} as const;
+
+/**
+ * Meridian breakthrough constants
+ */
+export const MERIDIAN_BREAKTHROUGH = {
+  /** Qi cost multiplier for meridian breakthrough (based on meridian index) */
+  QI_COST_MULTIPLIER: 100,
+  /** Base success chance for meridian breakthrough */
+  BASE_SUCCESS_CHANCE: 0.6,
+  /** Talent bonus divisor for breakthrough success */
+  TALENT_BONUS_DIVISOR: 200,
+  /** Purity gained on successful breakthrough */
+  BREAKTHROUGH_PURITY_GAIN: 1,
+  /** Qi cost fraction consumed per breakthrough attempt */
+  ATTEMPT_COST_FRACTION: 0.5,
 } as const;
