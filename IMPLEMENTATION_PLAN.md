@@ -82,35 +82,35 @@
 
 **Tasks**:
 - [x] Create Player entity with basic attributes
-- [ ] Implement Soul entity for reincarnation
-- [ ] Create Enemy/NPC entity system
-- [ ] Set up entity state persistence
-- [ ] Implement entity serialization/deserialization
+- [x] Implement Soul entity for reincarnation
+- [x] Create Enemy/NPC entity system
+- [x] Set up entity state persistence
+- [x] Implement entity serialization/deserialization
 
 **Definition of Done**:
 - [x] Player entity created with basic stats (health, qi, etc.)
-- [ ] Soul entity tracks persistent data across lives
-- [ ] Basic enemy entities can be created and managed
-- [ ] Entity data persists between game sessions
-- [ ] Entity system supports CRUD operations
+- [x] Soul entity tracks persistent data across lives
+- [x] Basic enemy entities can be created and managed
+- [x] Entity data persists between game sessions
+- [x] Entity system supports CRUD operations
 
 ### 1.4 Randomization & Seeding System
 **Timeline**: Week 4
 **Priority**: High
 
 **Tasks**:
-- [ ] Implement seeded random number generation
-- [ ] Create weighted probability system
-- [ ] Add realm/talent-based probability modifiers
-- [ ] Implement reproducible outcomes for testing
-- [ ] Create fair progression curve validation
+- [x] Implement seeded random number generation
+- [x] Create weighted probability system
+- [x] Add realm/talent-based probability modifiers
+- [x] Implement reproducible outcomes for testing
+- [x] Create fair progression curve validation
 
 **Definition of Done**:
-- [ ] Random events are reproducible with same seed
-- [ ] Probabilities adjust based on cultivation realm
-- [ ] Talent affects random outcomes appropriately
-- [ ] Progression curves are mathematically fair
-- [ ] Random system passes statistical tests
+- [x] Random events are reproducible with same seed
+- [x] Probabilities adjust based on cultivation realm
+- [x] Talent affects random outcomes appropriately
+- [x] Progression curves are mathematically fair
+- [x] Random system passes statistical tests
 
 ## Phase 2: Cultivation System (Weeks 5-10)
 
