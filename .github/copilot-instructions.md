@@ -252,3 +252,9 @@ src/
 - Optimize time progression calculations (tối ưu hóa tính toán tiến trình thời gian)
 - Cache frequently accessed cultivation formulas (lưu trữ bộ nhớ đệm các công thức tu luyện được truy cập thường xuyên)
 - Use efficient data structures for large numbers of artifacts/events (sử dụng cấu trúc dữ liệu hiệu quả cho số lượng lớn pháp bảo/sự kiện)
+
+reference IMPLEMENTATION_PLAN.md for detailed development roadmap.
+
+run npm run build to generate the dist/ folder.
+run npm test to execute tests.
+do not run npm run dev as i will run the game in a browser environment.

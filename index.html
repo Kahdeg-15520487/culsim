@@ -69,19 +69,27 @@
 </head>
 <body>
   <div class="container">
-    <h1>🏮 CULSIM - Cultivation Simulator 🏮</h1>
+    <h1 id="game-title">🏮 CULSIM - Cultivation Simulator 🏮</h1>
 
     <div class="game-info">
       <div class="info-card">
-        <h3>Player Status</h3>
+        <h3 id="player-status-title">Player Status</h3>
         <div id="player-status">Loading...</div>
       </div>
       <div class="info-card">
-        <h3>Cultivation</h3>
+        <h3 id="cultivation-title">Cultivation</h3>
         <div id="cultivation-info">Loading...</div>
       </div>
       <div class="info-card">
-        <h3>Time</h3>
+        <h3 id="meridians-title">Meridians</h3>
+        <div id="meridian-info">Loading...</div>
+        <div id="meridian-controls" style="margin-top: 10px;">
+          <select id="meridian-select" style="width: 100%; margin-bottom: 5px;"></select>
+          <button id="unlock-meridian-btn" style="width: 100%;">Unlock Selected Meridian</button>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3 id="time-title">Time</h3>
         <div id="time-info">Loading...</div>
       </div>
     </div>
