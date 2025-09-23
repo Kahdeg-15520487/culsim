@@ -13,11 +13,13 @@ export class Random {
 
   /**
    * Generate a random number between 0 and 1
+   * Using improved LCG parameters for better randomness
    */
   random(): number {
-    // Simple LCG (Linear Congruential Generator)
-    this.seed = (this.seed * 9301 + 49297) % 233280;
-    return this.seed / 233280;
+    // Minimal Standard LCG parameters (Park & Miller, 1988)
+    // multiplier: 16807, increment: 0, modulus: 2147483647
+    this.seed = (16807 * this.seed) % 2147483647;
+    return (this.seed - 1) / 2147483646; // Normalize to [0, 1)
   }
 
   /**

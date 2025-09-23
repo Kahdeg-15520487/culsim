@@ -132,7 +132,7 @@ export class Game {
     }
 
     // Random events (simplified for now)
-    if (this.random.chance(0.05)) { // 5% chance per tick
+    if (this.random.chance(0.02)) { // 2% chance per tick (less frequent)
       this.processRandomEvent();
     }
 
@@ -144,10 +144,10 @@ export class Game {
    */
   private processRandomEvent(): void {
     const events = [
-      { name: 'Fortuitous Encounter', chance: 0.3, effect: () => this.fortuitousEncounter() },
-      { name: 'Tribulation Challenge', chance: 0.2, effect: () => this.tribulationChallenge() },
-      { name: 'Karmic Reward', chance: 0.3, effect: () => this.karmicReward() },
-      { name: 'Enemy Encounter', chance: 0.2, effect: () => this.enemyEncounter() }
+      { name: 'Fortuitous Encounter', chance: 0.25, effect: () => this.fortuitousEncounter() },
+      { name: 'Tribulation Challenge', chance: 0.25, effect: () => this.tribulationChallenge() },
+      { name: 'Karmic Reward', chance: 0.25, effect: () => this.karmicReward() },
+      { name: 'Enemy Encounter', chance: 0.25, effect: () => this.enemyEncounter() }
     ];
 
     const event = this.random.weightedChoice(events, events.map(e => e.chance));
