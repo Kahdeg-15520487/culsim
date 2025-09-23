@@ -515,7 +515,6 @@ export class Game {
       const serializedState = this.serializeGameState();
       if (typeof window !== 'undefined' && window.localStorage) {
         localStorage.setItem('culsim-save', serializedState);
-        console.log('💾 Game saved successfully!');
       }
     } catch (error) {
       console.error('Failed to save game:', error);
@@ -528,7 +527,6 @@ export class Game {
   private autoSave(): void {
     this.saveGame();
     this.lastAutoSaveTime = this.state.time;
-    console.log(i18n.t('ui.autoSaved'));
   }
 
   /**
