@@ -48,6 +48,10 @@ export interface Translations {
     startingNewGame: string;
     autoLoadingGame: string;
     autoSaved: string;
+    manualCultivationComplete: string;
+    breakthrough: string;
+    alreadyMaxRealm: string;
+    breakthroughNotAvailable: string;
   };
 
   // Game Status
@@ -95,6 +99,23 @@ export interface Translations {
     liver: string;
   };
 
+  // Element Names
+  elements: {
+    metal: string;
+    wood: string;
+    water: string;
+    fire: string;
+    earth: string;
+  };
+
+  // Event Names
+  events: {
+    fortuitousEncounter: string;
+    tribulationChallenge: string;
+    karmicReward: string;
+    enemyEncounter: string;
+  };
+
   // Game Messages
   messages: {
     startingJourney: string;
@@ -103,9 +124,21 @@ export interface Translations {
     day: string;
     meridianAttemptFailed: string;
     meridianPurified: string;
+    meridianOpeningFailed: string;
     breakthroughAttempt: string;
     breakthroughSuccess: string;
     breakthroughFailed: string;
+    breakthroughRequirements: string;
+    breakthroughQiRequirement: string;
+    breakthroughMeridianRequirement: string;
+    breakthroughPurifiedMeridianRequirement: string;
+    breakthroughHighlyPurifiedMeridianRequirement: string;
+    breakthroughPerfectMeridianRequirement: string;
+    breakthroughElementRequirement: string;
+    breakthroughAllElementsRequirement: string;
+    breakthroughDivineElementsRequirement: string;
+    breakthroughRequirementsMet: string;
+    breakthroughRequirementsNotMet: string;
     reincarnation: string;
     lifetimeSummary: string;
     totalQiGathered: string;
@@ -114,6 +147,18 @@ export interface Translations {
     cultivationInsights: string;
     artifactsPreserved: string;
     newLifeBegins: string;
+    randomEvent: string;
+    fortuitousEncounter: string;
+    tribulationChallengeSuccess: string;
+    tribulationChallengeFailure: string;
+    karmicReward: string;
+    enemyEncounter: string;
+    enemyDefeated: string;
+    enemyDefeatedBy: string;
+    tribulationStart: string;
+    tribulationSuccess: string;
+    breakthroughAdvanced: string;
+    maxQiIncreased: string;
   };
 }
 
@@ -160,6 +205,10 @@ export const translations: Record<Language, Translations> = {
       startingNewGame: 'Starting new cultivation journey...',
       autoLoadingGame: 'Auto-loading saved game...',
       autoSaved: '🔄 Auto-saved game progress!',
+      manualCultivationComplete: '✨ Manual cultivation complete! Gained {qi} qi.',
+      breakthrough: 'Breakthrough',
+      alreadyMaxRealm: 'Already at maximum realm!',
+      breakthroughNotAvailable: 'Breakthrough not available for current realm.',
     },
     status: {
       player: 'Player',
@@ -200,6 +249,19 @@ export const translations: Record<Language, Translations> = {
       gallbladder: 'Gallbladder',
       liver: 'Liver',
     },
+    elements: {
+      metal: 'Metal (金)',
+      wood: 'Wood (木)',
+      water: 'Water (水)',
+      fire: 'Fire (火)',
+      earth: 'Earth (土)',
+    },
+    events: {
+      fortuitousEncounter: 'Fortuitous Encounter',
+      tribulationChallenge: 'Tribulation Challenge',
+      karmicReward: 'Karmic Reward',
+      enemyEncounter: 'Enemy Encounter',
+    },
     messages: {
       startingJourney: '🌅 Starting your cultivation journey...\n',
       cultivationSessionEnded: '🏮 Cultivation session ended.',
@@ -207,9 +269,21 @@ export const translations: Record<Language, Translations> = {
       day: 'Day',
       meridianAttemptFailed: '❌ Failed to open {meridian} meridian.',
       meridianPurified: '✨ {meridian} purified to {purity}%',
+      meridianOpeningFailed: '❌ Failed to open {meridian} meridian. Success chance: {chance}%. Consumed {qi} qi.',
       breakthroughAttempt: '⚡ Attempting breakthrough to {realm}...',
       breakthroughSuccess: '🎉 Breakthrough successful! Reached {realm}!',
       breakthroughFailed: '💔 Breakthrough failed. Cultivation insights gained.',
+      breakthroughRequirements: '📋 Requirements for {realm} breakthrough:',
+      breakthroughQiRequirement: '   💎 Qi: {current}/{required} {status}',
+      breakthroughMeridianRequirement: '   🫀 Open Meridians: {current}/{required} {status}',
+      breakthroughPurifiedMeridianRequirement: '   🫀 Purified Meridians (80%+): {current}/{required} {status}',
+      breakthroughHighlyPurifiedMeridianRequirement: '   🫀 Highly Purified Meridians (95%+): {current}/{required} {status}',
+      breakthroughPerfectMeridianRequirement: '   🫀 Perfect Meridians (100%): {current}/{required} {status}',
+      breakthroughElementRequirement: '   🌟 Fully Cultivated Elements: {current}/{required} {status}',
+      breakthroughAllElementsRequirement: '   🌟 All Elements Mastered: {current}/{required} {status}',
+      breakthroughDivineElementsRequirement: '   🌟 Divine Elements: {current}/{required} {status}',
+      breakthroughRequirementsMet: '🎯 Requirements met! Facing {tribulation} tribulation...',
+      breakthroughRequirementsNotMet: '❌ Breakthrough requirements not met. Continue cultivating!',
       reincarnation: '🔄 Reincarnating...',
       lifetimeSummary: '📈 Lifetime Summary:',
       totalQiGathered: 'Total Qi Gathered: {qi}',
@@ -218,6 +292,18 @@ export const translations: Record<Language, Translations> = {
       cultivationInsights: 'Cultivation Insights: {insights}',
       artifactsPreserved: 'Artifacts Preserved: {artifacts}',
       newLifeBegins: '🌱 New life begins...',
+      randomEvent: '🎲 Random Event: {event}',
+      fortuitousEncounter: '✨ Met a mysterious master! Talent increased by {talent}.',
+      tribulationChallengeSuccess: '⚡ Survived a minor tribulation! Gained {insights} tribulation insights.',
+      tribulationChallengeFailure: '💥 Failed tribulation challenge! Lost {qi} qi.',
+      karmicReward: '🙏 Performed a good deed! Karmic balance increased by {karma}.',
+      enemyEncounter: '👹 Encountered {enemy} (Realm: {realm}, Qi: {qi}/{maxQi})',
+      enemyDefeated: '✅ Defeated {enemy}!',
+      enemyDefeatedBy: '❌ Defeated by {enemy}! Lost {damage} qi.',
+      tribulationStart: '⚡ Heavenly Tribulation: {type}! Success rate: {rate}%',
+      tribulationSuccess: '✨ Tribulation overcome! Breakthrough successful!',
+      breakthroughAdvanced: '🚀 Breakthrough successful! Advanced to {realm} realm!',
+      maxQiIncreased: '💎 Max Qi increased to {maxQi}',
     },
   },
   vi: {
@@ -248,7 +334,7 @@ export const translations: Record<Language, Translations> = {
       notEnoughQi: 'Không đủ khí! Cần {qi} khí để thử mở {meridian}.',
       meridianOpened: 'Đã mở thành công kinh mạch {meridian}!',
       loading: 'Đang tải...',
-      gameTitle: '🏮 CULSIM - Trò Chơi Tu Luyện Trung Hoa 🏮',
+      gameTitle: '🏮 CULSIM - Trò Chơi Tu Luyện 🏮',
       maxRealm: 'Cảnh Giới Cao Nhất',
       breakthroughs: 'Đột Phá',
       qiGathering: 'Thu Thập Khí',
@@ -262,6 +348,10 @@ export const translations: Record<Language, Translations> = {
       startingNewGame: 'Bắt đầu hành trình tu luyện mới...',
       autoLoadingGame: 'Đang tự động tải trò chơi đã lưu...',
       autoSaved: '🔄 Tự động lưu tiến trình trò chơi!',
+      manualCultivationComplete: '✨ Tu luyện thủ công hoàn thành! Nhận được {qi} khí.',
+      breakthrough: 'Đột Phá',
+      alreadyMaxRealm: 'Đã đạt cảnh giới cao nhất!',
+      breakthroughNotAvailable: 'Đột phá không khả dụng cho cảnh giới hiện tại.',
     },
     status: {
       player: 'Người Chơi',
@@ -302,6 +392,19 @@ export const translations: Record<Language, Translations> = {
       gallbladder: 'Đởm Kinh',
       liver: 'Gan Kinh',
     },
+    elements: {
+      metal: 'Kim (金)',
+      wood: 'Mộc (木)',
+      water: 'Thủy (水)',
+      fire: 'Hỏa (火)',
+      earth: 'Thổ (土)',
+    },
+    events: {
+      fortuitousEncounter: 'Hào Ngẫu Chi Kiếp',
+      tribulationChallenge: 'Thử Thách Kiếp Nạn',
+      karmicReward: 'Thưởng Nghiệp Lực',
+      enemyEncounter: 'Gặp Kẻ Thù',
+    },
     messages: {
       startingJourney: '🌅 Bắt đầu hành trình tu luyện của bạn...\n',
       cultivationSessionEnded: '🏮 Kỳ tu luyện kết thúc.',
@@ -309,9 +412,21 @@ export const translations: Record<Language, Translations> = {
       day: 'Ngày',
       meridianAttemptFailed: '❌ Thất bại khi mở kinh mạch {meridian}.',
       meridianPurified: '✨ Kinh mạch {meridian} tinh lọc đạt {purity}%',
+      meridianOpeningFailed: '❌ Thất bại khi mở kinh mạch {meridian}. Tỷ lệ thành công: {chance}%. Tiêu thụ {qi} khí.',
       breakthroughAttempt: '⚡ Đang thử đột phá lên {realm}...',
       breakthroughSuccess: '🎉 Đột phá thành công! Đạt {realm}!',
       breakthroughFailed: '💔 Đột phá thất bại. Nhận được hiểu biết tu luyện.',
+      breakthroughRequirements: '📋 Yêu cầu đột phá {realm}:',
+      breakthroughQiRequirement: '   💎 Khí: {current}/{required} {status}',
+      breakthroughMeridianRequirement: '   🫀 Kinh Mạch Đã Mở: {current}/{required} {status}',
+      breakthroughPurifiedMeridianRequirement: '   🫀 Kinh Mạch Tinh Lọc (80%+): {current}/{required} {status}',
+      breakthroughHighlyPurifiedMeridianRequirement: '   🫀 Kinh Mạch Cao Cấp Tinh Lọc (95%+): {current}/{required} {status}',
+      breakthroughPerfectMeridianRequirement: '   🫀 Kinh Mạch Hoàn Hảo (100%): {current}/{required} {status}',
+      breakthroughElementRequirement: '   🌟 Ngũ Hành Đã Tu Luyện Đầy Đủ: {current}/{required} {status}',
+      breakthroughAllElementsRequirement: '   🌟 Toàn Bộ Ngũ Hành Thông Thuợ: {current}/{required} {status}',
+      breakthroughDivineElementsRequirement: '   🌟 Ngũ Hành Thần Linh: {current}/{required} {status}',
+      breakthroughRequirementsMet: '🎯 Đủ yêu cầu! Đối mặt với kiếp nạn {tribulation}...',
+      breakthroughRequirementsNotMet: '❌ Chưa đủ yêu cầu đột phá. Tiếp tục tu luyện!',
       reincarnation: '🔄 Đang tái sinh...',
       lifetimeSummary: '📈 Tóm Tắt Tuổi Thọ:',
       totalQiGathered: 'Tổng Khí Thu Thập: {qi}',
@@ -320,6 +435,18 @@ export const translations: Record<Language, Translations> = {
       cultivationInsights: 'Hiểu Biết Tu Luyện: {insights}',
       artifactsPreserved: 'Pháp Bảo Giữ Lại: {artifacts}',
       newLifeBegins: '🌱 Cuộc đời mới bắt đầu...',
+      randomEvent: '🎲 Sự Kiện Ngẫu Nhiên: {event}',
+      fortuitousEncounter: '✨ Gặp gỡ một bậc thầy bí ẩn! Tài năng tăng {talent} điểm.',
+      tribulationChallengeSuccess: '⚡ Vượt qua kiếp nạn nhỏ! Nhận được {insights} hiểu biết về kiếp nạn.',
+      tribulationChallengeFailure: '💥 Thất bại trong thử thách kiếp nạn! Mất {qi} khí.',
+      karmicReward: '🙏 Làm một việc thiện! Cân bằng nghiệp lực tăng {karma} điểm.',
+      enemyEncounter: '👹 Gặp {enemy} (Cảnh Giới: {realm}, Khí: {qi}/{maxQi})',
+      enemyDefeated: '✅ Đánh bại {enemy}!',
+      enemyDefeatedBy: '❌ Bị {enemy} đánh bại! Mất {damage} khí.',
+      tribulationStart: '⚡ Thiên Kiếp: {type}! Tỷ lệ thành công: {rate}%',
+      tribulationSuccess: '✨ Vượt qua kiếp nạn! Đột phá thành công!',
+      breakthroughAdvanced: '🚀 Đột phá thành công! Tiến lên cảnh giới {realm}!',
+      maxQiIncreased: '💎 Khí tối đa tăng lên {maxQi}',
     },
   },
 };
@@ -433,6 +560,21 @@ export class I18n {
     };
 
     return this.t(meridianNames[index as keyof typeof meridianNames] || 'meridians.governorVessel');
+  }
+
+  /**
+   * Get element name
+   */
+  getElementName(element: number): string {
+    const elementNames = {
+      0: 'elements.metal',
+      1: 'elements.wood',
+      2: 'elements.water',
+      3: 'elements.fire',
+      4: 'elements.earth',
+    };
+
+    return this.t(elementNames[element as keyof typeof elementNames] || 'elements.metal');
   }
 }
 

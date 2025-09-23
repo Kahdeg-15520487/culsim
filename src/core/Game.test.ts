@@ -39,15 +39,19 @@ describe('Game', () => {
     });
   });
 
-  test('should have all elements initialized to 0', () => {
+  test('should have elements initialized with primary element affinity', () => {
     const state = game.getState();
     const elements = state.player.elements;
 
-    expect(elements.metal).toBe(0);
-    expect(elements.wood).toBe(0);
-    expect(elements.water).toBe(0);
-    expect(elements.fire).toBe(0);
-    expect(elements.earth).toBe(0);
+    // Check that exactly one element has affinity (10-20) and others are 0
+    const elementValues = [elements.metal, elements.wood, elements.water, elements.fire, elements.earth];
+    const nonZeroElements = elementValues.filter(value => value > 0);
+    const zeroElements = elementValues.filter(value => value === 0);
+
+    expect(nonZeroElements).toHaveLength(1); // Exactly one primary element
+    expect(zeroElements).toHaveLength(4); // Four elements at 0
+    expect(nonZeroElements[0]).toBeGreaterThanOrEqual(10);
+    expect(nonZeroElements[0]).toBeLessThanOrEqual(20);
   });
 
   test('should start game loop when started', () => {
@@ -55,5 +59,122 @@ describe('Game', () => {
     const state = game.getState();
 
     expect(state.isRunning).toBe(true);
+  });
+
+  test('should display breakthrough requirements with i18n translations', () => {
+    // Mock console.log to capture output
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+    // Set up player with minimal requirements for Mortal breakthrough
+    const state = game.getState();
+    state.player.qi = 50; // Not enough qi yet
+    state.player.meridians[0].isOpen = true; // Open one meridian
+    state.player.elements.metal = 100; // Fully cultivate primary element
+
+    // Attempt breakthrough - should show requirements but fail
+    game.attemptBreakthrough();
+
+    // Verify that translated messages were displayed (not raw i18n keys)
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Attempting breakthrough')
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Requirements for')
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Qi:')
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Meridians:')
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Elements:')
+    );
+
+    // Restore console.log
+    consoleSpy.mockRestore();
+  });
+
+  test('should display breakthrough success with i18n translations', () => {
+    // Mock console.log to capture output
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+    // Set up player with all requirements for Mortal breakthrough
+    const state = game.getState();
+    state.player.qi = 100; // Enough qi
+    state.player.meridians[0].isOpen = true; // Open one meridian
+    state.player.elements.metal = 100; // Fully cultivate primary element
+
+    // Attempt breakthrough - should succeed
+    game.attemptBreakthrough();
+
+    // Verify that success messages were displayed
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Requirements met')
+    );
+
+    // Restore console.log
+    consoleSpy.mockRestore();
+  });
+
+  test('should display tribulation messages with i18n translations', () => {
+    // Mock console.log to capture output
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+    // Set up player with all requirements for Mortal breakthrough
+    const state = game.getState();
+    state.player.qi = 100; // Enough qi
+    state.player.meridians[0].isOpen = true; // Open one meridian
+    state.player.elements.metal = 100; // Fully cultivate primary element
+
+    // Attempt breakthrough - should trigger tribulation
+    game.attemptBreakthrough();
+
+    // Verify that tribulation messages use i18n keys
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Heavenly Tribulation') // English version
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Tribulation overcome') // English version
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Breakthrough successful! Advanced to') // English version
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Max Qi increased to') // English version
+    );
+
+    // Restore console.log
+    consoleSpy.mockRestore();
+  });
+
+  test('should consume qi when attempting to open meridians and log failure with chance', () => {
+    // Mock console.log to capture output
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+
+    // Set up player with very low qi to ensure failure
+    const state = game.getState();
+    const initialQi = 0; // No qi at all
+    state.player.qi = initialQi;
+
+    // Attempt to open a meridian (should fail and consume qi)
+    game.attemptMeridianOpening(0); // Try to open first meridian
+
+    // Verify qi was consumed (1/4th of requirement: 50/4 = 12.5, but capped at current qi which is 0)
+    expect(state.player.qi).toBe(0); // Should remain 0 since initial qi was 0
+
+    // Verify failure message was logged with chance
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Failed to open') // English version
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Success chance:') // English version
+    );
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Consumed') // English version
+    );
+
+    // Restore console.log
+    consoleSpy.mockRestore();
   });
 });

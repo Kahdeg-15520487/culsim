@@ -54,7 +54,7 @@ describe('I18n', () => {
 
   test('should translate text in Vietnamese when language is set to vi', () => {
     const i18n = new I18n('vi');
-    expect(i18n.t('ui.gameTitle')).toBe('🏮 CULSIM - Trò Chơi Tu Luyện Trung Hoa 🏮');
+    expect(i18n.t('ui.gameTitle')).toBe('🏮 CULSIM - Trò Chơi Tu Luyện 🏮');
   });
 
   test('should handle parameter substitution', () => {

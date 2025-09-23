@@ -1,5 +1,5 @@
 import { Game } from './core/Game';
-import { Player } from './types/index';
+import { Player, Element } from './types/index';
 import { i18n } from './utils/i18n';
 
 // Web UI elements
@@ -9,17 +9,20 @@ const meridianInfoEl = document.getElementById('meridian-info')!;
 const meridianControlsEl = document.getElementById('meridian-controls')!;
 const meridianSelectEl = document.getElementById('meridian-select') as HTMLSelectElement;
 const unlockMeridianBtn = document.getElementById('unlock-meridian-btn') as HTMLButtonElement;
+const elementsInfoEl = document.getElementById('elements-info')!;
 const timeInfoEl = document.getElementById('time-info')!;
 const gameOutputEl = document.getElementById('game-output')!;
 const startBtn = document.getElementById('start-btn') as HTMLButtonElement;
 const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement;
 const cultivateBtn = document.getElementById('cultivate-btn') as HTMLButtonElement;
+const breakthroughBtn = document.getElementById('breakthrough-btn') as HTMLButtonElement;
 
 // Title elements
 const gameTitleEl = document.getElementById('game-title')!;
 const playerStatusTitleEl = document.getElementById('player-status-title')!;
 const cultivationTitleEl = document.getElementById('cultivation-title')!;
 const meridiansTitleEl = document.getElementById('meridians-title')!;
+const elementsTitleEl = document.getElementById('elements-title')!;
 const timeTitleEl = document.getElementById('time-title')!;
 
 // Utility function to format days into years/months/days
@@ -179,6 +182,18 @@ function updateUI() {
     return `${status} ${displayName}${purity}${info}`;
   }).join('<br>');
 
+  // Update elements info with primary/complementary distinction
+  const primaryElement = game.getPrimaryElement();
+  const complementaryElements = primaryElement ? game.getComplementaryElements(primaryElement, player.realm) : [];
+
+  elementsInfoEl.innerHTML = `
+    <strong>${i18n.getElementName(0)}:</strong> ${player.elements.metal.toFixed(1)}% ${primaryElement === Element.Metal ? '(Primary)' : complementaryElements.includes(Element.Metal) ? '(Complementary)' : ''}<br>
+    <strong>${i18n.getElementName(1)}:</strong> ${player.elements.wood.toFixed(1)}% ${primaryElement === Element.Wood ? '(Primary)' : complementaryElements.includes(Element.Wood) ? '(Complementary)' : ''}<br>
+    <strong>${i18n.getElementName(2)}:</strong> ${player.elements.water.toFixed(1)}% ${primaryElement === Element.Water ? '(Primary)' : complementaryElements.includes(Element.Water) ? '(Complementary)' : ''}<br>
+    <strong>${i18n.getElementName(3)}:</strong> ${player.elements.fire.toFixed(1)}% ${primaryElement === Element.Fire ? '(Primary)' : complementaryElements.includes(Element.Fire) ? '(Complementary)' : ''}<br>
+    <strong>${i18n.getElementName(4)}:</strong> ${player.elements.earth.toFixed(1)}% ${primaryElement === Element.Earth ? '(Primary)' : complementaryElements.includes(Element.Earth) ? '(Complementary)' : ''}
+  `;
+
   // Update time info
   const days = Math.floor(state.time); // time is now in days
   timeInfoEl.innerHTML = `
@@ -196,6 +211,7 @@ function updateUIText() {
   playerStatusTitleEl.textContent = i18n.t('ui.playerStatus');
   cultivationTitleEl.textContent = i18n.t('ui.cultivationInfo');
   meridiansTitleEl.textContent = i18n.t('ui.meridianInfo');
+  elementsTitleEl.textContent = i18n.t('status.elements');
   timeTitleEl.textContent = i18n.t('ui.timeInfo');
 
   // Update button texts
@@ -303,8 +319,19 @@ pauseBtn.addEventListener('click', () => {
 });
 
 cultivateBtn.addEventListener('click', () => {
-  // For now, just log status
-  logMessage(i18n.t('ui.cultivate') + ' - feature coming soon!');
+  if (!game) return;
+
+  // Perform manual cultivation
+  game.cultivate();
+  updateUI(); // Refresh UI to show changes
+});
+
+breakthroughBtn.addEventListener('click', () => {
+  if (!game) return;
+
+  // Attempt manual breakthrough
+  game.attemptBreakthrough();
+  updateUI(); // Refresh UI to show changes
 });
 
 saveBtn.addEventListener('click', () => {
