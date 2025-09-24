@@ -16,6 +16,42 @@ const gameOutputEl = document.getElementById('game-output')!;
 const cultivateBtn = document.getElementById('cultivate-btn') as HTMLButtonElement;
 const breakthroughBtn = document.getElementById('breakthrough-btn') as HTMLButtonElement;
 
+// Navigation elements
+const navTabs = document.querySelectorAll('.nav-tab');
+const overviewPage = document.querySelector('.game-info')!;
+const combatPage = document.getElementById('combat-page')!;
+
+// Combat UI elements
+const enemyDisplayEl = document.getElementById('enemy-display')!;
+const findEnemyBtn = document.getElementById('find-enemy-btn') as HTMLButtonElement;
+const attackBtn = document.getElementById('attack-btn') as HTMLButtonElement;
+const fleeBtn = document.getElementById('flee-btn') as HTMLButtonElement;
+const combatStatsEl = document.getElementById('combat-stats')!;
+const combatLootEl = document.getElementById('combat-loot')!;
+
+// Combat state
+let currentEnemy: any = null;
+let combatLoot: any[] = [];
+
+// Navigation functionality
+function switchPage(pageName: string) {
+  // Update navigation tabs
+  navTabs.forEach(tab => {
+    tab.classList.remove('active');
+    if ((tab as HTMLElement).dataset.page === pageName) {
+      tab.classList.add('active');
+    }
+  });
+
+  // Show/hide pages
+  overviewPage.classList.toggle('active', pageName === 'overview');
+  combatPage.classList.toggle('active', pageName === 'overview' ? false : true);
+
+  // Update page visibility
+  (overviewPage as HTMLElement).style.display = pageName === 'overview' ? 'grid' : 'none';
+  (combatPage as HTMLElement).style.display = pageName === 'combat' ? 'block' : 'none';
+}
+
 // Title elements
 const gameTitleEl = document.getElementById('game-title')!;
 const playerStatusTitleEl = document.getElementById('player-status-title')!;
@@ -55,6 +91,123 @@ function formatDays(days: number): string {
     }
     return result;
   }
+}
+
+// Combat functions
+function updateEnemyDisplay() {
+  if (!currentEnemy) {
+    enemyDisplayEl.innerHTML = '<div class="no-enemy">No enemy encountered. Click "Find Enemy" to search for opponents.</div>';
+    attackBtn.disabled = true;
+    fleeBtn.disabled = true;
+    return;
+  }
+
+  const enemyHtml = `
+    <div class="enemy-info">
+      <div class="enemy-name">${currentEnemy.name}</div>
+      <div class="enemy-stats">
+        <div class="enemy-stat">Realm: ${game.getRealmName(currentEnemy.realm)}</div>
+        <div class="enemy-stat">Qi: ${currentEnemy.qi.toFixed(0)}/${currentEnemy.maxQi.toFixed(0)}</div>
+        <div class="enemy-stat">Type: ${currentEnemy.combatType}</div>
+        <div class="enemy-stat">Aggression: ${currentEnemy.aggression}%</div>
+      </div>
+    </div>
+  `;
+  enemyDisplayEl.innerHTML = enemyHtml;
+  attackBtn.disabled = false;
+  fleeBtn.disabled = false;
+}
+
+function updateCombatStats() {
+  if (!currentEnemy) {
+    combatStatsEl.textContent = 'No active combat';
+    return;
+  }
+
+  const player = game.getState().player;
+  const playerPower = player.qi + (player.talent * 2) + (player.realm * 100);
+  const enemyPower = currentEnemy.qi + (currentEnemy.realm * 50);
+
+  combatStatsEl.innerHTML = `
+    <strong>Your Power:</strong> ${playerPower.toFixed(0)}<br>
+    <strong>Enemy Power:</strong> ${enemyPower.toFixed(0)}<br>
+    <strong>Win Chance:</strong> ${((playerPower / (playerPower + enemyPower)) * 100).toFixed(1)}%
+  `;
+}
+
+function updateCombatLoot() {
+  if (combatLoot.length === 0) {
+    combatLootEl.textContent = 'No loot available';
+    return;
+  }
+
+  const lootHtml = combatLoot.map(item => {
+    if (item.type === 'artifact') {
+      return `📿 ${item.name}: ${item.description} (Value: ${item.value})`;
+    } else if (item.type === 'elemental_crystal') {
+      return `💎 ${item.element} Crystal: ${item.description} (Value: ${item.value})`;
+    } else if (item.type === 'cultivation_insight') {
+      return `📚 ${item.name}: ${item.description} (Value: ${item.value})`;
+    }
+    return `${item.name}: ${item.description}`;
+  }).join('<br>');
+
+  combatLootEl.innerHTML = lootHtml;
+}
+
+function findEnemy() {
+  currentEnemy = game.generateRandomEnemy();
+  combatLoot = [];
+  updateEnemyDisplay();
+  updateCombatStats();
+  updateCombatLoot();
+  console.log(`🔍 Found enemy: ${currentEnemy.name}`);
+}
+
+function attackEnemy() {
+  if (!currentEnemy) return;
+
+  // Resolve combat
+  const result = game.resolveCombat(currentEnemy);
+
+  if (result === 'player_win') {
+    // Get loot from enemy
+    combatLoot = currentEnemy.lootTable || [];
+    console.log(`🎉 Victory! Gained ${combatLoot.length} loot items.`);
+  } else if (result === 'enemy_win') {
+    combatLoot = [];
+    console.log(`💀 Defeated by ${currentEnemy.name}.`);
+  } else {
+    combatLoot = [];
+    console.log(`🏃 Successfully fled from ${currentEnemy.name}.`);
+  }
+
+  // Clear current enemy after combat
+  currentEnemy = null;
+  updateEnemyDisplay();
+  updateCombatStats();
+  updateCombatLoot();
+}
+
+function fleeFromEnemy() {
+  if (!currentEnemy) return;
+
+  // Simple flee mechanic - 70% success rate
+  const fleeSuccess = Math.random() < 0.7;
+
+  if (fleeSuccess) {
+    console.log(`🏃 Successfully fled from ${currentEnemy.name}.`);
+    currentEnemy = null;
+  } else {
+    console.log(`❌ Failed to flee! ${currentEnemy.name} attacks!`);
+    attackEnemy();
+    return;
+  }
+
+  combatLoot = [];
+  updateEnemyDisplay();
+  updateCombatStats();
+  updateCombatLoot();
 }
 
 // Add language selector and top controls
@@ -475,8 +628,35 @@ languageSelect.addEventListener('change', () => {
   updateUI(); // Refresh UI to show changes
 });
 
+// Navigation event listeners
+navTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const pageName = (tab as HTMLElement).dataset.page;
+    if (pageName) {
+      switchPage(pageName);
+    }
+  });
+});
+
+// Combat event listeners
+findEnemyBtn.addEventListener('click', () => {
+  if (!game) return;
+  findEnemy();
+});
+
+attackBtn.addEventListener('click', () => {
+  if (!game) return;
+  attackEnemy();
+});
+
+fleeBtn.addEventListener('click', () => {
+  if (!game) return;
+  fleeFromEnemy();
+});
+
 // Initial UI setup
 initializeCardCollapse(); // Initialize collapsible cards
+switchPage('overview'); // Start with overview page
 updateUIText();
 updateUI();
 

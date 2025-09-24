@@ -185,6 +185,13 @@ export class Game {
   }
 
   /**
+   * Resolve combat with enemy - delegates to combat system
+   */
+  public resolveCombat(enemy: Enemy): 'player_win' | 'enemy_win' | 'flee' {
+    return this.combatSystem.resolveCombat(enemy);
+  }
+
+  /**
    * Calculate qi gathering speed - delegates to cultivation system
    */
   public calculateQiGatheringSpeed(): number {

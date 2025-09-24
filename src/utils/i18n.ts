@@ -172,6 +172,12 @@ export interface Translations {
     enemyEncounter: string;
     enemyDefeated: string;
     enemyDefeatedBy: string;
+    combatVictory: string;
+    combatDefeat: string;
+    lootArtifact: string;
+    lootElementalCrystal: string;
+    lootCultivationInsight: string;
+    meridianDamage: string;
     tribulationStart: string;
     tribulationSuccess: string;
     breakthroughAdvanced: string;
@@ -340,6 +346,12 @@ export const translations: Record<Language, Translations> = {
       enemyEncounter: '👹 Encountered {enemy} (Realm: {realm}, Qi: {qi}/{maxQi})',
       enemyDefeated: '✅ Defeated {enemy}!',
       enemyDefeatedBy: '❌ Defeated by {enemy}! Lost {damage} qi.',
+      combatVictory: '🎉 Victory! Defeated {enemy}. Gained {qi} qi and {talent} talent.',
+      combatDefeat: '💀 Defeated by {enemy}! Lost {qiLoss} qi.',
+      lootArtifact: '📿 Obtained {name} (Value: {value})',
+      lootElementalCrystal: '💎 Obtained {element} Crystal! {element} affinity increased by {affinity}%.',
+      lootCultivationInsight: '📚 Obtained cultivation insight! Talent increased by {talent} points.',
+      meridianDamage: '💥 {meridian} damaged in combat! Purity decreased by {damage}%.',
       tribulationStart: '⚡ Heavenly Tribulation: {type}! Success rate: {rate}%',
       tribulationSuccess: '✨ Tribulation overcome! Breakthrough successful!',
       breakthroughAdvanced: '🚀 Breakthrough successful! Advanced to {realm} realm!',
@@ -506,6 +518,12 @@ export const translations: Record<Language, Translations> = {
       enemyEncounter: '👹 Gặp {enemy} (Cảnh Giới: {realm}, Khí: {qi}/{maxQi})',
       enemyDefeated: '✅ Đánh bại {enemy}!',
       enemyDefeatedBy: '❌ Bị {enemy} đánh bại! Mất {damage} khí.',
+      combatVictory: '🎉 Chiến thắng! Đánh bại {enemy}. Nhận được {qi} khí và {talent} tài năng.',
+      combatDefeat: '💀 Bị {enemy} đánh bại! Mất {qiLoss} khí.',
+      lootArtifact: '📿 Nhận được {name} (Giá trị: {value})',
+      lootElementalCrystal: '💎 Nhận được Tinh Thạch {element}! Độ tương hợp {element} tăng {affinity}%.',
+      lootCultivationInsight: '📚 Nhận được hiểu biết tu luyện! Tài năng tăng {talent} điểm.',
+      meridianDamage: '💥 Kinh mạch {meridian} bị thương trong chiến đấu! Độ tinh khiết giảm {damage}%.',
       tribulationStart: '⚡ Thiên Kiếp: {type}! Tỷ lệ thành công: {rate}%',
       tribulationSuccess: '✨ Vượt qua kiếp nạn! Đột phá thành công!',
       breakthroughAdvanced: '🚀 Đột phá thành công! Tiến lên cảnh giới {realm}!',
