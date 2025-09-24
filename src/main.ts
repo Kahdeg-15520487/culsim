@@ -13,8 +13,6 @@ const unlockMeridianBtn = document.getElementById('unlock-meridian-btn') as HTML
 const elementsInfoEl = document.getElementById('elements-info')!;
 const timeInfoEl = document.getElementById('time-info')!;
 const gameOutputEl = document.getElementById('game-output')!;
-const startBtn = document.getElementById('start-btn') as HTMLButtonElement;
-const pauseBtn = document.getElementById('pause-btn') as HTMLButtonElement;
 const cultivateBtn = document.getElementById('cultivate-btn') as HTMLButtonElement;
 const breakthroughBtn = document.getElementById('breakthrough-btn') as HTMLButtonElement;
 
@@ -152,7 +150,6 @@ function initializeGame() {
       // Start the game loop for the loaded game
       game.start();
       isRunning = true;
-      startBtn.textContent = i18n.t('ui.stopGame');
       logMessage(i18n.t('ui.gameLoaded'));
       updateUI();
     } else {
@@ -173,7 +170,6 @@ function startNewGame() {
   game = new Game(undefined, updateUI);
   game.start();
   isRunning = true;
-  startBtn.textContent = i18n.t('ui.stopGame');
   logMessage(i18n.t('ui.gameStarted'));
   updateUI();
 }
@@ -249,12 +245,11 @@ function updateUI() {
 function updatePanelTitle(titleId: string, newText: string) {
   const titleEl = document.getElementById(titleId);
   if (titleEl) {
-    const button = titleEl.querySelector('.card-toggle');
-    if (button) {
-      // Preserve the button
-      titleEl.innerHTML = `${newText} `;
-      titleEl.appendChild(button);
+    const titleTextEl = titleEl.querySelector('.title-text');
+    if (titleTextEl) {
+      titleTextEl.textContent = newText;
     } else {
+      // Fallback if no title-text element
       titleEl.textContent = newText;
     }
   }
@@ -273,9 +268,8 @@ function updateUIText() {
   updatePanelTitle('debug-title', i18n.t('ui.debugTitle'));
 
   // Update button texts
-  startBtn.textContent = isRunning ? i18n.t('ui.stopGame') : i18n.t('ui.startGame');
-  pauseBtn.textContent = i18n.t('ui.pauseGame');
   cultivateBtn.textContent = i18n.t('ui.cultivate');
+  breakthroughBtn.textContent = i18n.t('ui.breakthrough');
   unlockMeridianBtn.textContent = i18n.t('ui.unlockSelectedMeridian');
   debugAddQiBtn.textContent = i18n.t('ui.addQi');
   debugAddMeridianBtn.textContent = i18n.t('ui.addMeridians');
@@ -335,6 +329,12 @@ function stopUIUpdates() {
 function logMessage(message: string) {
   gameOutputEl.textContent += message + '\n';
   gameOutputEl.scrollTop = gameOutputEl.scrollHeight;
+  
+  // Add subtle flash effect for new messages
+  gameOutputEl.style.border = '2px solid rgba(74, 158, 255, 0.8)';
+  setTimeout(() => {
+    gameOutputEl.style.border = '2px solid rgba(255, 255, 255, 0.3)';
+  }, 200);
 }
 
 // Override console.log to capture game messages
@@ -346,31 +346,7 @@ console.log = (...args) => {
 };
 
 // Event listeners
-startBtn.addEventListener('click', () => {
-  if (!game) {
-    startNewGame();
-  } else {
-    if (isRunning) {
-      game.stop();
-      isRunning = false;
-      startBtn.textContent = i18n.t('ui.startGame');
-      stopUIUpdates();
-      logMessage(i18n.t('ui.gameStopped'));
-    } else {
-      game.start();
-      isRunning = true;
-      startBtn.textContent = i18n.t('ui.stopGame');
-      startUIUpdates();
-      logMessage(i18n.t('ui.gameStarted'));
-    }
-  }
-  updateUI();
-});
-
-pauseBtn.addEventListener('click', () => {
-  // For now, just log status
-  logMessage(i18n.t('ui.pauseGame') + ' - feature coming soon!');
-});
+// Note: startBtn and pauseBtn removed - game runs automatically
 
 cultivateBtn.addEventListener('click', () => {
   if (!game) return;
@@ -503,6 +479,10 @@ languageSelect.addEventListener('change', () => {
 initializeCardCollapse(); // Initialize collapsible cards
 updateUIText();
 updateUI();
+
+// Add initial log message to make log visible
+logMessage('🏮 Welcome to CULSIM - Cultivation Simulator');
+logMessage('📜 Game log initialized');
 
 // Initialize game on page load
 initializeGame();
