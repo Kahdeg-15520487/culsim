@@ -299,11 +299,11 @@ export class CultivationSystem {
    */
   public getMeridianEffectiveCap(meridian: Meridian): number {
     switch (meridian.breakthroughStage) {
-      case 0: return 25; // 25%
-      case 1: return 80; // 80%
-      case 2: return 95; // 95%
-      case 3: return 100; // 100%
-      default: return 100;
+      case 0: return PURITY_THRESHOLDS.NATURAL_CAP; // 50%
+      case 1: return PURITY_THRESHOLDS.PURIFIED; // 80%
+      case 2: return PURITY_THRESHOLDS.HIGHLY_PURIFIED; // 95%
+      case 3: return PURITY_THRESHOLDS.PERFECT; // 100%
+      default: return PURITY_THRESHOLDS.PERFECT;
     }
   }
 

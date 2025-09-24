@@ -188,7 +188,7 @@ function updateUI() {
     const info = meridian.isOpen ? '' : ` (${i18n.t('ui.meridianReq', { qi: MERIDIAN_CONSTANTS.OPENING_BASE_COST + (index * MERIDIAN_CONSTANTS.OPENING_COST_INCREMENT) })})`;
 
     // Add breakthrough button if meridian is eligible
-    const isBreakthroughEligible = meridian.isOpen && meridian.purity >= PURITY_THRESHOLDS.NATURAL_CAP && meridian.breakthroughStage < 3;
+    const isBreakthroughEligible = meridian.isOpen && meridian.purity >= game.getMeridianEffectiveCap(meridian) && meridian.breakthroughStage < 3;
     const breakthroughButton = isBreakthroughEligible
       ? (() => {
           const baseQiCost = (index + 1) * MERIDIAN_BREAKTHROUGH.QI_COST_MULTIPLIER;

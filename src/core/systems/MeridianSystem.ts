@@ -68,11 +68,13 @@ export class MeridianSystem {
       return;
     }
 
-    if (meridian.purity < PURITY_THRESHOLDS.NATURAL_CAP) {
+    // Check if meridian has sufficient purity for next breakthrough
+    const requiredPurity = this.getMeridianEffectiveCap(meridian);
+    if (meridian.purity < requiredPurity) {
       console.log(i18n.t('messages.meridianNotPurified', {
         meridian: i18n.getMeridianName(meridianIndex),
         purity: meridian.purity.toFixed(1),
-        required: PURITY_THRESHOLDS.NATURAL_CAP
+        required: requiredPurity
       }));
       return;
     }
