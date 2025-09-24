@@ -62,6 +62,10 @@ export class Game {
   private update(): void {
     const gameState = this.gameController.getStateReference();
 
+    // Validate and fix any malformed artifacts
+    this.validateAndFixArtifacts(gameState.player.artifacts);
+    this.validateAndFixArtifacts(gameState.soul.artifacts);
+
     // Process cultivation
     this.cultivationSystem.processCultivation();
 
@@ -72,9 +76,7 @@ export class Game {
 
     // Update game controller (time progression, auto-save, etc.)
     // Note: The game controller's update method is now private and called internally
-  }
-
-  /**
+  }  /**
    * Manual cultivation - delegates to cultivation system
    */
   public cultivate(): void {
@@ -214,6 +216,31 @@ export class Game {
 
   public debugAddElementProgress(amount: number = 10): void {
     this.elementSystem.debugAddElementProgress(amount);
+  }
+
+  /**
+   * Validate and fix any malformed artifacts in the given array
+   */
+  private validateAndFixArtifacts(artifacts: any[]): void {
+    for (let i = artifacts.length - 1; i >= 0; i--) {
+      const artifact = artifacts[i];
+
+      // Check if artifact has required properties
+      if (!artifact.id || !artifact.name || !artifact.type) {
+        console.warn('Removing malformed artifact:', artifact);
+        artifacts.splice(i, 1);
+        continue;
+      }
+
+      // Ensure effects array exists
+      if (!artifact.effects || !Array.isArray(artifact.effects)) {
+        console.warn('Fixing artifact with missing effects:', artifact.name);
+        artifact.effects = [{
+          type: 'qi_absorption',
+          value: artifact.value || 10
+        }];
+      }
+    }
   }
 
   /**

@@ -323,6 +323,175 @@
       }
     }
     
+    /* Inventory Page Styles */
+    .inventory-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .inventory-section {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .inventory-section h3 {
+      margin-bottom: 1rem;
+      color: white;
+      font-size: 1.1rem;
+    }
+    
+    .inventory-stats {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .stat-item {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .stat-label {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+    }
+    
+    .stat-value {
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+    
+    .artifact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      min-height: 200px;
+    }
+    
+    .artifact-card {
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    
+    .artifact-card:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(74, 158, 255, 0.6);
+      transform: translateY(-2px);
+    }
+    
+    .artifact-card.selected {
+      border-color: rgba(74, 158, 255, 0.8);
+      background: rgba(74, 158, 255, 0.1);
+    }
+    
+    .artifact-name {
+      font-weight: bold;
+      color: white;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+    
+    .artifact-type {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+      text-transform: capitalize;
+    }
+    
+    .artifact-effects {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .no-artifacts {
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      font-style: italic;
+      grid-column: 1 / -1;
+      padding: 2rem;
+    }
+    
+    #artifact-details {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      padding: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      min-height: 150px;
+      color: white;
+    }
+    
+    .artifact-detail-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: rgba(74, 158, 255, 1);
+    }
+    
+    .artifact-detail-type {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 1rem;
+      text-transform: capitalize;
+    }
+    
+    .artifact-effects-list {
+      margin-top: 1rem;
+    }
+    
+    .artifact-effect {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+    }
+    
+    .artifact-effect-type {
+      font-weight: bold;
+      color: rgba(74, 158, 255, 0.9);
+    }
+    
+    .artifact-effect-value {
+      color: white;
+    }
+    
+    /* Tablet and larger screens for inventory */
+    @media (min-width: 768px) {
+      .inventory-container {
+        grid-template-columns: 2fr 1fr;
+      }
+      
+      .artifact-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      }
+    }
+    
+    /* Mobile adjustments for inventory */
+    @media (max-width: 767px) {
+      .artifact-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .inventory-stats {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+    
     /* Language selector and save controls */
     .top-controls {
       display: flex;
@@ -480,6 +649,7 @@
     <div class="nav-tabs">
       <button class="nav-tab active" data-page="overview">Overview</button>
       <button class="nav-tab" data-page="combat">Combat</button>
+      <button class="nav-tab" data-page="inventory">Inventory</button>
     </div>
 
     <div class="top-controls">
@@ -560,6 +730,33 @@
         <div class="combat-section">
           <h3>🎁 Loot & Rewards</h3>
           <div id="combat-loot">No loot available</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inventory Page -->
+    <div class="page inventory-page" id="inventory-page" style="display: none;">
+      <div class="inventory-container">
+        <div class="inventory-section">
+          <h3>🎒 Player Inventory</h3>
+          <div class="inventory-stats">
+            <div class="stat-item">
+              <span class="stat-label">Total Artifacts:</span>
+              <span class="stat-value" id="artifact-count">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Inventory Space:</span>
+              <span class="stat-value" id="inventory-space">∞</span>
+            </div>
+          </div>
+          <div class="artifact-grid" id="artifact-grid">
+            <div class="no-artifacts">No artifacts collected yet. Defeat enemies in combat to obtain artifacts!</div>
+          </div>
+        </div>
+
+        <div class="inventory-section">
+          <h3>📋 Artifact Details</h3>
+          <div id="artifact-details">Select an artifact to view details</div>
         </div>
       </div>
     </div>

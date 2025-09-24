@@ -258,8 +258,17 @@ export class CombatSystem {
     lootTable.forEach(item => {
       switch (item.type) {
         case 'artifact':
-          // Add to player's artifacts
-          this.gameState.player.artifacts.push(item);
+          // Create proper artifact from loot item
+          const artifact = {
+            id: `artifact-${Date.now()}-${this.random.int(1000, 9999)}`,
+            name: item.name,
+            type: 'spirit_stone',
+            effects: [{
+              type: 'qi_absorption' as const,
+              value: item.value
+            }]
+          };
+          this.gameState.player.artifacts.push(artifact);
           console.log(i18n.t('messages.lootArtifact', {
             name: item.name,
             value: item.value

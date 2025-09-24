@@ -20,6 +20,7 @@ const breakthroughBtn = document.getElementById('breakthrough-btn') as HTMLButto
 const navTabs = document.querySelectorAll('.nav-tab');
 const overviewPage = document.querySelector('.game-info')!;
 const combatPage = document.getElementById('combat-page')!;
+const inventoryPage = document.getElementById('inventory-page')!;
 
 // Combat UI elements
 const enemyDisplayEl = document.getElementById('enemy-display')!;
@@ -28,6 +29,12 @@ const attackBtn = document.getElementById('attack-btn') as HTMLButtonElement;
 const fleeBtn = document.getElementById('flee-btn') as HTMLButtonElement;
 const combatStatsEl = document.getElementById('combat-stats')!;
 const combatLootEl = document.getElementById('combat-loot')!;
+
+// Inventory UI elements
+const artifactCountEl = document.getElementById('artifact-count')!;
+const inventorySpaceEl = document.getElementById('inventory-space')!;
+const artifactGridEl = document.getElementById('artifact-grid')!;
+const artifactDetailsEl = document.getElementById('artifact-details')!;
 
 // Combat state
 let currentEnemy: any = null;
@@ -46,10 +53,17 @@ function switchPage(pageName: string) {
   // Show/hide pages
   overviewPage.classList.toggle('active', pageName === 'overview');
   combatPage.classList.toggle('active', pageName === 'overview' ? false : true);
+  inventoryPage.classList.toggle('active', pageName === 'inventory');
 
   // Update page visibility
   (overviewPage as HTMLElement).style.display = pageName === 'overview' ? 'grid' : 'none';
   (combatPage as HTMLElement).style.display = pageName === 'combat' ? 'block' : 'none';
+  (inventoryPage as HTMLElement).style.display = pageName === 'inventory' ? 'block' : 'none';
+
+  // Update inventory display when switching to inventory page
+  if (pageName === 'inventory') {
+    updateInventoryDisplay();
+  }
 }
 
 // Title elements
@@ -208,6 +222,83 @@ function fleeFromEnemy() {
   updateEnemyDisplay();
   updateCombatStats();
   updateCombatLoot();
+}
+
+// Inventory functions
+function updateInventoryDisplay() {
+  if (!game) return;
+
+  const player = game.getState().player;
+  const artifacts = player.artifacts;
+
+  // Update stats
+  artifactCountEl.textContent = artifacts.length.toString();
+  inventorySpaceEl.textContent = '∞'; // Unlimited for now
+
+  // Clear previous selection
+  document.querySelectorAll('.artifact-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+
+  // Update artifact grid
+  if (artifacts.length === 0) {
+    artifactGridEl.innerHTML = '<div class="no-artifacts">No artifacts collected yet. Defeat enemies in combat to obtain artifacts!</div>';
+    artifactDetailsEl.innerHTML = 'Select an artifact to view details';
+    return;
+  }
+
+  const artifactHtml = artifacts.map((artifact, index) => {
+    const effectsSummary = artifact.effects.map(effect => {
+      const effectType = effect.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+      return `${effectType}: ${effect.value}${effect.element ? ` (${effect.element})` : ''}`;
+    }).join(', ');
+
+    return `
+      <div class="artifact-card" data-artifact-index="${index}">
+        <div class="artifact-name">${artifact.name}</div>
+        <div class="artifact-type">${artifact.type}</div>
+        <div class="artifact-effects">${effectsSummary}</div>
+      </div>
+    `;
+  }).join('');
+
+  artifactGridEl.innerHTML = artifactHtml;
+
+  // Add click handlers for artifact cards
+  document.querySelectorAll('.artifact-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const index = parseInt((card as HTMLElement).dataset.artifactIndex || '0');
+      selectArtifact(index);
+    });
+  });
+}
+
+function selectArtifact(index: number) {
+  if (!game) return;
+
+  const player = game.getState().player;
+  const artifact = player.artifacts[index];
+
+  if (!artifact) return;
+
+  // Update selection visual
+  document.querySelectorAll('.artifact-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  document.querySelector(`[data-artifact-index="${index}"]`)?.classList.add('selected');
+
+  // Update details
+  const effectsHtml = artifact.effects.map(effect => {
+    const effectType = effect.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    const elementInfo = effect.element ? ` (${effect.element})` : '';
+    return `<div class="artifact-effect"><span class="artifact-effect-type">${effectType}${elementInfo}:</span> <span class="artifact-effect-value">${effect.value}</span></div>`;
+  }).join('');
+
+  artifactDetailsEl.innerHTML = `
+    <div class="artifact-detail-title">${artifact.name}</div>
+    <div class="artifact-detail-type">${artifact.type}</div>
+    <div class="artifact-effects-list">${effectsHtml}</div>
+  `;
 }
 
 // Add language selector and top controls
@@ -392,6 +483,11 @@ function updateUI() {
 
   // Update meridian select dropdown
   updateMeridianSelect();
+
+  // Update inventory display if inventory page is active
+  if (inventoryPage.classList.contains('active')) {
+    updateInventoryDisplay();
+  }
 }
 
 // Helper function to update panel titles while preserving collapse buttons
