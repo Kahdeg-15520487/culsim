@@ -245,15 +245,32 @@ function updateUI() {
   updateMeridianSelect();
 }
 
+// Helper function to update panel titles while preserving collapse buttons
+function updatePanelTitle(titleId: string, newText: string) {
+  const titleEl = document.getElementById(titleId);
+  if (titleEl) {
+    const button = titleEl.querySelector('.card-toggle');
+    if (button) {
+      // Preserve the button
+      titleEl.innerHTML = `${newText} `;
+      titleEl.appendChild(button);
+    } else {
+      titleEl.textContent = newText;
+    }
+  }
+}
+
 // Update all UI text elements (titles, buttons, etc.)
 function updateUIText() {
   gameTitleEl.textContent = i18n.t('ui.gameTitle');
-  playerStatusTitleEl.textContent = i18n.t('ui.playerStatus');
-  cultivationTitleEl.textContent = i18n.t('ui.cultivationInfo');
-  meridiansTitleEl.textContent = i18n.t('ui.meridianInfo');
-  elementsTitleEl.textContent = i18n.t('status.elements');
-  timeTitleEl.textContent = i18n.t('ui.timeInfo');
-  debugTitleEl.textContent = i18n.t('ui.debugTitle');
+  
+  // Update panel titles while preserving collapse buttons
+  updatePanelTitle('player-status-title', i18n.t('ui.playerStatus'));
+  updatePanelTitle('cultivation-title', i18n.t('ui.cultivationInfo'));
+  updatePanelTitle('meridians-title', i18n.t('ui.meridianInfo'));
+  updatePanelTitle('elements-title', i18n.t('status.elements'));
+  updatePanelTitle('time-title', i18n.t('ui.timeInfo'));
+  updatePanelTitle('debug-title', i18n.t('ui.debugTitle'));
 
   // Update button texts
   startBtn.textContent = isRunning ? i18n.t('ui.stopGame') : i18n.t('ui.startGame');

@@ -83,22 +83,31 @@
       justify-content: space-between;
     }
     
-    /* Collapsible card system */
-    .card-toggle {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.2rem;
+    /* Collapsible card system - Higher specificity to override global button styles */
+    .info-card .card-toggle {
+      background: rgba(255, 255, 255, 0.2) !important;
+      border: 1px solid rgba(255, 255, 255, 0.4) !important;
+      color: white !important;
+      font-size: 1.2rem !important;
       cursor: pointer;
-      padding: 0;
+      padding: 0.2rem 0.5rem !important;
       margin: 0;
       width: auto;
-      display: none;
+      min-height: auto !important;
+      border-radius: 4px !important;
+      display: inline-block !important;
+      font-weight: bold;
+    }
+    
+    .info-card .card-toggle:hover {
+      background: rgba(255, 255, 255, 0.3) !important;
     }
     
     .card-content {
       transition: max-height 0.3s ease, opacity 0.3s ease;
       overflow: hidden;
+      max-height: 500px; /* Set initial max-height for animation */
+      opacity: 1;
     }
     
     .card-collapsed .card-content {
@@ -106,11 +115,18 @@
       opacity: 0;
     }
     
-    /* Show collapse buttons on mobile */
-    @media (max-width: 767px) {
-      .card-toggle {
-        display: inline-block;
-      }
+    /* Show collapse buttons on all screen sizes */
+    /* Remove this section as styling is now above */
+    
+    /* Sticky player status panel */
+    .player-status-sticky {
+      position: sticky;
+      top: 1rem;
+      z-index: 100;
+      background: rgba(46, 82, 152, 0.95);
+      backdrop-filter: blur(15px);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
     
     /* Responsive button layout */
@@ -254,7 +270,7 @@
     </div>
 
     <div class="game-info">
-      <div class="info-card">
+      <div class="info-card player-status-sticky">
         <h3 id="player-status-title">Player Status <button class="card-toggle" data-card="player-status">−</button></h3>
         <div class="card-content" id="player-status-content">
           <div id="player-status">Loading...</div>
