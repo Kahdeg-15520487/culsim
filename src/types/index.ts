@@ -25,6 +25,30 @@ export enum Element {
   Earth = 'earth'
 }
 
+// Item Quality/Rarity Levels
+export enum ItemQuality {
+  Common = 0,      // White - Basic items
+  Uncommon = 1,    // Green - Slightly enhanced
+  Rare = 2,        // Blue - Good items
+  Epic = 3,        // Purple - Excellent items
+  Legendary = 4,   // Gold - Exceptional items
+  Mythical = 5     // Rainbow - God-tier items
+}
+
+// Item Categories
+export enum ItemCategory {
+  Armor = 'armor',
+  Weapon = 'weapon',
+  Pill = 'pill',
+  Drug = 'drug',
+  Poison = 'poison',
+  Herb = 'herb',
+  BeastPart = 'beast_part',
+  SpiritStone = 'spirit_stone',
+  Charm = 'charm',
+  Manual = 'manual'
+}
+
 // Combat Types
 export enum CombatType {
   Melee = 'melee',
@@ -134,7 +158,7 @@ export interface ElementAffinities {
   [Element.Earth]: number;
 }
 
-// Basic Artifact
+// Basic Artifact (legacy - kept for compatibility)
 export interface Artifact {
   id: string;
   name: string;
@@ -142,7 +166,37 @@ export interface Artifact {
   effects: ArtifactEffect[];
 }
 
-// Artifact Effects
+// Enhanced Item System
+export interface Item {
+  id: string;
+  name: string;
+  category: ItemCategory;
+  quality: ItemQuality;
+  realm: CultivationRealm; // Minimum realm to use effectively
+  element?: Element;
+  effects: ItemEffect[];
+  description: string;
+  value: number; // Base gold/essence value
+  durability?: number; // For equipment items
+  maxDurability?: number;
+  stackable: boolean;
+  maxStack?: number;
+  quantity: number;
+}
+
+// Item Effects (expanded from ArtifactEffect)
+export interface ItemEffect {
+  type: 'qi_absorption' | 'cultivation_speed' | 'combat_power' | 'element_boost' |
+        'defense' | 'health_regen' | 'qi_regen' | 'critical_chance' | 'critical_damage' |
+        'elemental_damage' | 'elemental_resistance' | 'meridian_purity' | 'comprehension' |
+        'lifespan' | 'talent_boost' | 'luck' | 'experience_boost';
+  value: number;
+  element?: Element;
+  duration?: number; // For temporary effects (in days)
+  isPercentage: boolean; // Whether the value is a percentage modifier
+}
+
+// Artifact Effects (legacy compatibility)
 export interface ArtifactEffect {
   type: 'qi_absorption' | 'cultivation_speed' | 'combat_power' | 'element_boost';
   value: number;
@@ -159,3 +213,87 @@ export interface CombatResult {
 
 // Time Tick (1 tick = 1 day)
 export type TimeTick = number;
+
+// ===== ITEM SCALING SYSTEM =====
+
+// Quality Multipliers (base values multiplied by these)
+export const QUALITY_MULTIPLIERS = {
+  [ItemQuality.Common]: 1.0,
+  [ItemQuality.Uncommon]: 1.5,
+  [ItemQuality.Rare]: 2.5,
+  [ItemQuality.Epic]: 4.0,
+  [ItemQuality.Legendary]: 6.0,
+  [ItemQuality.Mythical]: 10.0
+};
+
+// Realm Scaling Factors (effects scale with realm difference)
+export const REALM_SCALING_FACTORS = {
+  [CultivationRealm.Mortal]: 1.0,
+  [CultivationRealm.QiCondensation]: 2.0,
+  [CultivationRealm.FoundationEstablishment]: 5.0,
+  [CultivationRealm.CoreFormation]: 10.0,
+  [CultivationRealm.NascentSoul]: 20.0,
+  [CultivationRealm.DivineTransformation]: 40.0,
+  [CultivationRealm.VoidRefinement]: 80.0,
+  [CultivationRealm.ImmortalAscension]: 150.0
+};
+
+// Base stats for different item categories at Mortal realm
+export const BASE_ITEM_STATS = {
+  [ItemCategory.Armor]: {
+    defense: 10,
+    durability: 100,
+    value: 50
+  },
+  [ItemCategory.Weapon]: {
+    attack: 15,
+    durability: 80,
+    value: 75
+  },
+  [ItemCategory.Pill]: {
+    effectStrength: 25,
+    duration: 7, // days
+    value: 30
+  },
+  [ItemCategory.Drug]: {
+    effectStrength: 20,
+    duration: 3,
+    value: 40
+  },
+  [ItemCategory.Poison]: {
+    effectStrength: 30,
+    duration: 5,
+    value: 60
+  },
+  [ItemCategory.SpiritStone]: {
+    qiStorage: 100,
+    value: 20
+  },
+  [ItemCategory.Herb]: {
+    qiContent: 50,
+    value: 15
+  },
+  [ItemCategory.BeastPart]: {
+    effectStrength: 35,
+    value: 45
+  },
+  [ItemCategory.Charm]: {
+    effectStrength: 10,
+    duration: 30, // days
+    value: 100
+  },
+  [ItemCategory.Manual]: {
+    knowledge: 25,
+    value: 200
+  }
+} as const;
+
+// Quality-based drop rates (percentage chance)
+export const QUALITY_DROP_RATES = {
+  [ItemQuality.Common]: 60,
+  [ItemQuality.Uncommon]: 25,
+  [ItemQuality.Rare]: 10,
+  [ItemQuality.Epic]: 4,
+  [ItemQuality.Legendary]: 0.9,
+  [ItemQuality.Mythical]: 0.1
+};

@@ -180,6 +180,7 @@ export interface Translations {
     meridianDamage: string;
     tribulationStart: string;
     tribulationSuccess: string;
+    tribulationFailed: string;
     breakthroughAdvanced: string;
     maxQiIncreased: string;
     elementCultivationEnabled: string;
@@ -354,6 +355,7 @@ export const translations: Record<Language, Translations> = {
       meridianDamage: '💥 {meridian} damaged in combat! Purity decreased by {damage}%.',
       tribulationStart: '⚡ Heavenly Tribulation: {type}! Success rate: {rate}%',
       tribulationSuccess: '✨ Tribulation overcome! Breakthrough successful!',
+      tribulationFailed: '💥 Tribulation failed! Cultivation damaged.',
       breakthroughAdvanced: '🚀 Breakthrough successful! Advanced to {realm} realm!',
       maxQiIncreased: '💎 Max Qi increased to {maxQi}',
       elementCultivationEnabled: '🌟 New elements available for cultivation: {elements}',
@@ -526,6 +528,7 @@ export const translations: Record<Language, Translations> = {
       meridianDamage: '💥 Kinh mạch {meridian} bị thương trong chiến đấu! Độ tinh khiết giảm {damage}%.',
       tribulationStart: '⚡ Thiên Kiếp: {type}! Tỷ lệ thành công: {rate}%',
       tribulationSuccess: '✨ Vượt qua kiếp nạn! Đột phá thành công!',
+      tribulationFailed: '💥 Thất bại trong kiếp nạn! Tu luyện bị tổn thương.',
       breakthroughAdvanced: '🚀 Đột phá thành công! Tiến lên cảnh giới {realm}!',
       maxQiIncreased: '💎 Khí tối đa tăng lên {maxQi}',
       elementCultivationEnabled: '🌟 Ngũ hành mới có thể tu luyện: {elements}',
