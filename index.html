@@ -52,7 +52,8 @@
         gap: 1.25rem;
       }
       .container {
-        padding-bottom: 1rem; /* Normal padding on tablet+ since log is sticky at top */
+        padding-top: 220px; /* Space for fixed log at top */
+        padding-bottom: 1rem;
       }
     }
     
@@ -64,6 +65,7 @@
       }
       .container {
         padding: 1.5rem;
+        padding-top: 240px; /* Space for larger fixed log at top */
       }
       body {
         padding: 1.25rem;
@@ -200,7 +202,7 @@
       color: white;
     }
     
-    /* Mobile: Fixed at bottom, tablet/desktop: sticky at top */
+    /* Mobile: Fixed to viewport bottom */
     #game-output {
       position: fixed;
       bottom: 1rem;
@@ -240,27 +242,27 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
     
-    /* Tablet and larger screens - sticky at top */
+    /* Tablet and larger screens - fixed at top */
     @media (min-width: 768px) {
       #game-output {
-        position: sticky;
+        position: fixed;
         top: 1rem;
         bottom: auto;
-        left: auto;
+        left: 50%;
         right: auto;
-        width: auto;
-        max-width: 600px;
+        width: 600px;
+        max-width: calc(100vw - 2rem);
+        transform: translateX(-50%);
         height: 180px;
         font-size: 0.85rem;
-        margin: 1rem auto;
-        z-index: 200;
+        z-index: 1000;
       }
     }
     
-    /* Desktop screens - wider log, sticky at top */
+    /* Desktop screens - wider log, fixed at top */
     @media (min-width: 1024px) {
       #game-output {
-        max-width: 800px;
+        width: 800px;
         height: 200px;
         font-size: 0.9rem;
       }
@@ -345,9 +347,6 @@
       <!-- Language and save controls will be added here by JavaScript -->
     </div>
 
-    <!-- Log positioned here for tablet/desktop sticky behavior -->
-    <div id="game-output"></div>
-
     <div class="game-info">
       <div class="info-card player-status-sticky">
         <h3 id="player-status-title"><span class="title-text">Player Status</span> <button class="card-toggle" data-card="player-status">−</button></h3>
@@ -403,6 +402,9 @@
       <!-- Main control buttons removed - game runs automatically -->
     </div>
   </div>
+
+  <!-- Game log - positioned outside container for fixed/sticky behavior -->
+  <div id="game-output"></div>
 
   <script type="module" src="/src/main.ts"></script>
 </body>
