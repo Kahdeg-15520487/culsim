@@ -44,7 +44,7 @@ export class ItemSystem {
       case ItemCategory.Armor:
         effects.push({
           type: 'defense',
-          value: this.calculateScaledStat(baseStats.defense, quality, realm),
+          value: this.calculateScaledStat((baseStats as any).defense, quality, realm),
           isPercentage: false
         });
         if (quality >= ItemQuality.Rare) {
@@ -60,7 +60,7 @@ export class ItemSystem {
       case ItemCategory.Weapon:
         effects.push({
           type: 'combat_power',
-          value: this.calculateScaledStat(baseStats.attack, quality, realm),
+          value: this.calculateScaledStat((baseStats as any).attack, quality, realm),
           element,
           isPercentage: false
         });
@@ -76,15 +76,15 @@ export class ItemSystem {
       case ItemCategory.Pill:
         effects.push({
           type: 'qi_absorption',
-          value: this.calculateScaledStat(baseStats.effectStrength, quality, realm),
-          duration: baseStats.duration * QUALITY_MULTIPLIERS[quality],
+          value: this.calculateScaledStat((baseStats as any).effectStrength, quality, realm),
+          duration: (baseStats as any).duration * QUALITY_MULTIPLIERS[quality],
           isPercentage: true
         });
         if (quality >= ItemQuality.Uncommon) {
           effects.push({
             type: 'cultivation_speed',
             value: quality * 10, // 10% per quality level
-            duration: baseStats.duration,
+            duration: (baseStats as any).duration,
             isPercentage: true
           });
         }
@@ -93,7 +93,7 @@ export class ItemSystem {
       case ItemCategory.SpiritStone:
         effects.push({
           type: 'qi_absorption',
-          value: this.calculateScaledStat(baseStats.qiStorage, quality, realm),
+          value: this.calculateScaledStat((baseStats as any).qiStorage, quality, realm),
           isPercentage: false
         });
         break;
@@ -101,7 +101,7 @@ export class ItemSystem {
       case ItemCategory.Herb:
         effects.push({
           type: 'qi_absorption',
-          value: this.calculateScaledStat(baseStats.qiContent, quality, realm),
+          value: this.calculateScaledStat((baseStats as any).qiContent, quality, realm),
           isPercentage: false
         });
         if (element) {
@@ -117,15 +117,15 @@ export class ItemSystem {
       case ItemCategory.Charm:
         effects.push({
           type: 'luck',
-          value: this.calculateScaledStat(baseStats.effectStrength, quality, realm),
-          duration: baseStats.duration,
+          value: this.calculateScaledStat((baseStats as any).effectStrength, quality, realm),
+          duration: (baseStats as any).duration,
           isPercentage: true
         });
         if (quality >= ItemQuality.Rare) {
           effects.push({
             type: 'comprehension',
             value: quality * 3,
-            duration: baseStats.duration * 2,
+            duration: (baseStats as any).duration * 2,
             isPercentage: true
           });
         }

@@ -8,6 +8,8 @@ import { GameState, Player, Soul, CultivationRealm, Element, ElementAffinities, 
 import { Random } from '../../utils/Random';
 import { i18n } from '../../utils/i18n';
 import { INITIAL_GAME_VALUES, AUTO_SAVE } from '../constants';
+import { ItemSystem } from '../../utils/ItemSystem';
+import { ItemCategory, ItemQuality } from '../../types';
 
 export class GameController {
   private state: GameState;
@@ -40,7 +42,8 @@ export class GameController {
       meridians: this.createInitialMeridians(),
       elements: this.initializeElementAffinities(),
       talent: INITIAL_GAME_VALUES.TALENT,
-      artifacts: [],
+      artifacts: [], // Legacy artifacts
+      items: [ItemSystem.createItem(ItemCategory.SpiritStone, ItemQuality.Common, CultivationRealm.Mortal)], // Add test spirit stone
       lifetime: 0
     };
 
@@ -62,7 +65,25 @@ export class GameController {
       },
       karmicBalance: 0,
       maxRealmAchieved: CultivationRealm.Mortal,
-      artifacts: []
+      artifacts: [], // Legacy artifacts
+      items: [{
+        id: 'test-spirit-stone',
+        name: 'Test Spirit Stone',
+        category: ItemCategory.SpiritStone,
+        quality: ItemQuality.Common,
+        realm: CultivationRealm.Mortal,
+        effects: [{
+          type: 'qi_absorption',
+          value: 36,
+          isPercentage: false
+        }],
+        description: 'A test spirit stone with 36 qi absorption',
+        value: 20,
+        durability: undefined,
+        maxDurability: undefined,
+        stackable: false,
+        quantity: 1
+      }] // Test spirit stone with 36 qi absorption
     };
 
     return {

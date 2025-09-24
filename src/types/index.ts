@@ -74,7 +74,8 @@ export interface Player {
   meridians: Meridian[];
   elements: ElementAffinities;
   talent: number; // 1-100 scale
-  artifacts: Artifact[];
+  artifacts: Artifact[]; // Legacy artifacts for backward compatibility
+  items: Item[]; // New comprehensive item system
   lifetime: number; // in days
 }
 
@@ -86,7 +87,8 @@ export interface Soul {
   cultivationInsights: CultivationInsights; // Knowledge carried over
   karmicBalance: number; // Good/bad karma affecting rebirth
   maxRealmAchieved: CultivationRealm;
-  artifacts: Artifact[]; // Soul-bound artifacts
+  artifacts: Artifact[]; // Soul-bound artifacts (legacy)
+  items: Item[]; // Soul-bound items (new system)
 }
 
 // Cultivation Insights (knowledge carried over)

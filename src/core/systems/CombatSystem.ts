@@ -5,13 +5,19 @@
  * including elemental interactions and loot generation.
  */
 
-import { GameState, Enemy, CombatType, Element } from '../../types';
+import { GameState, Enemy, CombatType, Element, ItemCategory } from '../../types';
 import { Random } from '../../utils/Random';
 import { i18n } from '../../utils/i18n';
 import { CultivationRealm } from '../../types';
+import { ItemEffectProcessor } from '../../utils/ItemEffectProcessor';
+import { ItemSystem } from '../../utils/ItemSystem';
 
 export class CombatSystem {
-  constructor(private gameState: GameState, private random: Random) {}
+  private itemEffectProcessor: ItemEffectProcessor;
+
+  constructor(private gameState: GameState, private random: Random) {
+    this.itemEffectProcessor = new ItemEffectProcessor(gameState);
+  }
 
   /**
    * Generate a random enemy for combat encounters
@@ -119,16 +125,29 @@ export class CombatSystem {
       maxQi: enemy.maxQi
     }));
 
-    // Calculate combat power
-    const playerPower = player.qi + (player.talent * 2) + (player.realm * 100);
+    // Calculate combat power with item bonuses
+    const playerCombatBonus = this.itemEffectProcessor.calculateCombatPowerBonus();
+    const playerDefenseBonus = this.itemEffectProcessor.calculateDefenseBonus();
+    const playerCritBonus = this.itemEffectProcessor.calculateCriticalChanceBonus();
+
+    const playerPower = (player.qi + (player.talent * 2) + (player.realm * 100) + playerCombatBonus) * (1 + playerDefenseBonus / 100);
     const enemyPower = enemy.qi + (enemy.realm * 50);
 
     // Apply elemental bonuses
     const playerElementBonus = this.calculateElementalCombatBonus(player, enemy);
     const enemyElementBonus = this.calculateElementalCombatBonus(enemy, player);
 
-    const finalPlayerPower = playerPower * playerElementBonus;
+    let finalPlayerPower = playerPower * playerElementBonus;
     const finalEnemyPower = enemyPower * enemyElementBonus;
+
+    // Apply critical hit chance
+    const critChance = Math.min(playerCritBonus / 100, 0.5); // Max 50% crit chance
+    const isCritical = this.random.chance(critChance);
+
+    if (isCritical) {
+      console.log('💥 Critical hit! Damage doubled!');
+      finalPlayerPower *= 2;
+    }
 
     const playerWinChance = finalPlayerPower / (finalPlayerPower + finalEnemyPower);
 
@@ -258,21 +277,38 @@ export class CombatSystem {
     lootTable.forEach(item => {
       switch (item.type) {
         case 'artifact':
-          // Create proper artifact from loot item
-          const artifact = {
-            id: `artifact-${Date.now()}-${this.random.int(1000, 9999)}`,
-            name: item.name,
-            type: 'spirit_stone',
-            effects: [{
-              type: 'qi_absorption' as const,
+          // Create proper Item object for spirit stones
+          if (item.name === 'Spirit Stone') {
+            const quality = ItemSystem.determineItemQuality(this.gameState.player.realm, {
+              chance: (percent: number) => this.random.chance(percent / 100)
+            });
+            const spiritStone = ItemSystem.createItem(
+              ItemCategory.SpiritStone,
+              quality,
+              this.gameState.player.realm
+            );
+            this.gameState.player.items.push(spiritStone);
+            console.log(i18n.t('messages.lootArtifact', {
+              name: spiritStone.name,
+              value: spiritStone.value
+            }));
+          } else {
+            // For other artifacts, still use legacy system for now
+            const artifact = {
+              id: `artifact-${Date.now()}-${this.random.int(1000, 9999)}`,
+              name: item.name,
+              type: 'spirit_stone',
+              effects: [{
+                type: 'qi_absorption' as const,
+                value: item.value
+              }]
+            };
+            this.gameState.player.artifacts.push(artifact);
+            console.log(i18n.t('messages.lootArtifact', {
+              name: item.name,
               value: item.value
-            }]
-          };
-          this.gameState.player.artifacts.push(artifact);
-          console.log(i18n.t('messages.lootArtifact', {
-            name: item.name,
-            value: item.value
-          }));
+            }));
+          }
           break;
 
         case 'elemental_crystal':

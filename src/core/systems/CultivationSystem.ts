@@ -6,9 +6,14 @@
 
 import { GameState, CultivationRealm, Element, Meridian } from '../../types';
 import { CULTIVATION_RATES, REALM_QI_GATHERING, MULTIPLIERS, PURITY_THRESHOLDS, MERIDIAN_CONSTANTS, TALENT_DIVISORS } from '../constants';
+import { ItemEffectProcessor } from '../../utils/ItemEffectProcessor';
 
 export class CultivationSystem {
-  constructor(private gameState: GameState) {}
+  private itemEffectProcessor: ItemEffectProcessor;
+
+  constructor(private gameState: GameState) {
+    this.itemEffectProcessor = new ItemEffectProcessor(gameState);
+  }
 
   /**
    * Process cultivation mechanics based on current realm
@@ -161,6 +166,19 @@ export class CultivationSystem {
         qiGain *= (1 + meridianBonus);
       }
 
+      // Apply item bonuses
+      const cultivationSpeedBonus = this.itemEffectProcessor.calculateCultivationSpeedBonus();
+      qiGain *= (1 + cultivationSpeedBonus / 100);
+
+      const qiAbsorptionBonus = this.itemEffectProcessor.calculateQiAbsorptionBonus();
+      qiGain *= (1 + qiAbsorptionBonus.percentage / 100);
+      qiGain += qiAbsorptionBonus.flat;
+
+      // Debug logging for item effects
+      if (qiAbsorptionBonus.flat > 0 || qiAbsorptionBonus.percentage > 0) {
+        console.log(`Item Effects Applied - Qi Absorption: +${qiAbsorptionBonus.flat} flat, +${qiAbsorptionBonus.percentage}% multiplier`);
+      }
+
       return qiGain;
     } else {
       const realmConfig = REALM_QI_GATHERING[realm];
@@ -177,7 +195,21 @@ export class CultivationSystem {
         karmicBonus = 1 + (this.gameState.soul.karmicBalance / 500);
       }
 
-      return baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier * karmicBonus;
+      let qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier * karmicBonus;
+
+      // Apply item bonuses
+      const cultivationSpeedBonus = this.itemEffectProcessor.calculateCultivationSpeedBonus();
+      qiGain *= (1 + cultivationSpeedBonus / 100);
+
+      const qiAbsorptionBonus = this.itemEffectProcessor.calculateQiAbsorptionBonus();
+      qiGain *= (1 + qiAbsorptionBonus.percentage / 100);
+      qiGain += qiAbsorptionBonus.flat;
+
+      // Debug logging for item effects
+      if (qiAbsorptionBonus.flat > 0 || qiAbsorptionBonus.percentage > 0) {
+        console.log(`Item Effects Applied - Qi Absorption: +${qiAbsorptionBonus.flat} flat, +${qiAbsorptionBonus.percentage}% multiplier`);
+      }
+      return qiGain;
     }
   }
 
