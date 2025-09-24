@@ -155,39 +155,39 @@ export const REALM_QI_GATHERING = {
   },
   [CultivationRealm.QiCondensation]: {
     /** Base qi absorption for Qi Condensation realm */
-    BASE_ABSORPTION: 0.2,
+    BASE_ABSORPTION: 1,
   },
   [CultivationRealm.FoundationEstablishment]: {
     /** Base qi absorption for Foundation Establishment realm */
-    BASE_ABSORPTION: 0.5,
+    BASE_ABSORPTION: 5,
   },
   [CultivationRealm.CoreFormation]: {
     /** Base qi absorption for Core Formation realm */
-    BASE_ABSORPTION: 1.0,
+    BASE_ABSORPTION: 10,
     /** Additional realm multiplier */
     REALM_MULTIPLIER: 1.5,
   },
   [CultivationRealm.NascentSoul]: {
     /** Base qi absorption for Nascent Soul realm */
-    BASE_ABSORPTION: 2.0,
+    BASE_ABSORPTION: 50,
     /** Additional realm multiplier */
     REALM_MULTIPLIER: 2.0,
   },
   [CultivationRealm.DivineTransformation]: {
     /** Base qi absorption for Divine Transformation realm */
-    BASE_ABSORPTION: 3.0,
+    BASE_ABSORPTION: 100,
     /** Additional realm multiplier */
     REALM_MULTIPLIER: 2.5,
   },
   [CultivationRealm.VoidRefinement]: {
     /** Base qi absorption for Void Refinement realm */
-    BASE_ABSORPTION: 4.0,
+    BASE_ABSORPTION: 250,
     /** Additional realm multiplier */
     REALM_MULTIPLIER: 3.0,
   },
   [CultivationRealm.ImmortalAscension]: {
     /** Base qi absorption for Immortal Ascension realm */
-    BASE_ABSORPTION: 5.0,
+    BASE_ABSORPTION: 500,
     /** Additional realm multiplier */
     REALM_MULTIPLIER: 4.0,
   },

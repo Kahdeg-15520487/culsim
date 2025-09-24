@@ -29,25 +29,25 @@ export class BreakthroughSystem {
 
     switch (player.realm) {
       case CultivationRealm.Mortal:
-        this.attemptMortalBreakthrough();
-        break;
-      case CultivationRealm.QiCondensation:
         this.attemptQiCondensationBreakthrough();
         break;
-      case CultivationRealm.FoundationEstablishment:
+      case CultivationRealm.QiCondensation:
         this.attemptFoundationEstablishmentBreakthrough();
         break;
-      case CultivationRealm.CoreFormation:
+      case CultivationRealm.FoundationEstablishment:
         this.attemptCoreFormationBreakthrough();
         break;
-      case CultivationRealm.NascentSoul:
+      case CultivationRealm.CoreFormation:
         this.attemptNascentSoulBreakthrough();
         break;
-      case CultivationRealm.DivineTransformation:
+      case CultivationRealm.NascentSoul:
         this.attemptDivineTransformationBreakthrough();
         break;
-      case CultivationRealm.VoidRefinement:
+      case CultivationRealm.DivineTransformation:
         this.attemptVoidRefinementBreakthrough();
+        break;
+      case CultivationRealm.VoidRefinement:
+        this.attemptImmortalAscensionBreakthrough();
         break;
       default:
         console.log(i18n.t('messages.breakthroughMaxRealm'));
@@ -57,7 +57,7 @@ export class BreakthroughSystem {
   /**
    * Attempt breakthrough from Mortal to Qi Condensation
    */
-  private attemptMortalBreakthrough(): void {
+  private attemptQiCondensationBreakthrough(): void {
     const player = this.gameState.player;
 
     const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.Mortal].qi;
@@ -96,7 +96,7 @@ export class BreakthroughSystem {
   /**
    * Attempt breakthrough from Qi Condensation to Foundation Establishment
    */
-  private attemptQiCondensationBreakthrough(): void {
+  private attemptFoundationEstablishmentBreakthrough(): void {
     const player = this.gameState.player;
 
     const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.QiCondensation].qi;
@@ -141,7 +141,7 @@ export class BreakthroughSystem {
   /**
    * Attempt breakthrough from Foundation Establishment to Core Formation
    */
-  private attemptFoundationEstablishmentBreakthrough(): void {
+  private attemptCoreFormationBreakthrough(): void {
     const player = this.gameState.player;
 
     const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.FoundationEstablishment].qi;
@@ -186,7 +186,7 @@ export class BreakthroughSystem {
   /**
    * Attempt breakthrough from Core Formation to Nascent Soul
    */
-  private attemptCoreFormationBreakthrough(): void {
+  private attemptNascentSoulBreakthrough(): void {
     const player = this.gameState.player;
 
     const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.CoreFormation].qi;
@@ -231,7 +231,7 @@ export class BreakthroughSystem {
   /**
    * Attempt breakthrough from Nascent Soul to Divine Transformation
    */
-  private attemptNascentSoulBreakthrough(): void {
+  private attemptDivineTransformationBreakthrough(): void {
     const player = this.gameState.player;
 
     const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.NascentSoul].qi;
@@ -269,7 +269,7 @@ export class BreakthroughSystem {
   /**
    * Attempt breakthrough from Divine Transformation to Void Refinement
    */
-  private attemptDivineTransformationBreakthrough(): void {
+  private attemptVoidRefinementBreakthrough(): void {
     const player = this.gameState.player;
 
     const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.DivineTransformation].qi;
@@ -307,7 +307,7 @@ export class BreakthroughSystem {
   /**
    * Attempt breakthrough from Void Refinement to Immortal Ascension
    */
-  private attemptVoidRefinementBreakthrough(): void {
+  private attemptImmortalAscensionBreakthrough(): void {
     const player = this.gameState.player;
 
     const qiRequirement = BREAKTHROUGH_REQUIREMENTS[CultivationRealm.VoidRefinement].qi;
