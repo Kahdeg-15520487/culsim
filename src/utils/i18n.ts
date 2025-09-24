@@ -139,6 +139,7 @@ export interface Translations {
     meridianBreakthroughNotEnoughQi: string;
     meridianBreakthroughNotOpen: string;
     meridianBreakthroughNotReady: string;
+    meridianNotPurified: string;
     meridianBreakthroughAlreadyPerfect: string;
     meridianBreakthroughInvalidIndex: string;
     breakthroughAttempt: string;
@@ -177,6 +178,10 @@ export interface Translations {
     maxQiIncreased: string;
     elementCultivationEnabled: string;
     unlockedElements: string;
+    gameSaved: string;
+    gameLoaded: string;
+    saveError: string;
+    loadError: string;
   };
 }
 
@@ -302,6 +307,7 @@ export const translations: Record<Language, Translations> = {
       meridianBreakthroughNotEnoughQi: '❌ Not enough qi for meridian breakthrough. Required: {qi} qi.',
       meridianBreakthroughNotOpen: '❌ Cannot breakthrough {meridian} - meridian is not open.',
       meridianBreakthroughNotReady: '❌ Cannot breakthrough {meridian} - requires {required}% purity first.',
+      meridianNotPurified: '❌ Cannot breakthrough {meridian} - requires {required}% purity. Current: {purity}%. Continue cultivating to purify meridians.',
       meridianBreakthroughAlreadyPerfect: '✨ {meridian} is already at perfect purity.',
       meridianBreakthroughInvalidIndex: '❌ Invalid meridian index.',
       breakthroughAttempt: '⚡ Attempting breakthrough to {realm}...',
@@ -340,6 +346,10 @@ export const translations: Record<Language, Translations> = {
       maxQiIncreased: '💎 Max Qi increased to {maxQi}',
       elementCultivationEnabled: '🌟 New elements available for cultivation: {elements}',
       unlockedElements: '🔓 Unlocked elements: {elements}',
+      gameSaved: '💾 Game saved successfully!',
+      gameLoaded: '📂 Game loaded successfully!',
+      saveError: '❌ Failed to save game:',
+      loadError: '❌ Failed to load game:',
     },
   },
   vi: {
@@ -463,6 +473,7 @@ export const translations: Record<Language, Translations> = {
       meridianBreakthroughNotEnoughQi: '❌ Không đủ khí để đột phá kinh mạch. Cần: {qi} khí.',
       meridianBreakthroughNotOpen: '❌ Không thể đột phá {meridian} - kinh mạch chưa mở.',
       meridianBreakthroughNotReady: '❌ Không thể đột phá {meridian} - cần đạt {required}% độ tinh khiết trước.',
+      meridianNotPurified: '❌ Không thể đột phá {meridian} - cần đạt {required}% độ tinh khiết. Hiện tại: {purity}%. Tiếp tục tu luyện để tinh lọc kinh mạch.',
       meridianBreakthroughAlreadyPerfect: '✨ {meridian} đã đạt độ tinh khiết hoàn hảo.',
       meridianBreakthroughInvalidIndex: '❌ Chỉ số kinh mạch không hợp lệ.',
       breakthroughAttempt: '⚡ Đang thử đột phá lên {realm}...',
@@ -501,6 +512,10 @@ export const translations: Record<Language, Translations> = {
       maxQiIncreased: '💎 Khí tối đa tăng lên {maxQi}',
       elementCultivationEnabled: '🌟 Ngũ hành mới có thể tu luyện: {elements}',
       unlockedElements: '🔓 Ngũ hành đã mở khóa: {elements}',
+      gameSaved: '💾 Đã lưu trò chơi thành công!',
+      gameLoaded: '📂 Đã tải trò chơi thành công!',
+      saveError: '❌ Lưu trò chơi thất bại:',
+      loadError: '❌ Tải trò chơi thất bại:',
     },
   },
 };

@@ -271,4 +271,12 @@ export const MERIDIAN_BREAKTHROUGH = {
   BREAKTHROUGH_PURITY_GAIN: 1,
   /** Qi cost fraction consumed per breakthrough attempt */
   ATTEMPT_COST_FRACTION: 0.5,
+  /** Chance of heart demon tribulation on successful breakthrough */
+  HEART_DEMON_CHANCE: 0.2,
+  /** Qi loss percentage on heart demon failure */
+  HEART_DEMON_QI_LOSS: 0.1,
+  /** Chance of meridian damage on breakthrough failure */
+  FAILURE_DAMAGE_CHANCE: 0.3,
+  /** Purity damage percentage on breakthrough failure */
+  FAILURE_DAMAGE_PERCENTAGE: 0.1,
 } as const;

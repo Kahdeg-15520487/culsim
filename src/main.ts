@@ -109,12 +109,11 @@ controlsEl.appendChild(clearBtn);
 // Game instance
 let game: Game;
 let isRunning = false;
-let uiUpdateInterval: NodeJS.Timeout | null = null;
 
 // Check if a saved game exists
 function hasSavedGame(): boolean {
   if (typeof window !== 'undefined' && window.localStorage) {
-    return localStorage.getItem('culsim-save') !== null;
+    return localStorage.getItem('culsim-save-0') !== null;
   }
   return false;
 }
@@ -124,14 +123,13 @@ function initializeGame() {
   if (hasSavedGame()) {
     // Auto-load saved game
     logMessage(i18n.t('ui.savedGameDetected'));
-    game = new Game();
+    game = new Game(undefined, updateUI);
     const loaded = game.loadGame();
     if (loaded) {
       // Start the game loop for the loaded game
       game.start();
       isRunning = true;
       startBtn.textContent = i18n.t('ui.stopGame');
-      startUIUpdates();
       logMessage(i18n.t('ui.gameLoaded'));
       updateUI();
     } else {
@@ -149,11 +147,10 @@ function initializeGame() {
 
 // Start a new game
 function startNewGame() {
-  game = new Game();
+  game = new Game(undefined, updateUI);
   game.start();
   isRunning = true;
   startBtn.textContent = i18n.t('ui.stopGame');
-  startUIUpdates();
   logMessage(i18n.t('ui.gameStarted'));
   updateUI();
 }
@@ -191,8 +188,7 @@ function updateUI() {
     const info = meridian.isOpen ? '' : ` (${i18n.t('ui.meridianReq', { qi: MERIDIAN_CONSTANTS.OPENING_BASE_COST + (index * MERIDIAN_CONSTANTS.OPENING_COST_INCREMENT) })})`;
 
     // Add breakthrough button if meridian is eligible
-    const currentCap = game.getMeridianEffectiveCap(meridian);
-    const isBreakthroughEligible = meridian.isOpen && meridian.purity >= currentCap && meridian.breakthroughStage < 3;
+    const isBreakthroughEligible = meridian.isOpen && meridian.purity >= PURITY_THRESHOLDS.NATURAL_CAP && meridian.breakthroughStage < 3;
     const breakthroughButton = isBreakthroughEligible
       ? (() => {
           const baseQiCost = (index + 1) * MERIDIAN_BREAKTHROUGH.QI_COST_MULTIPLIER;
@@ -288,18 +284,11 @@ function updateMeridianSelect() {
 
 // Start UI update loop
 function startUIUpdates() {
-  if (uiUpdateInterval) {
-    clearInterval(uiUpdateInterval);
-  }
-  uiUpdateInterval = setInterval(updateUI, 1000); // Update UI every second
+  // UI updates are now handled by the game loop
 }
 
-// Stop UI update loop
 function stopUIUpdates() {
-  if (uiUpdateInterval) {
-    clearInterval(uiUpdateInterval);
-    uiUpdateInterval = null;
-  }
+  // UI updates are now handled by the game loop
 }
 
 // Log messages to the game output area
@@ -392,7 +381,7 @@ saveBtn.addEventListener('click', () => {
 
 loadBtn.addEventListener('click', () => {
   if (!game) {
-    game = new Game();
+    game = new Game(undefined, updateUI);
   }
   const loaded = game.loadGame();
   if (loaded) {
