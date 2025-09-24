@@ -5,7 +5,7 @@
  */
 
 import { GameState, CultivationRealm, Element, Meridian } from '../../types';
-import { CULTIVATION_RATES, REALM_QI_GATHERING, MULTIPLIERS, PURITY_THRESHOLDS, MERIDIAN_CONSTANTS } from '../constants';
+import { CULTIVATION_RATES, REALM_QI_GATHERING, MULTIPLIERS, PURITY_THRESHOLDS, MERIDIAN_CONSTANTS, TALENT_DIVISORS } from '../constants';
 
 export class CultivationSystem {
   constructor(private gameState: GameState) {}
@@ -166,18 +166,7 @@ export class CultivationSystem {
       const realmConfig = REALM_QI_GATHERING[realm];
       const baseAbsorption = realmConfig.BASE_ABSORPTION;
 
-      const talentDivisors: Record<CultivationRealm, number> = {
-        [CultivationRealm.Mortal]: 500,
-        [CultivationRealm.QiCondensation]: 150,
-        [CultivationRealm.FoundationEstablishment]: 120,
-        [CultivationRealm.CoreFormation]: 300,
-        [CultivationRealm.NascentSoul]: 250,
-        [CultivationRealm.DivineTransformation]: 200,
-        [CultivationRealm.VoidRefinement]: 150,
-        [CultivationRealm.ImmortalAscension]: 100,
-      };
-
-      const talentMultiplier = 1 + (player.talent / talentDivisors[realm]);
+      const talentMultiplier = 1 + (player.talent / TALENT_DIVISORS[realm]);
       const meridianBonus = this.calculateMeridianBonus();
       const realmMultiplier = (realmConfig as any).REALM_MULTIPLIER || 1;
 
@@ -339,17 +328,6 @@ export class CultivationSystem {
    */
   public calculateQiGatheringSpeed(): number {
     const player = this.gameState.player;
-
-    const basicAbsorption = 0.1;
-    const talentMultiplier = 1 + (player.talent / 500);
-    let dailyQiGain = basicAbsorption * talentMultiplier;
-
-    const openMeridians = player.meridians.filter(m => m.isOpen).length;
-    if (openMeridians > 0) {
-      const meridianBonus = openMeridians * 0.5;
-      dailyQiGain *= (1 + meridianBonus);
-    }
-
-    return dailyQiGain;
+    return this.calculateQiGatheringForRealm(player.realm);
   }
 }

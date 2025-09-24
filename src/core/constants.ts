@@ -194,6 +194,20 @@ export const REALM_QI_GATHERING = {
 } as const;
 
 /**
+ * Talent divisors for realm-specific qi gathering calculations
+ */
+export const TALENT_DIVISORS: Record<CultivationRealm, number> = {
+  [CultivationRealm.Mortal]: 500,
+  [CultivationRealm.QiCondensation]: 150,
+  [CultivationRealm.FoundationEstablishment]: 120,
+  [CultivationRealm.CoreFormation]: 300,
+  [CultivationRealm.NascentSoul]: 250,
+  [CultivationRealm.DivineTransformation]: 200,
+  [CultivationRealm.VoidRefinement]: 150,
+  [CultivationRealm.ImmortalAscension]: 100,
+} as const;
+
+/**
  * Talent and karmic influence multipliers
  */
 export const MULTIPLIERS = {
