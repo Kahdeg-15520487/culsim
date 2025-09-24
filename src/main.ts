@@ -59,7 +59,7 @@ function formatDays(days: number): string {
   }
 }
 
-// Add language selector
+// Add language selector and top controls
 const languageSelect = document.createElement('select');
 languageSelect.id = 'language-select';
 const languages = [
@@ -87,24 +87,47 @@ const clearBtn = document.createElement('button');
 clearBtn.textContent = i18n.t('ui.clearSavedGame');
 clearBtn.id = 'clear-btn';
 
-// Add language selector to controls
-const controlsEl = document.querySelector('.controls')!;
+// Add controls to top-controls container
+const topControlsEl = document.querySelector('.top-controls')!;
 const languageContainer = document.createElement('div');
-languageContainer.style.display = 'inline-block';
-languageContainer.style.marginRight = '20px';
-languageContainer.innerHTML = '<label for="language-select" style="margin-right: 5px;">🌐 Language:</label>';
+languageContainer.className = 'control-group';
+languageContainer.innerHTML = '<label for="language-select" style="margin-right: 5px;">🌐</label>';
 languageContainer.appendChild(languageSelect);
-controlsEl.insertBefore(languageContainer, controlsEl.firstChild);
 
-// Add spacing between language selector and save/load buttons
-const spacer = document.createElement('span');
-spacer.style.display = 'inline-block';
-spacer.style.width = '20px';
-controlsEl.appendChild(spacer);
+const saveLoadContainer = document.createElement('div');
+saveLoadContainer.className = 'control-group';
+saveLoadContainer.appendChild(saveBtn);
+saveLoadContainer.appendChild(loadBtn);
+saveLoadContainer.appendChild(clearBtn);
 
-controlsEl.appendChild(saveBtn);
-controlsEl.appendChild(loadBtn);
-controlsEl.appendChild(clearBtn);
+topControlsEl.appendChild(languageContainer);
+topControlsEl.appendChild(saveLoadContainer);
+
+// Card collapse functionality
+function initializeCardCollapse() {
+  const toggles = document.querySelectorAll('.card-toggle');
+  
+  toggles.forEach(toggle => {
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      const cardName = (toggle as HTMLButtonElement).dataset.card;
+      const card = (toggle as HTMLElement).closest('.info-card');
+      const content = card?.querySelector('.card-content');
+      
+      if (card && content) {
+        const isCollapsed = card.classList.contains('card-collapsed');
+        
+        if (isCollapsed) {
+          card.classList.remove('card-collapsed');
+          (toggle as HTMLButtonElement).textContent = '−';
+        } else {
+          card.classList.add('card-collapsed');
+          (toggle as HTMLButtonElement).textContent = '+';
+        }
+      }
+    });
+  });
+}
 
 // Game instance
 let game: Game;
@@ -166,17 +189,17 @@ function updateUI() {
   playerStatusEl.innerHTML = `
     <strong>${i18n.t('status.player')}:</strong> ${player.name}<br>
     <strong>${i18n.t('status.realm')}:</strong> ${i18n.getRealmName(player.realm)}<br>
-    <strong>${i18n.t('status.qi')}:</strong> ${player.qi.toFixed(1)} / ${player.maxQi}
+    <strong>${i18n.t('status.qi')}:</strong> ${player.qi.toFixed(1)} / ${player.maxQi}<br>
+    <strong>${i18n.t('ui.qiGathering')}:</strong> ${(game.calculateQiGatheringSpeed()).toFixed(3)} ${i18n.t('ui.qiPerDay')}<br>
+    <strong>${i18n.t('status.meridians')}:</strong> ${player.meridians.filter(m => m.isOpen).length}/12 ${i18n.t('ui.meridiansOpen')}<br>
+    <strong>${i18n.t('status.talent')}:</strong> ${player.talent}/100<br>
+    <strong>${i18n.t('status.karma')}:</strong> ${soul.karmicBalance > 0 ? '+' : ''}${soul.karmicBalance}
   `;
 
   cultivationInfoEl.innerHTML = `
-    <strong>${i18n.t('status.talent')}:</strong> ${player.talent}/100<br>
-    <strong>${i18n.t('ui.qiGathering')}:</strong> ${(game.calculateQiGatheringSpeed()).toFixed(3)} ${i18n.t('ui.qiPerDay')}<br>
-    <strong>${i18n.t('status.meridians')}:</strong> ${player.meridians.filter(m => m.isOpen).length}/12 ${i18n.t('ui.meridiansOpen')}<br>
     <strong>${i18n.t('status.lifetime')}:</strong> ${formatDays(player.lifetime)}<br>
     <strong>${i18n.t('status.reincarnation')}:</strong> ${soul.lifetimeCount}<br>
     <strong>${i18n.t('ui.maxRealm')}:</strong> ${i18n.getRealmName(soul.maxRealmAchieved)}<br>
-    <strong>${i18n.t('status.karma')}:</strong> ${soul.karmicBalance > 0 ? '+' : ''}${soul.karmicBalance}<br>
     <strong>${i18n.t('ui.breakthroughs')}:</strong> ${soul.cultivationInsights.realmBreakthroughs.length}
   `;
 
@@ -460,6 +483,7 @@ languageSelect.addEventListener('change', () => {
 });
 
 // Initial UI setup
+initializeCardCollapse(); // Initialize collapsible cards
 updateUIText();
 updateUI();
 

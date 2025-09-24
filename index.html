@@ -5,65 +5,243 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CULSIM - Chinese Cultivation Game</title>
   <style>
+    /* CSS Reset and Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 20px;
       background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
       color: white;
       min-height: 100vh;
+      padding: 0.75rem;
     }
+    
     .container {
       max-width: 1200px;
       margin: 0 auto;
       background: rgba(255, 255, 255, 0.1);
       border-radius: 10px;
-      padding: 20px;
+      padding: 1rem;
       backdrop-filter: blur(10px);
     }
+    
     h1 {
       text-align: center;
-      margin-bottom: 30px;
+      margin-bottom: 1.5rem;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
     }
+    
+    /* Mobile-first responsive grid */
     .game-info {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
+    
+    /* Tablet and small desktop */
+    @media (min-width: 768px) {
+      .game-info {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.25rem;
+      }
+    }
+    
+    /* Large desktop */
+    @media (min-width: 1024px) {
+      .game-info {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+      }
+      .container {
+        padding: 1.5rem;
+      }
+      body {
+        padding: 1.25rem;
+      }
+    }
+    
     .info-card {
       background: rgba(255, 255, 255, 0.2);
-      padding: 15px;
+      padding: 1rem;
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      transition: all 0.3s ease;
     }
+    
+    .info-card h3 {
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    /* Collapsible card system */
+    .card-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      width: auto;
+      display: none;
+    }
+    
+    .card-content {
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      overflow: hidden;
+    }
+    
+    .card-collapsed .card-content {
+      max-height: 0;
+      opacity: 0;
+    }
+    
+    /* Show collapse buttons on mobile */
+    @media (max-width: 767px) {
+      .card-toggle {
+        display: inline-block;
+      }
+    }
+    
+    /* Responsive button layout */
     .controls {
-      text-align: center;
-      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      align-items: center;
+      margin-top: 1.5rem;
     }
+    
+    .control-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    
     button {
       background: #4CAF50;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 0.75rem 1rem;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 16px;
-      margin: 0 10px;
+      font-size: 0.9rem;
+      min-height: 44px; /* Touch-friendly minimum */
+      transition: background-color 0.2s ease;
+      white-space: nowrap;
     }
+    
     button:hover {
       background: #45a049;
     }
+    
+    button:disabled {
+      background: #666;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+    
+    /* Language selector and save controls */
+    .top-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    select {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 0.5rem;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      min-height: 44px;
+    }
+    
+    select option {
+      background: #2a5298;
+      color: white;
+    }
+    
+    /* Responsive console */
     #game-output {
       background: rgba(0, 0, 0, 0.5);
       border-radius: 8px;
-      padding: 15px;
-      margin-top: 20px;
+      padding: 1rem;
+      margin-top: 1.5rem;
       font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      line-height: 1.4;
       white-space: pre-wrap;
-      max-height: 400px;
       overflow-y: auto;
+      height: 200px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    @media (min-width: 768px) {
+      #game-output {
+        height: 250px;
+        font-size: 0.85rem;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      #game-output {
+        height: 300px;
+        font-size: 0.9rem;
+      }
+    }
+    
+    /* Improve readability on mobile */
+    @media (max-width: 767px) {
+      .info-card {
+        font-size: 0.9rem;
+      }
+      
+      button {
+        font-size: 0.85rem;
+        padding: 0.6rem 0.8rem;
+      }
+      
+      h1 {
+        margin-bottom: 1rem;
+      }
+    }
+    
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
     }
   </style>
 </head>
@@ -71,46 +249,66 @@
   <div class="container">
     <h1 id="game-title">🏮 CULSIM - Cultivation Simulator 🏮</h1>
 
+    <div class="top-controls">
+      <!-- Language and save controls will be added here by JavaScript -->
+    </div>
+
     <div class="game-info">
       <div class="info-card">
-        <h3 id="player-status-title">Player Status</h3>
-        <div id="player-status">Loading...</div>
-      </div>
-      <div class="info-card">
-        <h3 id="cultivation-title">Cultivation</h3>
-        <div id="cultivation-info">Loading...</div>
-      </div>
-      <div class="info-card">
-        <h3 id="meridians-title">Meridians</h3>
-        <div id="meridian-info">Loading...</div>
-        <div id="meridian-controls" style="margin-top: 10px;">
-          <select id="meridian-select" style="width: 100%; margin-bottom: 5px;"></select>
-          <button id="unlock-meridian-btn" style="width: 100%;">Unlock Selected Meridian</button>
+        <h3 id="player-status-title">Player Status <button class="card-toggle" data-card="player-status">−</button></h3>
+        <div class="card-content" id="player-status-content">
+          <div id="player-status">Loading...</div>
         </div>
       </div>
       <div class="info-card">
-        <h3 id="elements-title">Elements</h3>
-        <div id="elements-info">Loading...</div>
+        <h3 id="cultivation-title">Cultivation <button class="card-toggle" data-card="cultivation">−</button></h3>
+        <div class="card-content" id="cultivation-content">
+          <div id="cultivation-info">Loading...</div>
+        </div>
       </div>
       <div class="info-card">
-        <h3 id="time-title">Time</h3>
-        <div id="time-info">Loading...</div>
+        <h3 id="meridians-title">Meridians <button class="card-toggle" data-card="meridians">−</button></h3>
+        <div class="card-content" id="meridians-content">
+          <div id="meridian-info">Loading...</div>
+          <div id="meridian-controls" style="margin-top: 10px;">
+            <select id="meridian-select" style="width: 100%; margin-bottom: 5px;"></select>
+            <button id="unlock-meridian-btn" style="width: 100%;">Unlock Selected Meridian</button>
+          </div>
+        </div>
       </div>
       <div class="info-card">
-        <h3 id="debug-title">Debug Panel</h3>
-        <div id="debug-panel">
-          <button id="debug-add-qi-btn">Add 10 Qi</button><br>
-          <button id="debug-add-meridian-btn">Add 10% Meridians</button><br>
-          <button id="debug-add-element-btn">Add 10% Elements</button>
+        <h3 id="elements-title">Elements <button class="card-toggle" data-card="elements">−</button></h3>
+        <div class="card-content" id="elements-content">
+          <div id="elements-info">Loading...</div>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3 id="time-title">Time <button class="card-toggle" data-card="time">−</button></h3>
+        <div class="card-content" id="time-content">
+          <div id="time-info">Loading...</div>
+        </div>
+      </div>
+      <div class="info-card">
+        <h3 id="debug-title">Debug Panel <button class="card-toggle" data-card="debug">−</button></h3>
+        <div class="card-content" id="debug-content">
+          <div id="debug-panel">
+            <button id="debug-add-qi-btn">Add 10 Qi</button><br>
+            <button id="debug-add-meridian-btn">Add 10% Meridians</button><br>
+            <button id="debug-add-element-btn">Add 10% Elements</button>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="controls">
-      <button id="start-btn">Start Game</button>
-      <button id="pause-btn">Pause</button>
-      <button id="cultivate-btn">Cultivate</button>
-      <button id="breakthrough-btn">Breakthrough</button>
+      <div class="control-group">
+        <button id="start-btn">Start Game</button>
+        <button id="pause-btn">Pause</button>
+      </div>
+      <div class="control-group">
+        <button id="cultivate-btn">Cultivate</button>
+        <button id="breakthrough-btn">Breakthrough</button>
+      </div>
     </div>
 
     <div id="game-output"></div>
