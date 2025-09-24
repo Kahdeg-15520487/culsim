@@ -52,8 +52,7 @@
         gap: 1.25rem;
       }
       .container {
-        padding-top: 220px; /* Space for fixed log at top */
-        padding-bottom: 1rem;
+        padding-bottom: 220px; /* Space for fixed log at bottom */
       }
     }
     
@@ -65,7 +64,7 @@
       }
       .container {
         padding: 1.5rem;
-        padding-top: 240px; /* Space for larger fixed log at top */
+        padding-bottom: 240px; /* Space for larger fixed log at bottom */
       }
       body {
         padding: 1.25rem;
@@ -242,12 +241,12 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
     
-    /* Tablet and larger screens - fixed at top */
+    /* Tablet and larger screens - also fixed at bottom but centered */
     @media (min-width: 768px) {
       #game-output {
         position: fixed;
-        top: 1rem;
-        bottom: auto;
+        top: auto;
+        bottom: 1rem;
         left: 50%;
         right: auto;
         width: 600px;
@@ -259,7 +258,7 @@
       }
     }
     
-    /* Desktop screens - wider log, fixed at top */
+    /* Desktop screens - wider log, fixed at bottom */
     @media (min-width: 1024px) {
       #game-output {
         width: 800px;
