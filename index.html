@@ -491,6 +491,294 @@
         gap: 0.5rem;
       }
     }
+
+    /* Enhanced Inventory Styles */
+    .inventory-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .inventory-search {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .inventory-search input {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    .inventory-search input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .inventory-filters {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .inventory-filters select {
+      padding: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-size: 0.9rem;
+      min-width: 120px;
+    }
+
+    .inventory-filters select option {
+      background: rgba(46, 82, 152, 0.9);
+      color: white;
+    }
+
+    .equipment-section {
+      grid-column: 1 / -1;
+    }
+
+    .equipment-slots {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .equipment-slot {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .equipment-slot:hover {
+      border-color: rgba(74, 158, 255, 0.6);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .slot-label {
+      font-weight: bold;
+      color: rgba(74, 158, 255, 0.9);
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .slot-content {
+      color: white;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    .slot-content.equipped {
+      background: rgba(74, 158, 255, 0.1);
+      border-radius: 4px;
+      padding: 0.5rem;
+    }
+
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+      min-height: 200px;
+    }
+
+    .item-card {
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .item-card:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(74, 158, 255, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .item-card.selected {
+      border-color: rgba(74, 158, 255, 0.8);
+      background: rgba(74, 158, 255, 0.1);
+    }
+
+    .item-name {
+      font-weight: bold;
+      color: white;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .item-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .item-quality {
+      font-size: 0.8rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+
+    .quality-common { background: rgba(169, 169, 169, 0.3); color: #e0e0e0; }
+    .quality-uncommon { background: rgba(0, 128, 0, 0.3); color: #90EE90; }
+    .quality-rare { background: rgba(0, 0, 255, 0.3); color: #87CEEB; }
+    .quality-epic { background: rgba(128, 0, 128, 0.3); color: #DDA0DD; }
+    .quality-legendary { background: rgba(255, 165, 0, 0.3); color: #FFD700; }
+    .quality-mythical { background: rgba(255, 0, 255, 0.3); color: #FF69B4; }
+
+    .item-quantity {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .item-category {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+      text-transform: capitalize;
+    }
+
+    .item-value {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .no-items {
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+      font-style: italic;
+      grid-column: 1 / -1;
+      padding: 2rem;
+    }
+
+    #item-details {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+      padding: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      min-height: 150px;
+      color: white;
+    }
+
+    .item-detail-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+      color: rgba(74, 158, 255, 1);
+    }
+
+    .item-detail-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .item-detail-meta div {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+    }
+
+    .item-detail-meta .label {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: bold;
+    }
+
+    .item-detail-meta .value {
+      color: white;
+    }
+
+    .item-description {
+      margin-bottom: 1rem;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.9rem;
+    }
+
+    .item-effects-list {
+      margin-top: 1rem;
+    }
+
+    .item-effects-list h4 {
+      margin-bottom: 0.5rem;
+      color: rgba(74, 158, 255, 0.9);
+      font-size: 1rem;
+    }
+
+    .item-effect {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 3px;
+      font-size: 0.9rem;
+    }
+
+    .item-effect-type {
+      font-weight: bold;
+      color: rgba(74, 158, 255, 0.9);
+    }
+
+    .item-effect-value {
+      color: white;
+    }
+
+    .item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .item-action-btn {
+      background: rgba(74, 158, 255, 0.6);
+      color: white;
+      border: 1px solid rgba(74, 158, 255, 0.8);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .item-action-btn:hover {
+      background: rgba(74, 158, 255, 0.8);
+    }
+
+    .item-action-btn:disabled {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.6);
+      cursor: not-allowed;
+    }
+
+    .item-action-btn.danger {
+      background: rgba(255, 69, 58, 0.6);
+      border-color: rgba(255, 69, 58, 0.8);
+    }
+
+    .item-action-btn.danger:hover {
+      background: rgba(255, 69, 58, 0.8);
+    }
     
     /* Language selector and save controls */
     .top-controls {
@@ -640,7 +928,7 @@
       background: rgba(255, 255, 255, 0.5);
     }
   </style>
-  <script type="module" crossorigin src="/culsim/assets/main-B9iZ8Ywk.js"></script>
+  <script type="module" crossorigin src="/culsim/assets/main-fO-7_czl.js"></script>
 </head>
 <body>
   <div class="container">
@@ -648,9 +936,9 @@
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-      <button class="nav-tab active" data-page="overview">Overview</button>
-      <button class="nav-tab" data-page="combat">Combat</button>
-      <button class="nav-tab" data-page="inventory">Inventory</button>
+      <button class="nav-tab active" data-page="overview" data-i18n="ui.overview">Overview</button>
+      <button class="nav-tab" data-page="combat" data-i18n="ui.combat">Combat</button>
+      <button class="nav-tab" data-page="inventory" data-i18n="ui.inventory">Inventory</button>
     </div>
 
     <div class="top-controls">
@@ -702,7 +990,8 @@
           <div id="debug-panel">
             <button id="debug-add-qi-btn">Add 10 Qi</button><br>
             <button id="debug-add-meridian-btn">Add 10% Meridians</button><br>
-            <button id="debug-add-element-btn">Add 10% Elements</button>
+            <button id="debug-add-element-btn">Add 10% Elements</button><br>
+            <button id="debug-add-spirit-stone-btn">Add Superior Spirit Stone</button>
           </div>
         </div>
       </div>
@@ -712,52 +1001,112 @@
     <div class="page combat-page" id="combat-page" style="display: none;">
       <div class="combat-container">
         <div class="combat-section">
-          <h3>⚔️ Combat Arena</h3>
+          <h3 data-i18n="ui.combatArena">⚔️ Combat Arena</h3>
           <div class="enemy-display" id="enemy-display">
-            <div class="no-enemy">No enemy encountered. Click "Find Enemy" to search for opponents.</div>
+            <div class="no-enemy" data-i18n="messages.noEnemyEncountered">No enemy encountered. Click "Find Enemy" to search for opponents.</div>
           </div>
           <div class="combat-actions" id="combat-actions">
-            <button id="find-enemy-btn" class="combat-btn">🔍 Find Enemy</button>
-            <button id="attack-btn" class="combat-btn" disabled>⚔️ Attack</button>
-            <button id="flee-btn" class="combat-btn" disabled>🏃 Flee</button>
+            <button id="find-enemy-btn" class="combat-btn" data-i18n="messages.findEnemy">🔍 Find Enemy</button>
+            <button id="attack-btn" class="combat-btn" disabled data-i18n="ui.attack">⚔️ Attack</button>
+            <button id="flee-btn" class="combat-btn" disabled data-i18n="ui.flee">🏃 Flee</button>
           </div>
         </div>
 
         <div class="combat-section">
-          <h3>📊 Combat Stats</h3>
-          <div id="combat-stats">No active combat</div>
+          <h3 data-i18n="ui.combatStats">📊 Combat Stats</h3>
+          <div id="combat-stats" data-i18n="messages.noActiveCombat">No active combat</div>
         </div>
 
         <div class="combat-section">
-          <h3>🎁 Loot & Rewards</h3>
-          <div id="combat-loot">No loot available</div>
+          <h3 data-i18n="ui.lootAndRewards">🎁 Loot & Rewards</h3>
+          <div id="combat-loot" data-i18n="messages.noLootAvailable">No loot available</div>
         </div>
       </div>
     </div>
 
     <!-- Inventory Page -->
     <div class="page inventory-page" id="inventory-page" style="display: none;">
+      <!-- Inventory Controls -->
+      <div class="inventory-controls">
+        <div class="inventory-search">
+          <input type="text" id="inventory-search" placeholder="🔍 Search items..." data-i18n="ui.searchItems" />
+        </div>
+        <div class="inventory-filters">
+          <select id="category-filter">
+            <option value="" data-i18n="ui.allCategories">All Categories</option>
+            <option value="weapon" data-i18n="itemCategories.weapon">Weapons</option>
+            <option value="armor" data-i18n="itemCategories.armor">Armor</option>
+            <option value="pill" data-i18n="itemCategories.pill">Pills</option>
+            <option value="herb" data-i18n="itemCategories.herb">Herbs</option>
+            <option value="spirit_stone" data-i18n="itemCategories.spirit_stone">Spirit Stones</option>
+            <option value="charm" data-i18n="itemCategories.charm">Charms</option>
+            <option value="manual" data-i18n="itemCategories.manual">Manuals</option>
+          </select>
+          <select id="quality-filter">
+            <option value="" data-i18n="ui.allQualities">All Qualities</option>
+            <option value="0" data-i18n="itemQualities.common">Common</option>
+            <option value="1" data-i18n="itemQualities.uncommon">Uncommon</option>
+            <option value="2" data-i18n="itemQualities.rare">Rare</option>
+            <option value="3" data-i18n="itemQualities.epic">Epic</option>
+            <option value="4" data-i18n="itemQualities.legendary">Legendary</option>
+            <option value="5" data-i18n="itemQualities.mythical">Mythical</option>
+          </select>
+          <select id="sort-select">
+            <option value="name" data-i18n="ui.sortByName">Name</option>
+            <option value="quality" data-i18n="ui.sortByQuality">Quality</option>
+            <option value="value" data-i18n="ui.sortByValue">Value</option>
+            <option value="quantity" data-i18n="ui.sortByQuantity">Quantity</option>
+          </select>
+        </div>
+      </div>
+
       <div class="inventory-container">
-        <div class="inventory-section">
-          <h3>🎒 Player Inventory</h3>
-          <div class="inventory-stats">
-            <div class="stat-item">
-              <span class="stat-label">Total Artifacts:</span>
-              <span class="stat-value" id="artifact-count">0</span>
-            </div>
-            <div class="stat-item">
-              <span class="stat-label">Inventory Space:</span>
-              <span class="stat-value" id="inventory-space">∞</span>
-            </div>
-          </div>
-          <div class="artifact-grid" id="artifact-grid">
-            <div class="no-artifacts">No artifacts collected yet. Defeat enemies in combat to obtain artifacts!</div>
+        <!-- Equipment Section -->
+        <div class="inventory-section equipment-section">
+          <h3 data-i18n="ui.equipment">⚔️ Equipment</h3>
+          <div class="equipment-slots" id="equipment-slots">
+            <!-- Equipment slots will be dynamically generated -->
           </div>
         </div>
 
+        <!-- Inventory Stats -->
         <div class="inventory-section">
-          <h3>📋 Artifact Details</h3>
-          <div id="artifact-details">Select an artifact to view details</div>
+          <h3 data-i18n="ui.inventoryStats">📊 Inventory Stats</h3>
+          <div class="inventory-stats">
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="ui.totalItems">Items:</span>
+              <span class="stat-value" id="total-items">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="ui.uniqueItems">Unique:</span>
+              <span class="stat-value" id="unique-items">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="ui.totalValue">Value:</span>
+              <span class="stat-value" id="total-value">0</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label" data-i18n="ui.capacity">Capacity:</span>
+              <span class="stat-value" id="inventory-capacity">0/100</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item Grid -->
+        <div class="inventory-section item-grid-section">
+          <h3 data-i18n="ui.items">🎒 Items</h3>
+          <div class="item-grid" id="item-grid">
+            <div class="no-items" data-i18n="ui.noItemsInInventory">No items in inventory</div>
+          </div>
+        </div>
+
+        <!-- Item Details & Actions -->
+        <div class="inventory-section">
+          <h3 data-i18n="ui.itemDetails">📋 Item Details</h3>
+          <div id="item-details" data-i18n="ui.selectItemToViewDetails">Select an item to view details</div>
+          <div class="item-actions" id="item-actions" style="margin-top: 1rem;">
+            <!-- Actions will be populated by JavaScript -->
+          </div>
         </div>
       </div>
     </div>
