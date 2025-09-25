@@ -268,8 +268,8 @@ export class CombatSystem {
     return {
       damage: actualDamage,
       enemyDefeated,
-      enemyHealth: enemy.health!,
-      enemyMaxHealth: enemy.maxHealth!
+      enemyHealth: enemy.health,
+      enemyMaxHealth: enemy.maxHealth
     };
   }
 
@@ -293,8 +293,8 @@ export class CombatSystem {
     return {
       damage: actualDamage,
       playerDefeated,
-      playerHealth: player.health!,
-      playerMaxHealth: player.maxHealth!
+      playerHealth: player.health,
+      playerMaxHealth: player.maxHealth
     };
   }
 

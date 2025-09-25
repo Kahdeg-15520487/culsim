@@ -199,13 +199,25 @@ function updateCombatStats() {
   }
 
   const player = game.getState().player;
+  const soul = game.getState().soul;
   const playerPower = player.qi + (player.talent * 2) + (player.realm * 100);
   const enemyPower = currentEnemy.qi + (currentEnemy.realm * 50);
 
   combatStatsEl.innerHTML = `
-    <strong>${i18n.t('messages.yourPower')}</strong> ${playerPower.toFixed(0)}<br>
-    <strong>${i18n.t('messages.enemyPower')}</strong> ${enemyPower.toFixed(0)}<br>
-    <strong>${i18n.t('messages.winChance')}</strong> ${((playerPower / (playerPower + enemyPower)) * 100).toFixed(1)}%
+    <div style="margin-bottom: 10px;">
+      <strong>${i18n.t('status.player')}:</strong> ${player.name}<br>
+      <strong>${i18n.t('status.realm')}:</strong> ${i18n.getRealmName(player.realm)}<br>
+      <strong>${i18n.t('status.health')}:</strong> ${player.health} / ${player.maxHealth}<br>
+      <strong>${i18n.t('status.qi')}:</strong> ${player.qi.toFixed(1)} / ${player.maxQi}<br>
+      <strong>${i18n.t('status.meridians')}:</strong> ${player.meridians.filter(m => m.isOpen).length}/12<br>
+      <strong>${i18n.t('status.talent')}:</strong> ${player.talent}/100<br>
+      <strong>${i18n.t('status.karma')}:</strong> ${soul.karmicBalance > 0 ? '+' : ''}${soul.karmicBalance}
+    </div>
+    <div>
+      <strong>${i18n.t('messages.yourPower')}</strong> ${playerPower.toFixed(0)}<br>
+      <strong>${i18n.t('messages.enemyPower')}</strong> ${enemyPower.toFixed(0)}<br>
+      <strong>${i18n.t('messages.winChance')}</strong> ${((playerPower / (playerPower + enemyPower)) * 100).toFixed(1)}%
+    </div>
   `;
 }
 
@@ -266,30 +278,32 @@ function attackEnemy() {
     updateEnemyDisplay();
     updateCombatStats();
     updateCombatLoot();
+
+    // Re-enable buttons after victory
+    attackBtn.disabled = false;
+    fleeBtn.disabled = false;
     return;
   }
 
-  // Enemy counterattacks if still alive
-  setTimeout(() => {
-    const enemyAttackResult = game.enemyAttack(currentEnemy);
+  // Enemy counterattacks immediately if still alive
+  const enemyAttackResult = game.enemyAttack(currentEnemy);
 
-    if (enemyAttackResult.playerDefeated) {
-      // Player loses
-      combatLoot = game.handlePlayerDefeat(currentEnemy);
-      console.log(i18n.t('messages.defeatedBy', { enemy: currentEnemy.name }));
+  if (enemyAttackResult.playerDefeated) {
+    // Player loses
+    combatLoot = game.handlePlayerDefeat(currentEnemy);
+    console.log(i18n.t('messages.defeatedBy', { enemy: currentEnemy.name }));
 
-      // Clear current enemy after combat
-      currentEnemy = null;
-    }
+    // Clear current enemy after combat
+    currentEnemy = null;
+  }
 
-    // Re-enable buttons after enemy attack
-    attackBtn.disabled = false;
-    fleeBtn.disabled = false;
+  // Re-enable buttons after enemy attack
+  attackBtn.disabled = false;
+  fleeBtn.disabled = false;
 
-    updateEnemyDisplay();
-    updateCombatStats();
-    updateCombatLoot();
-  }, 1000); // Small delay for dramatic effect
+  updateEnemyDisplay();
+  updateCombatStats();
+  updateCombatLoot();
 }
 
 function fleeFromEnemy() {

@@ -59,10 +59,6 @@ export class HealthSystem {
    * Apply damage to an entity
    */
   public applyDamage(entity: Player | Enemy, damage: number, damageType: DamageType): number {
-    if (entity.health === undefined || entity.maxHealth === undefined) {
-      throw new Error('Entity health not initialized');
-    }
-
     let actualDamage = damage;
 
     // Apply damage type modifiers
@@ -120,10 +116,6 @@ export class HealthSystem {
    * Heal an entity
    */
   public heal(entity: Player | Enemy, amount: number): number {
-    if (entity.health === undefined || entity.maxHealth === undefined) {
-      throw new Error('Entity health not initialized');
-    }
-
     const oldHealth = entity.health;
     entity.health = Math.min(entity.maxHealth, entity.health + amount);
     return entity.health - oldHealth; // Return actual healing done
@@ -133,10 +125,6 @@ export class HealthSystem {
    * Regenerate health over time (called each game tick)
    */
   public regenerateHealth(entity: Player | Enemy): number {
-    if (entity.health === undefined || entity.maxHealth === undefined) {
-      return 0; // Cannot regenerate if health not initialized
-    }
-
     if (entity.health >= entity.maxHealth) {
       return 0; // Already at full health
     }
@@ -172,16 +160,13 @@ export class HealthSystem {
    * Check if entity is alive
    */
   public isAlive(entity: Player | Enemy): boolean {
-    return entity.health !== undefined && entity.health > 0;
+    return entity.health > 0;
   }
 
   /**
    * Get health percentage (0-100)
    */
   public getHealthPercentage(entity: Player | Enemy): number {
-    if (entity.health === undefined || entity.maxHealth === undefined) {
-      return 0;
-    }
     return Math.round((entity.health / entity.maxHealth) * 100);
   }
 
@@ -205,12 +190,6 @@ export class HealthSystem {
    * Update max health when player stats change (realm breakthrough, etc.)
    */
   public updateMaxHealth(player: Player): void {
-    if (player.health === undefined || player.maxHealth === undefined) {
-      // Initialize health if not set
-      this.initializePlayerHealth(player);
-      return;
-    }
-
     const newMaxHealth = this.calculateMaxHealth(player);
     const healthPercentage = player.health / player.maxHealth;
     player.maxHealth = newMaxHealth;

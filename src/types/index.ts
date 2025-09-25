@@ -88,8 +88,8 @@ export interface Player {
   realm: CultivationRealm;
   qi: number;
   maxQi: number;
-  health?: number;
-  maxHealth?: number;
+  health: number;
+  maxHealth: number;
   meridians: Meridian[];
   elements: ElementAffinities;
   talent: number; // 1-100 scale
@@ -131,8 +131,8 @@ export interface Enemy {
   realm: CultivationRealm;
   qi: number;
   maxQi: number;
-  health?: number;
-  maxHealth?: number;
+  health: number;
+  maxHealth: number;
   elements: ElementAffinities;
   combatType: CombatType;
   aggression: number; // 1-100 (how likely to attack)
