@@ -16,6 +16,7 @@ import {
   CultivationRealm
 } from '../types';
 import { InventorySystem } from './InventorySystem';
+import { ItemSystem } from './ItemSystem';
 import { i18n } from './i18n';
 
 export class ItemInteractionSystem {
@@ -82,7 +83,7 @@ export class ItemInteractionSystem {
 
     return {
       success: true,
-      message: `Consumed ${item.name}`,
+      message: `Consumed ${ItemSystem.getTranslatedItemName(item)}`,
       effects: appliedEffects
     };
   }
@@ -113,7 +114,7 @@ export class ItemInteractionSystem {
 
     return {
       success: true,
-      message: `Equipped ${item.name} to ${slot}`,
+      message: `Equipped ${ItemSystem.getTranslatedItemName(item)} to ${slot}`,
       effects: item.effects
     };
   }
@@ -132,7 +133,7 @@ export class ItemInteractionSystem {
 
     return {
       success: true,
-      message: `Studied ${item.name} and gained cultivation insights`,
+      message: `Studied ${ItemSystem.getTranslatedItemName(item)} and gained cultivation insights`,
       effects: appliedEffects
     };
   }
@@ -164,7 +165,7 @@ export class ItemInteractionSystem {
         this.inventorySystem.removeItem(item.id, 1);
         return {
           success: true,
-          message: `Absorbed the last qi from ${item.name} - spirit stone depleted`,
+          message: `Absorbed the last qi from ${ItemSystem.getTranslatedItemName(item)} - spirit stone depleted`,
           effects: appliedEffects
         };
       }
@@ -172,7 +173,7 @@ export class ItemInteractionSystem {
 
     return {
       success: true,
-      message: `Absorbed qi from ${item.name}`,
+      message: `Absorbed qi from ${ItemSystem.getTranslatedItemName(item)}`,
       effects: appliedEffects
     };
   }
@@ -200,7 +201,7 @@ export class ItemInteractionSystem {
 
     return {
       success: true,
-      message: `Enhanced qi gathering with ${item.name}. Automatic qi absorption increased!`
+      message: `Enhanced qi gathering with ${ItemSystem.getTranslatedItemName(item)}. Automatic qi absorption increased!`
     };
   }
 
@@ -253,7 +254,7 @@ export class ItemInteractionSystem {
 
       return {
         success: true,
-        message: `Combined ${items.length} stacks into ${combinedItem.quantity} ${baseItem.name}`,
+        message: `Combined ${items.length} stacks into ${combinedItem.quantity} ${ItemSystem.getTranslatedItemName(baseItem)}`,
         result: combinedItem
       };
     }
@@ -400,7 +401,10 @@ export class ItemInteractionSystem {
 
     const first = items[0];
     return items.every(item =>
-      item.name === first.name &&
+      item.nameQuality === first.nameQuality &&
+      item.nameBase === first.nameBase &&
+      item.nameElement === first.nameElement &&
+      item.nameRealm === first.nameRealm &&
       item.category === first.category &&
       item.quality === first.quality &&
       item.element === first.element &&
@@ -412,7 +416,7 @@ export class ItemInteractionSystem {
    * Get item tooltip/description with current effects
    */
   getItemTooltip(item: Item): string {
-    let tooltip = `${item.name}\n`;
+    let tooltip = `${ItemSystem.getTranslatedItemName(item)}\n`;
     tooltip += `Quality: ${ItemQuality[item.quality]}\n`;
     tooltip += `Category: ${item.category.replace('_', ' ')}\n`;
 

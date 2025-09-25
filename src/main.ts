@@ -227,7 +227,7 @@ function updateCombatLoot() {
       case 'manual': emoji = '📚'; break;
     }
     
-    return `${emoji} ${item.name}: ${item.description} (Value: ${item.value})`;
+    return `${emoji} ${ItemSystem.getTranslatedItemName(item)}: ${item.description} (Value: ${item.value})`;
   }).join('<br>');
 
   combatLootEl.innerHTML = lootHtml;
@@ -349,7 +349,7 @@ function updateEquipmentDisplay() {
     if (equippedItem) {
       slotElement.innerHTML = `
         <div class="equipment-item" data-item-id="${equippedItem.id}">
-          <div class="item-name">${equippedItem.name}</div>
+          <div class="item-name">${ItemSystem.getTranslatedItemName(equippedItem)}</div>
           <div class="item-quality quality-${equippedItem.quality}">${ItemQuality[equippedItem.quality]}</div>
         </div>
       `;
@@ -371,7 +371,7 @@ function updateItemGrid(items: Item[]) {
 
   const itemHtml = items.map(item => `
     <div class="item-card" data-item-id="${item.id}">
-      <div class="item-name">${item.name}</div>
+      <div class="item-name">${ItemSystem.getTranslatedItemName(item)}</div>
       <div class="item-category">${item.category}</div>
       <div class="item-quality quality-${item.quality}">${ItemQuality[item.quality]}</div>
       <div class="item-quantity">${item.stackable ? `x${item.quantity}` : ''}</div>
@@ -381,13 +381,7 @@ function updateItemGrid(items: Item[]) {
 
   itemGridEl.innerHTML = itemHtml;
 
-  // Add click handlers for item cards
-  document.querySelectorAll('.item-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const itemId = (card as HTMLElement).dataset.itemId!;
-      selectItem(itemId);
-    });
-  });
+  // Event listener is set up once at initialization using event delegation
 }
 
 function selectItem(itemId: string) {
@@ -412,7 +406,7 @@ function selectItem(itemId: string) {
 
   itemDetailsEl.innerHTML = `
     <div class="item-detail-header">
-      <h3>${item.name}</h3>
+      <h3>${ItemSystem.getTranslatedItemName(item)}</h3>
       <div class="item-detail-quality quality-${item.quality}">${ItemQuality[item.quality]}</div>
     </div>
     <div class="item-detail-category">${item.category}</div>
@@ -939,7 +933,7 @@ debugAddSpiritStoneBtn.addEventListener('click', () => {
   
   const added = inventorySystem.addItem(spiritStone);
   if (added) {
-    logMessage(`✅ Added ${spiritStone.name} to inventory`);
+    logMessage(`✅ Added ${ItemSystem.getTranslatedItemName(spiritStone)} to inventory`);
   } else {
     logMessage(`❌ Failed to add spirit stone - inventory full`);
   }
@@ -1108,6 +1102,16 @@ function setupEquipmentSlotListeners() {
 initializeCardCollapse(); // Initialize collapsible cards
 generateEquipmentSlots(); // Generate equipment slots dynamically
 setupEquipmentSlotListeners(); // Set up equipment slot event listeners
+
+// Set up item grid click handler using event delegation
+itemGridEl.addEventListener('click', (event) => {
+  const target = event.target as HTMLElement;
+  const itemCard = target.closest('.item-card') as HTMLElement;
+  if (itemCard && itemCard.dataset.itemId) {
+    selectItem(itemCard.dataset.itemId);
+  }
+});
+
 switchPage('overview'); // Start with overview page
 updateUIText();
 updateUI();

@@ -17,6 +17,7 @@ import {
   BASE_ITEM_STATS,
   QUALITY_DROP_RATES
 } from '../types';
+import { i18n } from './i18n';
 
 export class ItemSystem {
   /**
@@ -136,62 +137,76 @@ export class ItemSystem {
   }
 
   /**
-   * Generate item name based on category, quality, element, and realm
+   * Generate item name keys for i18n translation
    */
-  static generateItemName(
+  static generateItemNameKeys(
     category: ItemCategory,
     quality: ItemQuality,
     realm: CultivationRealm,
     element?: Element
-  ): string {
-    const qualityPrefixes = {
-      [ItemQuality.Common]: '',
-      [ItemQuality.Uncommon]: 'Refined ',
-      [ItemQuality.Rare]: 'Superior ',
-      [ItemQuality.Epic]: 'Exquisite ',
-      [ItemQuality.Legendary]: 'Legendary ',
-      [ItemQuality.Mythical]: 'Mythical '
+  ): { nameQuality: string; nameBase: string; nameElement?: string; nameRealm: string } {
+    const qualityKeys = {
+      [ItemQuality.Common]: 'itemNames.qualityCommon',
+      [ItemQuality.Uncommon]: 'itemNames.qualityRefined',
+      [ItemQuality.Rare]: 'itemNames.qualitySuperior',
+      [ItemQuality.Epic]: 'itemNames.qualityExquisite',
+      [ItemQuality.Legendary]: 'itemNames.qualityLegendary',
+      [ItemQuality.Mythical]: 'itemNames.qualityMythical'
     };
 
-    const realmSuffixes = {
-      [CultivationRealm.Mortal]: '',
-      [CultivationRealm.QiCondensation]: ' of Qi Condensation',
-      [CultivationRealm.FoundationEstablishment]: ' of Foundation Establishment',
-      [CultivationRealm.CoreFormation]: ' of Core Formation',
-      [CultivationRealm.NascentSoul]: ' of Nascent Soul',
-      [CultivationRealm.DivineTransformation]: ' of Divine Transformation',
-      [CultivationRealm.VoidRefinement]: ' of Void Refinement',
-      [CultivationRealm.ImmortalAscension]: ' of Immortal Ascension'
+    const realmKeys = {
+      [CultivationRealm.Mortal]: 'itemNames.realmMortal',
+      [CultivationRealm.QiCondensation]: 'itemNames.realmQiCondensation',
+      [CultivationRealm.FoundationEstablishment]: 'itemNames.realmFoundationEstablishment',
+      [CultivationRealm.CoreFormation]: 'itemNames.realmCoreFormation',
+      [CultivationRealm.NascentSoul]: 'itemNames.realmNascentSoul',
+      [CultivationRealm.DivineTransformation]: 'itemNames.realmDivineTransformation',
+      [CultivationRealm.VoidRefinement]: 'itemNames.realmVoidRefinement',
+      [CultivationRealm.ImmortalAscension]: 'itemNames.realmImmortalAscension'
     };
 
-    const elementNames = {
-      [Element.Metal]: 'Metal',
-      [Element.Wood]: 'Wood',
-      [Element.Water]: 'Water',
-      [Element.Fire]: 'Fire',
-      [Element.Earth]: 'Earth'
+    const elementKeys = {
+      [Element.Metal]: 'itemNames.elementMetal',
+      [Element.Wood]: 'itemNames.elementWood',
+      [Element.Water]: 'itemNames.elementWater',
+      [Element.Fire]: 'itemNames.elementFire',
+      [Element.Earth]: 'itemNames.elementEarth'
     };
 
-    const baseNames = {
-      [ItemCategory.Armor]: 'Daoist Robe',
-      [ItemCategory.Weapon]: 'Spirit Sword',
-      [ItemCategory.Pill]: 'Cultivation Pill',
-      [ItemCategory.Drug]: 'Spirit Wine',
-      [ItemCategory.Poison]: 'Venom Extract',
-      [ItemCategory.SpiritStone]: 'Spirit Stone',
-      [ItemCategory.Herb]: 'Spirit Herb',
-      [ItemCategory.BeastPart]: 'Beast Core',
-      [ItemCategory.Charm]: 'Protection Charm',
-      [ItemCategory.Manual]: 'Cultivation Manual'
+    const baseKeys = {
+      [ItemCategory.Armor]: 'itemNames.baseArmor',
+      [ItemCategory.Weapon]: 'itemNames.baseWeapon',
+      [ItemCategory.Pill]: 'itemNames.basePill',
+      [ItemCategory.Drug]: 'itemNames.baseDrug',
+      [ItemCategory.Poison]: 'itemNames.basePoison',
+      [ItemCategory.SpiritStone]: 'itemNames.baseSpiritStone',
+      [ItemCategory.Herb]: 'itemNames.baseHerb',
+      [ItemCategory.BeastPart]: 'itemNames.baseBeastPart',
+      [ItemCategory.Charm]: 'itemNames.baseCharm',
+      [ItemCategory.Manual]: 'itemNames.baseManual'
     };
 
-    let name = qualityPrefixes[quality] + baseNames[category];
+    return {
+      nameQuality: qualityKeys[quality],
+      nameBase: baseKeys[category],
+      nameElement: element ? elementKeys[element] : undefined,
+      nameRealm: realmKeys[realm]
+    };
+  }
 
-    if (element) {
-      name = `${elementNames[element]} ${name}`;
+  /**
+   * Generate translated item name from i18n keys
+   */
+  static getTranslatedItemName(item: Item): string {
+    let name = i18n.t(item.nameQuality) + i18n.t(item.nameBase);
+
+    if (item.nameElement) {
+      name = `${i18n.t(item.nameElement)} ${name}`;
     }
 
-    name += realmSuffixes[realm];
+    if (item.nameRealm) {
+      name += i18n.t(item.nameRealm);
+    }
 
     return name;
   }
@@ -243,7 +258,7 @@ export class ItemSystem {
     id?: string
   ): Item {
     const effects = this.generateItemEffects(category, quality, realm, element);
-    const name = this.generateItemName(category, quality, realm, element);
+    const nameKeys = this.generateItemNameKeys(category, quality, realm, element);
     const value = this.calculateItemValue(category, quality, realm);
 
     const baseStats = BASE_ITEM_STATS[category];
@@ -252,7 +267,7 @@ export class ItemSystem {
 
     return {
       id: id || `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      name,
+      ...nameKeys,
       category,
       quality,
       realm,

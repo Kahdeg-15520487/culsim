@@ -368,7 +368,7 @@ export class LootSystem {
         case 'quality':
           return b.quality - a.quality;
         case 'name':
-          return a.name.localeCompare(b.name);
+          return ItemSystem.getTranslatedItemName(a).localeCompare(ItemSystem.getTranslatedItemName(b));
         default:
           return 0;
       }

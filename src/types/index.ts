@@ -179,7 +179,11 @@ export interface ElementAffinities {
 // Enhanced Item System
 export interface Item {
   id: string;
-  name: string;
+  // Name components for i18n translation
+  nameQuality: string; // i18n key for quality (e.g., "quality.common")
+  nameBase: string; // i18n key for base name (e.g., "item.weapon.sword")
+  nameElement?: string; // i18n key for element (e.g., "element.wood")
+  nameRealm?: string; // i18n key for realm (e.g., "realm.mortal")
   category: ItemCategory;
   quality: ItemQuality;
   realm: CultivationRealm; // Minimum realm to use effectively

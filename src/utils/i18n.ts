@@ -316,6 +316,43 @@ export interface Translations {
     talentIncreased: string;
     elementAffinityBoosted: string;
   };
+
+  // Item Name Components
+  itemNames: {
+    // Quality prefixes
+    qualityCommon: string;
+    qualityRefined: string;
+    qualitySuperior: string;
+    qualityExquisite: string;
+    qualityLegendary: string;
+    qualityMythical: string;
+    // Base item names
+    baseArmor: string;
+    baseWeapon: string;
+    basePill: string;
+    baseDrug: string;
+    basePoison: string;
+    baseSpiritStone: string;
+    baseHerb: string;
+    baseBeastPart: string;
+    baseCharm: string;
+    baseManual: string;
+    // Element names
+    elementMetal: string;
+    elementWood: string;
+    elementWater: string;
+    elementFire: string;
+    elementEarth: string;
+    // Realm suffixes
+    realmMortal: string;
+    realmQiCondensation: string;
+    realmFoundationEstablishment: string;
+    realmCoreFormation: string;
+    realmNascentSoul: string;
+    realmDivineTransformation: string;
+    realmVoidRefinement: string;
+    realmImmortalAscension: string;
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -600,6 +637,43 @@ export const translations: Record<Language, Translations> = {
       legendary: 'Legendary',
       mythical: 'Mythical',
     },
+
+    // Item Name Components
+    itemNames: {
+      // Quality prefixes
+      qualityCommon: '',
+      qualityRefined: 'Refined ',
+      qualitySuperior: 'Superior ',
+      qualityExquisite: 'Exquisite ',
+      qualityLegendary: 'Legendary ',
+      qualityMythical: 'Mythical ',
+      // Base item names
+      baseArmor: 'Daoist Robe',
+      baseWeapon: 'Spirit Sword',
+      basePill: 'Cultivation Pill',
+      baseDrug: 'Spirit Wine',
+      basePoison: 'Venom Extract',
+      baseSpiritStone: 'Spirit Stone',
+      baseHerb: 'Spirit Herb',
+      baseBeastPart: 'Beast Core',
+      baseCharm: 'Protection Charm',
+      baseManual: 'Cultivation Manual',
+      // Element names
+      elementMetal: 'Metal',
+      elementWood: 'Wood',
+      elementWater: 'Water',
+      elementFire: 'Fire',
+      elementEarth: 'Earth',
+      // Realm suffixes
+      realmMortal: '',
+      realmQiCondensation: ' of Qi Condensation',
+      realmFoundationEstablishment: ' of Foundation Establishment',
+      realmCoreFormation: ' of Core Formation',
+      realmNascentSoul: ' of Nascent Soul',
+      realmDivineTransformation: ' of Divine Transformation',
+      realmVoidRefinement: ' of Void Refinement',
+      realmImmortalAscension: ' of Immortal Ascension',
+    },
   },
   vi: {
     ui: {
@@ -881,6 +955,43 @@ export const translations: Record<Language, Translations> = {
       epic: 'Truyền Thuyết',
       legendary: 'Thần Thoại',
       mythical: 'Thần Bí',
+    },
+
+    // Item Name Components
+    itemNames: {
+      // Quality prefixes
+      qualityCommon: '',
+      qualityRefined: 'Tinh Luyện ',
+      qualitySuperior: 'Thượng Hạng ',
+      qualityExquisite: 'Tinh Xảo ',
+      qualityLegendary: 'Truyền Thuyết ',
+      qualityMythical: 'Thần Bí ',
+      // Base item names
+      baseArmor: 'Đạo Phục',
+      baseWeapon: 'Tiên Kiếm',
+      basePill: 'Tu Luyện Đan',
+      baseDrug: 'Linh Tửu',
+      basePoison: 'Độc Dịch',
+      baseSpiritStone: 'Linh Thạch',
+      baseHerb: 'Linh Dược',
+      baseBeastPart: 'Thú Đan',
+      baseCharm: 'Hộ Mệnh Phù',
+      baseManual: 'Tu Luyện Bí Kíp',
+      // Element names
+      elementMetal: 'Kim',
+      elementWood: 'Mộc',
+      elementWater: 'Thủy',
+      elementFire: 'Hỏa',
+      elementEarth: 'Thổ',
+      // Realm suffixes
+      realmMortal: '',
+      realmQiCondensation: ' Khí Luyện Kỳ',
+      realmFoundationEstablishment: ' Trúc Cơ Kỳ',
+      realmCoreFormation: ' Kim Đan Kỳ',
+      realmNascentSoul: ' Nguyên Anh Kỳ',
+      realmDivineTransformation: ' Hóa Thần Kỳ',
+      realmVoidRefinement: ' Luyện Không Kỳ',
+      realmImmortalAscension: ' Phi Thăng Kỳ',
     },
   },
 };

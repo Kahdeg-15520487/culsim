@@ -18,6 +18,7 @@ import {
   InventoryFilter,
   InventorySort
 } from '../types';
+import { ItemSystem } from './ItemSystem';
 
 export class InventorySystem {
   private player: Player;
@@ -86,7 +87,7 @@ export class InventorySystem {
    * Add item to inventory with stacking logic
    */
   addItem(item: Item): boolean {
-    console.log('DEBUG: InventorySystem.addItem called with:', item.name, item.category);
+    console.log('DEBUG: InventorySystem.addItem called with:', ItemSystem.getTranslatedItemName(item), item.category);
     
     if (this.isInventoryFull()) {
       console.log('DEBUG: Inventory is full');
@@ -149,7 +150,10 @@ export class InventorySystem {
   private findStackableItem(newItem: Item): Item | null {
     return this.player.inventory!.items.find(item =>
       item.stackable &&
-      item.name === newItem.name &&
+      item.nameQuality === newItem.nameQuality &&
+      item.nameBase === newItem.nameBase &&
+      item.nameElement === newItem.nameElement &&
+      item.nameRealm === newItem.nameRealm &&
       item.category === newItem.category &&
       item.quality === newItem.quality &&
       item.element === newItem.element
@@ -192,7 +196,7 @@ export class InventorySystem {
     
     // Reorganize items
     for (const item of this.player.inventory!.items) {
-      console.log('DEBUG: Processing item:', item.name, 'category:', item.category);
+      console.log('DEBUG: Processing item:', ItemSystem.getTranslatedItemName(item), 'category:', item.category);
       
       if (item.category in this.player.inventory!.organization.categories) {
         console.log('DEBUG: Category exists, pushing item');
@@ -242,7 +246,7 @@ export class InventorySystem {
       if (filter.realm && item.realm > filter.realm) return false; // Items above player realm
       if (filter.searchText) {
         const searchLower = filter.searchText.toLowerCase();
-        if (!item.name.toLowerCase().includes(searchLower) &&
+        if (!ItemSystem.getTranslatedItemName(item).toLowerCase().includes(searchLower) &&
             !item.description.toLowerCase().includes(searchLower)) {
           return false;
         }
@@ -260,7 +264,7 @@ export class InventorySystem {
 
       switch (sort.by) {
         case 'name':
-          comparison = a.name.localeCompare(b.name);
+          comparison = ItemSystem.getTranslatedItemName(a).localeCompare(ItemSystem.getTranslatedItemName(b));
           break;
         case 'quality':
           comparison = b.quality - a.quality; // Higher quality first
@@ -375,7 +379,7 @@ export class InventorySystem {
   private applyItemEffects(item: Item): void {
     // This would integrate with the effect system
     // For now, just log the effects
-    console.log(`Applying effects from ${item.name}:`, item.effects);
+    console.log(`Applying effects from ${ItemSystem.getTranslatedItemName(item)}:`, item.effects);
   }
 
   /**

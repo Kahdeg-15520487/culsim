@@ -6,6 +6,7 @@
  */
 
 import { GameState, Item, ItemEffect, ItemCategory, Element } from '../types';
+import { ItemSystem } from './ItemSystem';
 import { i18n } from './i18n';
 
 export class ItemEffectProcessor {
@@ -396,7 +397,7 @@ export class ItemEffectProcessor {
 
               // Remove effect if duration expires
               if (effect.duration <= 0) {
-                console.log(i18n.t('messages.effectExpired', { itemName: item.name, effectType: effect.type }));
+                console.log(i18n.t('messages.effectExpired', { itemName: ItemSystem.getTranslatedItemName(item), effectType: effect.type }));
               }
             }
           });
@@ -417,7 +418,7 @@ export class ItemEffectProcessor {
 
           // Remove effect if duration expires
           if (effect.duration <= 0) {
-            console.log(i18n.t('messages.effectExpired', { itemName: item.name, effectType: effect.type }));
+            console.log(i18n.t('messages.effectExpired', { itemName: ItemSystem.getTranslatedItemName(item), effectType: effect.type }));
           }
         }
       });
@@ -457,7 +458,7 @@ export class ItemEffectProcessor {
           this.gameState.player.inventory.items.splice(itemIndex, 1);
         }
 
-        console.log(i18n.t('messages.itemUsed', { itemName: item.name }));
+        console.log(i18n.t('messages.itemUsed', { itemName: ItemSystem.getTranslatedItemName(item) }));
         return true;
       }
     }
@@ -480,7 +481,7 @@ export class ItemEffectProcessor {
         this.gameState.player.items.splice(legacyItemIndex, 1);
       }
 
-      console.log(i18n.t('messages.itemUsed', { itemName: item.name }));
+      console.log(i18n.t('messages.itemUsed', { itemName: ItemSystem.getTranslatedItemName(item) }));
       return true;
     }
 
@@ -499,7 +500,7 @@ export class ItemEffectProcessor {
           // Flat qi gain
           const qiGain = Math.min(effect.value, player.maxQi - player.qi);
           player.qi += qiGain;
-          console.log(i18n.t('messages.qiGained', { qiGain, itemName: item.name }));
+          console.log(i18n.t('messages.qiGained', { qiGain, itemName: ItemSystem.getTranslatedItemName(item) }));
         }
         break;
 
@@ -507,7 +508,7 @@ export class ItemEffectProcessor {
         if (!effect.isPercentage) {
           const talentGain = Math.min(effect.value, 100 - player.talent);
           player.talent += talentGain;
-          console.log(i18n.t('messages.talentIncreased', { talentGain, itemName: item.name }));
+          console.log(i18n.t('messages.talentIncreased', { talentGain, itemName: ItemSystem.getTranslatedItemName(item) }));
         }
         break;
 
@@ -516,7 +517,7 @@ export class ItemEffectProcessor {
           const currentAffinity = player.elements[effect.element];
           const boost = Math.floor(currentAffinity * (effect.value / 100));
           player.elements[effect.element] = Math.min(100, currentAffinity + boost);
-          console.log(i18n.t('messages.elementAffinityBoosted', { element: effect.element, boost, itemName: item.name }));
+          console.log(i18n.t('messages.elementAffinityBoosted', { element: effect.element, boost, itemName: ItemSystem.getTranslatedItemName(item) }));
         }
         break;
     }
