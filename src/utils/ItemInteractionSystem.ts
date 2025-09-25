@@ -145,6 +145,20 @@ export class ItemInteractionSystem {
     // Spirit stones can be used multiple times, reduce durability
     if (item.durability) {
       item.durability--;
+      
+      // Reduce spirit stone qi content based on quality
+      // Higher quality stones lose qi more slowly
+      const qiLossRates = [0.20, 0.15, 0.10, 0.07, 0.05, 0.03]; // Common to Mythical
+      const qiLossRate = qiLossRates[item.quality] || 0.20; // Default to Common rate
+      
+      // Find and reduce the qi_absorption effect
+      const qiEffect = item.effects.find(effect => effect.type === 'qi_absorption' && !effect.isPercentage);
+      if (qiEffect) {
+        const originalValue = qiEffect.value;
+        const qiLoss = Math.max(1, Math.floor(originalValue * qiLossRate)); // Minimum loss of 1
+        qiEffect.value = Math.max(1, originalValue - qiLoss); // Minimum qi content of 1
+      }
+
       if (item.durability <= 0) {
         this.inventorySystem.removeItem(item.id, 1);
         return {
