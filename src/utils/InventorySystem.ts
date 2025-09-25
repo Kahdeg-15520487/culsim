@@ -296,7 +296,10 @@ export class InventorySystem {
 
     // Unequip current item in slot if any
     if (this.player.inventory!.equippedItems[slot]) {
-      this.unequipItem(slot);
+      const unequipSuccess = this.unequipItem(slot);
+      if (!unequipSuccess) {
+        return false; // Cannot unequip current item (inventory full)
+      }
     }
 
     // Remove from inventory and equip

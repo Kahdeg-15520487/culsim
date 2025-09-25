@@ -961,6 +961,16 @@ loadBtn.addEventListener('click', () => {
   }
   const loaded = game.loadGame();
   if (loaded) {
+    // Update inventory system with loaded player data
+    const loadedPlayer = game.getState().player;
+    const newInventorySystem = new InventorySystem(loadedPlayer);
+    lootSystem = new LootSystem(new Random());
+    
+    // Update the game's inventory system
+    game.updateInventorySystem(newInventorySystem);
+    inventorySystem = newInventorySystem;
+    itemInteractionSystem = new ItemInteractionSystem(inventorySystem);
+
     updateUI();
     logMessage(i18n.t('ui.gameLoaded'));
   } else {
