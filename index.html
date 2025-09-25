@@ -1028,33 +1028,33 @@
       <!-- Inventory Controls -->
       <div class="inventory-controls">
         <div class="inventory-search">
-          <input type="text" id="inventory-search" placeholder="🔍 Search items..." />
+          <input type="text" id="inventory-search" placeholder="🔍 Search items..." data-i18n="ui.searchItems" />
         </div>
         <div class="inventory-filters">
           <select id="category-filter">
-            <option value="">All Categories</option>
-            <option value="weapon">Weapons</option>
-            <option value="armor">Armor</option>
-            <option value="pill">Pills</option>
-            <option value="herb">Herbs</option>
-            <option value="spirit_stone">Spirit Stones</option>
-            <option value="charm">Charms</option>
-            <option value="manual">Manuals</option>
+            <option value="" data-i18n="ui.allCategories">All Categories</option>
+            <option value="weapon" data-i18n="itemCategories.weapon">Weapons</option>
+            <option value="armor" data-i18n="itemCategories.armor">Armor</option>
+            <option value="pill" data-i18n="itemCategories.pill">Pills</option>
+            <option value="herb" data-i18n="itemCategories.herb">Herbs</option>
+            <option value="spirit_stone" data-i18n="itemCategories.spirit_stone">Spirit Stones</option>
+            <option value="charm" data-i18n="itemCategories.charm">Charms</option>
+            <option value="manual" data-i18n="itemCategories.manual">Manuals</option>
           </select>
           <select id="quality-filter">
-            <option value="">All Qualities</option>
-            <option value="0">Common</option>
-            <option value="1">Uncommon</option>
-            <option value="2">Rare</option>
-            <option value="3">Epic</option>
-            <option value="4">Legendary</option>
-            <option value="5">Mythical</option>
+            <option value="" data-i18n="ui.allQualities">All Qualities</option>
+            <option value="0" data-i18n="itemQualities.common">Common</option>
+            <option value="1" data-i18n="itemQualities.uncommon">Uncommon</option>
+            <option value="2" data-i18n="itemQualities.rare">Rare</option>
+            <option value="3" data-i18n="itemQualities.epic">Epic</option>
+            <option value="4" data-i18n="itemQualities.legendary">Legendary</option>
+            <option value="5" data-i18n="itemQualities.mythical">Mythical</option>
           </select>
           <select id="sort-select">
-            <option value="name">Name</option>
-            <option value="quality">Quality</option>
-            <option value="value">Value</option>
-            <option value="quantity">Quantity</option>
+            <option value="name" data-i18n="ui.sortByName">Name</option>
+            <option value="quality" data-i18n="ui.sortByQuality">Quality</option>
+            <option value="value" data-i18n="ui.sortByValue">Value</option>
+            <option value="quantity" data-i18n="ui.sortByQuantity">Quantity</option>
           </select>
         </div>
       </div>
@@ -1062,7 +1062,7 @@
       <div class="inventory-container">
         <!-- Equipment Section -->
         <div class="inventory-section equipment-section">
-          <h3>⚔️ Equipment</h3>
+          <h3 data-i18n="ui.equipment">⚔️ Equipment</h3>
           <div class="equipment-slots" id="equipment-slots">
             <!-- Equipment slots will be dynamically generated -->
           </div>
@@ -1070,22 +1070,22 @@
 
         <!-- Inventory Stats -->
         <div class="inventory-section">
-          <h3>📊 Inventory Stats</h3>
+          <h3 data-i18n="ui.inventoryStats">📊 Inventory Stats</h3>
           <div class="inventory-stats">
             <div class="stat-item">
-              <span class="stat-label">Items:</span>
+              <span class="stat-label" data-i18n="ui.totalItems">Items:</span>
               <span class="stat-value" id="total-items">0</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">Unique:</span>
+              <span class="stat-label" data-i18n="ui.uniqueItems">Unique:</span>
               <span class="stat-value" id="unique-items">0</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">Value:</span>
+              <span class="stat-label" data-i18n="ui.totalValue">Value:</span>
               <span class="stat-value" id="total-value">0</span>
             </div>
             <div class="stat-item">
-              <span class="stat-label">Capacity:</span>
+              <span class="stat-label" data-i18n="ui.capacity">Capacity:</span>
               <span class="stat-value" id="inventory-capacity">0/100</span>
             </div>
           </div>
@@ -1093,16 +1093,16 @@
 
         <!-- Item Grid -->
         <div class="inventory-section item-grid-section">
-          <h3>🎒 Items</h3>
+          <h3 data-i18n="ui.items">🎒 Items</h3>
           <div class="item-grid" id="item-grid">
-            <div class="no-items">No items in inventory</div>
+            <div class="no-items" data-i18n="ui.noItemsInInventory">No items in inventory</div>
           </div>
         </div>
 
         <!-- Item Details & Actions -->
         <div class="inventory-section">
-          <h3>📋 Item Details</h3>
-          <div id="item-details">Select an item to view details</div>
+          <h3 data-i18n="ui.itemDetails">📋 Item Details</h3>
+          <div id="item-details" data-i18n="ui.selectItemToViewDetails">Select an item to view details</div>
           <div class="item-actions" id="item-actions" style="margin-top: 1rem;">
             <!-- Actions will be populated by JavaScript -->
           </div>

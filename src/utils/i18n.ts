@@ -5,6 +5,13 @@
 
 export type Language = 'en' | 'vi';
 
+// Extend window interface for global functions
+declare global {
+  interface Window {
+    generateEquipmentSlots?: () => void;
+  }
+}
+
 export interface Translations {
   // UI Elements
   ui: {
@@ -68,6 +75,67 @@ export interface Translations {
     overview: string;
     combat: string;
     inventory: string;
+    equipment: string;
+    inventoryStats: string;
+    items: string;
+    itemDetails: string;
+    searchItems: string;
+    allCategories: string;
+    allQualities: string;
+    sortByName: string;
+    sortByQuality: string;
+    sortByValue: string;
+    sortByQuantity: string;
+    totalItems: string;
+    uniqueItems: string;
+    totalValue: string;
+    capacity: string;
+    noItemsInInventory: string;
+    noItemsMatchFilters: string;
+    selectItemToViewDetails: string;
+    empty: string;
+    noSpecialEffects: string;
+    value: string;
+    durability: string;
+    quantity: string;
+    use: string;
+    equip: string;
+    study: string;
+    absorb: string;
+    enhanceQiGathering: string;
+    drop: string;
+    noActionsAvailable: string;
+  };
+
+  // Item Categories
+  itemCategories: {
+    weapon: string;
+    armor: string;
+    pill: string;
+    herb: string;
+    spirit_stone: string;
+    charm: string;
+    manual: string;
+  };
+
+  // Equipment Slots
+  equipmentSlots: {
+    weapon: string;
+    armor: string;
+    amulet: string;
+    charm: string;
+    manual: string;
+    spiritstone: string;
+  };
+
+  // Item Qualities
+  itemQualities: {
+    common: string;
+    uncommon: string;
+    rare: string;
+    epic: string;
+    legendary: string;
+    mythical: string;
   };
 
   // Game Status
@@ -212,6 +280,8 @@ export interface Translations {
     tribulationStart: string;
     tribulationSuccess: string;
     tribulationFailed: string;
+    tribulationLightningFailure: string;
+    tribulationHeartDemonFailure: string;
     breakthroughAdvanced: string;
     maxQiIncreased: string;
     elementCultivationEnabled: string;
@@ -234,6 +304,17 @@ export interface Translations {
     saveError: string;
     loadError: string;
     enemyEncounterGeneric: string;
+    // Item effect messages
+    cultivationSpeedIncreased: string;
+    combatPowerIncreased: string;
+    comprehensionIncreased: string;
+    luckIncreased: string;
+    effectApplied: string;
+    effectExpired: string;
+    itemUsed: string;
+    qiGained: string;
+    talentIncreased: string;
+    elementAffinityBoosted: string;
   };
 }
 
@@ -300,6 +381,36 @@ export const translations: Record<Language, Translations> = {
       overview: 'Overview',
       combat: 'Combat',
       inventory: 'Inventory',
+      equipment: 'Equipment',
+      inventoryStats: 'Inventory Stats',
+      items: 'Items',
+      itemDetails: 'Item Details',
+      searchItems: 'Search items...',
+      allCategories: 'All Categories',
+      allQualities: 'All Qualities',
+      sortByName: 'Name',
+      sortByQuality: 'Quality',
+      sortByValue: 'Value',
+      sortByQuantity: 'Quantity',
+      totalItems: 'Items:',
+      uniqueItems: 'Unique:',
+      totalValue: 'Value:',
+      capacity: 'Capacity:',
+      noItemsInInventory: 'No items in inventory',
+      noItemsMatchFilters: 'No items match your filters',
+      selectItemToViewDetails: 'Select an item to view details',
+      empty: 'Empty',
+      noSpecialEffects: 'No special effects',
+      value: 'Value:',
+      durability: 'Durability:',
+      quantity: 'Quantity:',
+      use: 'Use',
+      equip: 'Equip',
+      study: 'Study',
+      absorb: 'Absorb',
+      enhanceQiGathering: 'Enhance Qi Gathering',
+      drop: 'Drop',
+      noActionsAvailable: 'No actions available',
     },
     status: {
       player: 'Player',
@@ -428,6 +539,8 @@ export const translations: Record<Language, Translations> = {
       tribulationStart: '⚡ Heavenly Tribulation: {type}! Success rate: {rate}%',
       tribulationSuccess: '✨ Tribulation overcome! Breakthrough successful!',
       tribulationFailed: '💥 Tribulation failed! Cultivation damaged.',
+      tribulationLightningFailure: '⚡ Lightning tribulation failed! Lost {qiLoss} qi.',
+      tribulationHeartDemonFailure: '👹 Heart demon tribulation failed! Cultivation regressed by {realms} realm(s).',
       breakthroughAdvanced: '🚀 Breakthrough successful! Advanced to {realm} realm!',
       maxQiIncreased: '💎 Max Qi increased to {maxQi}',
       elementCultivationEnabled: '🌟 New elements available for cultivation: {elements}',
@@ -450,6 +563,42 @@ export const translations: Record<Language, Translations> = {
       successfullyFled: '🏃 Successfully fled from {enemy}.',
       failedToFlee: '❌ Failed to flee! {enemy} attacks!',
       enemyEncounterGeneric: '⚔️ An enemy has been encountered!',
+      // Item effect messages
+      cultivationSpeedIncreased: 'Cultivation speed increased by {value}% for {duration} days',
+      combatPowerIncreased: 'Combat power increased by {value}',
+      comprehensionIncreased: 'Comprehension increased by {value}% for {duration} days',
+      luckIncreased: 'Luck increased by {value}% for {duration} days',
+      effectApplied: 'Applied {effectType} effect: {value}',
+      effectExpired: '⚡ {itemName} effect expired: {effectType}',
+      itemUsed: '🍽️ Used {itemName}',
+      qiGained: '💎 Gained {qiGain} qi from {itemName}',
+      talentIncreased: '🎓 Talent increased by {talentGain} from {itemName}',
+      elementAffinityBoosted: '🌟 {element} affinity boosted by {boost}% from {itemName}',
+    },
+    itemCategories: {
+      weapon: 'Weapons',
+      armor: 'Armor',
+      pill: 'Pills',
+      herb: 'Herbs',
+      spirit_stone: 'Spirit Stones',
+      charm: 'Charms',
+      manual: 'Manuals',
+    },
+    equipmentSlots: {
+      weapon: 'Weapon',
+      armor: 'Armor',
+      amulet: 'Amulet',
+      charm: 'Charm',
+      manual: 'Manual',
+      spiritstone: 'Spirit Stone',
+    },
+    itemQualities: {
+      common: 'Common',
+      uncommon: 'Uncommon',
+      rare: 'Rare',
+      epic: 'Epic',
+      legendary: 'Legendary',
+      mythical: 'Mythical',
     },
   },
   vi: {
@@ -514,6 +663,36 @@ export const translations: Record<Language, Translations> = {
       overview: 'Tổng Quan',
       combat: 'Chiến Đấu',
       inventory: 'Túi Đồ',
+      equipment: 'Trang Bị',
+      inventoryStats: 'Thống Kê Túi Đồ',
+      items: 'Vật Phẩm',
+      itemDetails: 'Chi Tiết Vật Phẩm',
+      searchItems: 'Tìm kiếm vật phẩm...',
+      allCategories: 'Tất Cả Loại',
+      allQualities: 'Tất Cả Chất Lượng',
+      sortByName: 'Tên',
+      sortByQuality: 'Chất Lượng',
+      sortByValue: 'Giá Trị',
+      sortByQuantity: 'Số Lượng',
+      totalItems: 'Vật Phẩm:',
+      uniqueItems: 'Độc Nhất:',
+      totalValue: 'Giá Trị:',
+      capacity: 'Dung Lượng:',
+      noItemsInInventory: 'Không có vật phẩm trong túi đồ',
+      noItemsMatchFilters: 'Không có vật phẩm nào khớp với bộ lọc',
+      selectItemToViewDetails: 'Chọn một vật phẩm để xem chi tiết',
+      empty: 'Trống',
+      noSpecialEffects: 'Không có hiệu ứng đặc biệt',
+      value: 'Giá Trị:',
+      durability: 'Độ Bền:',
+      quantity: 'Số Lượng:',
+      use: 'Sử Dụng',
+      equip: 'Trang Bị',
+      study: 'Nghiên Cứu',
+      absorb: 'Hấp Thu',
+      enhanceQiGathering: 'Tăng Cường Tập Khí',
+      drop: 'Vứt Bỏ',
+      noActionsAvailable: 'Không có hành động khả dụng',
     },
     status: {
       player: 'Người Chơi',
@@ -642,6 +821,8 @@ export const translations: Record<Language, Translations> = {
       tribulationStart: '⚡ Thiên Kiếp: {type}! Tỷ lệ thành công: {rate}%',
       tribulationSuccess: '✨ Vượt qua kiếp nạn! Đột phá thành công!',
       tribulationFailed: '💥 Thất bại trong kiếp nạn! Tu luyện bị tổn thương.',
+      tribulationLightningFailure: '⚡ Kiếp nạn sấm sét thất bại! Mất {qiLoss} khí.',
+      tribulationHeartDemonFailure: '👹 Kiếp nạn tâm ma thất bại! Tu luyện thoái bộ {realms} cảnh giới.',
       breakthroughAdvanced: '🚀 Đột phá thành công! Tiến lên cảnh giới {realm}!',
       maxQiIncreased: '💎 Khí tối đa tăng lên {maxQi}',
       elementCultivationEnabled: '🌟 Ngũ hành mới có thể tu luyện: {elements}',
@@ -664,6 +845,42 @@ export const translations: Record<Language, Translations> = {
       successfullyFled: '🏃 Thành công chạy trốn khỏi {enemy}.',
       failedToFlee: '❌ Chạy trốn thất bại! {enemy} tấn công!',
       enemyEncounterGeneric: '⚔️ Đã gặp kẻ thù!',
+      // Item effect messages
+      cultivationSpeedIncreased: 'Tốc độ tu luyện tăng {value}% trong {duration} ngày',
+      combatPowerIncreased: 'Sức chiến đấu tăng {value}',
+      comprehensionIncreased: 'Sức lĩnh ngộ tăng {value}% trong {duration} ngày',
+      luckIncreased: 'May mắn tăng {value}% trong {duration} ngày',
+      effectApplied: 'Áp dụng hiệu ứng {effectType}: {value}',
+      effectExpired: '⚡ Hiệu ứng của {itemName} đã hết: {effectType}',
+      itemUsed: '🍽️ Đã sử dụng {itemName}',
+      qiGained: '💎 Nhận được {qiGain} khí từ {itemName}',
+      talentIncreased: '🎓 Tài năng tăng {talentGain} từ {itemName}',
+      elementAffinityBoosted: '🌟 Độ tương hợp {element} tăng {boost}% từ {itemName}',
+    },
+    itemCategories: {
+      weapon: 'Vũ Khí',
+      armor: 'Giáp Trụ',
+      pill: 'Đan Dược',
+      herb: 'Dược Thảo',
+      spirit_stone: 'Linh Thạch',
+      charm: 'Pháp Bảo',
+      manual: 'Công Pháp',
+    },
+    equipmentSlots: {
+      weapon: 'Vũ Khí',
+      armor: 'Giáp Trụ',
+      amulet: 'Phù Ấn',
+      charm: 'Pháp Bảo',
+      manual: 'Công Pháp',
+      spiritstone: 'Linh Thạch',
+    },
+    itemQualities: {
+      common: 'Thường',
+      uncommon: 'Hiếm',
+      rare: 'Quý',
+      epic: 'Truyền Thuyết',
+      legendary: 'Thần Thoại',
+      mythical: 'Thần Bí',
     },
   },
 };
@@ -679,6 +896,11 @@ export class I18n {
     // Load saved language from localStorage, fallback to parameter or default
     const savedLanguage = this.loadSavedLanguage();
     this.currentLanguage = savedLanguage || language || 'en';
+    // Apply translations on initialization
+    if (typeof window !== 'undefined') {
+      // Use setTimeout to ensure DOM is ready
+      setTimeout(() => this.applyTranslations(), 0);
+    }
   }
 
   private loadSavedLanguage(): Language | null {
@@ -700,10 +922,39 @@ export class I18n {
   setLanguage(language: Language): void {
     this.currentLanguage = language;
     this.saveLanguage(language);
+    this.applyTranslations(); // Apply translations to DOM when language changes
+
+    // Regenerate equipment slots to update their labels
+    if (typeof window !== 'undefined' && window.generateEquipmentSlots) {
+      window.generateEquipmentSlots();
+    }
   }
 
   getLanguage(): Language {
     return this.currentLanguage;
+  }
+
+  /**
+   * Apply translations to all DOM elements with data-i18n attributes
+   */
+  applyTranslations(): void {
+    if (typeof document === 'undefined') return;
+
+    const elements = document.querySelectorAll('[data-i18n]');
+    elements.forEach((element) => {
+      const key = element.getAttribute('data-i18n');
+      if (key) {
+        const translation = this.t(key);
+        // For input elements, set placeholder, for others set text content
+        if (element.tagName === 'INPUT' && element.hasAttribute('placeholder')) {
+          (element as HTMLInputElement).placeholder = translation;
+        } else if (element.tagName === 'OPTION') {
+          element.textContent = translation;
+        } else {
+          element.textContent = translation;
+        }
+      }
+    });
   }
 
   /**

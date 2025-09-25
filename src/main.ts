@@ -85,6 +85,7 @@ function switchPage(pageName: string) {
   // Update inventory display when switching to inventory page
   if (pageName === 'inventory') {
     updateInventoryDisplay();
+    i18n.applyTranslations(); // Apply translations to inventory page elements
   }
 }
 
@@ -102,12 +103,14 @@ function generateEquipmentSlots() {
 
     const slotLabel = document.createElement('div');
     slotLabel.className = 'slot-label';
-    slotLabel.textContent = slotType.charAt(0).toUpperCase() + slotType.slice(1).replace(/(\d+)/, ' $1');
+    // Use translations for equipment slot names
+    const translatedSlotName = i18n.t(`equipmentSlots.${slotType.replace(' ', '')}`);
+    slotLabel.textContent = translatedSlotName;
 
     const slotContent = document.createElement('div');
     slotContent.className = 'slot-content';
     slotContent.id = `${slotType}-slot`;
-    slotContent.innerHTML = '<div class="equipment-empty">Empty</div>';
+    slotContent.innerHTML = '<div class="equipment-empty">' + i18n.t('ui.empty') + '</div>';
 
     slotDiv.appendChild(slotLabel);
     slotDiv.appendChild(slotContent);
@@ -117,6 +120,9 @@ function generateEquipmentSlots() {
     equipmentSlotElements[slotType] = slotContent;
   });
 }
+
+// Expose function globally for i18n system
+(window as any).generateEquipmentSlots = generateEquipmentSlots;
 
 // Title elements
 const gameTitleEl = document.getElementById('game-title')!;
@@ -349,7 +355,7 @@ function updateEquipmentDisplay() {
       `;
       slotElement.classList.add('equipped');
     } else {
-      slotElement.innerHTML = '<div class="equipment-empty">Empty</div>';
+      slotElement.innerHTML = '<div class="equipment-empty">' + i18n.t('ui.empty') + '</div>';
       slotElement.classList.remove('equipped');
     }
   });
@@ -357,8 +363,8 @@ function updateEquipmentDisplay() {
 
 function updateItemGrid(items: Item[]) {
   if (items.length === 0) {
-    itemGridEl.innerHTML = '<div class="no-items">No items match your filters</div>';
-    itemDetailsEl.innerHTML = 'Select an item to view details';
+    itemGridEl.innerHTML = '<div class="no-items">' + i18n.t('ui.noItemsMatchFilters') + '</div>';
+    itemDetailsEl.innerHTML = i18n.t('ui.selectItemToViewDetails');
     itemActionsEl.innerHTML = '';
     return;
   }
@@ -402,7 +408,7 @@ function selectItem(itemId: string) {
   const effectsHtml = item.effects?.map((effect: any) => {
     const effectType = effect.type.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
     return `${effectType}: ${effect.value}${effect.element ? ` (${effect.element})` : ''}`;
-  }).join('<br>') || 'No special effects';
+  }).join('<br>') || i18n.t('ui.noSpecialEffects');
 
   itemDetailsEl.innerHTML = `
     <div class="item-detail-header">
@@ -412,36 +418,36 @@ function selectItem(itemId: string) {
     <div class="item-detail-category">${item.category}</div>
     <div class="item-detail-description">${item.description}</div>
     <div class="item-detail-effects">${effectsHtml}</div>
-    <div class="item-detail-value">Value: ${item.value}💰</div>
-    ${item.durability !== undefined && item.maxDurability !== undefined ? `<div class="item-detail-durability">Durability: ${item.durability}/${item.maxDurability}</div>` : ''}
-    ${item.stackable ? `<div class="item-detail-quantity">Quantity: ${item.quantity}</div>` : ''}
+    <div class="item-detail-value">${i18n.t('ui.value')} ${item.value}💰</div>
+    ${item.durability !== undefined && item.maxDurability !== undefined ? `<div class="item-detail-durability">${i18n.t('ui.durability')} ${item.durability}/${item.maxDurability}</div>` : ''}
+    ${item.stackable ? `<div class="item-detail-quantity">${i18n.t('ui.quantity')} ${item.quantity}</div>` : ''}
   `;
 
   // Update item actions - simplified for now
   let actionsHtml = '';
 
   if (item.category === ItemCategory.Pill || item.category === ItemCategory.Drug || item.category === ItemCategory.Herb) {
-    actionsHtml += '<button class="action-btn" data-action="use">Use</button>';
+    actionsHtml += '<button class="action-btn" data-action="use">' + i18n.t('ui.use') + '</button>';
   }
 
   if (item.category === ItemCategory.Weapon || item.category === ItemCategory.Armor || item.category === ItemCategory.Charm) {
-    actionsHtml += '<button class="action-btn" data-action="equip">Equip</button>';
+    actionsHtml += '<button class="action-btn" data-action="equip">' + i18n.t('ui.equip') + '</button>';
   }
 
   if (item.category === ItemCategory.Manual) {
-    actionsHtml += '<button class="action-btn" data-action="study">Study</button>';
+    actionsHtml += '<button class="action-btn" data-action="study">' + i18n.t('ui.study') + '</button>';
   }
 
   if (item.category === ItemCategory.SpiritStone) {
-    actionsHtml += '<button class="action-btn" data-action="absorb">Absorb</button>';
-    actionsHtml += '<button class="action-btn" data-action="enhance">Enhance Qi Gathering</button>';
+    actionsHtml += '<button class="action-btn" data-action="absorb">' + i18n.t('ui.absorb') + '</button>';
+    actionsHtml += '<button class="action-btn" data-action="enhance">' + i18n.t('ui.enhanceQiGathering') + '</button>';
   }
 
   if (item.stackable && item.quantity > 1) {
-    actionsHtml += '<button class="action-btn" data-action="drop">Drop</button>';
+    actionsHtml += '<button class="action-btn" data-action="drop">' + i18n.t('ui.drop') + '</button>';
   }
 
-  itemActionsEl.innerHTML = actionsHtml || 'No actions available';
+  itemActionsEl.innerHTML = actionsHtml || i18n.t('ui.noActionsAvailable');
 
   // Add action handlers
   document.querySelectorAll('.action-btn').forEach(btn => {

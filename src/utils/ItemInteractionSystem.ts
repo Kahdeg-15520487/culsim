@@ -16,6 +16,7 @@ import {
   CultivationRealm
 } from '../types';
 import { InventorySystem } from './InventorySystem';
+import { i18n } from './i18n';
 
 export class ItemInteractionSystem {
   private inventorySystem: InventorySystem;
@@ -294,12 +295,12 @@ export class ItemInteractionSystem {
 
       case 'cultivation_speed':
         // Temporary cultivation speed boost (would need timer system)
-        console.log(`Cultivation speed increased by ${value}% for ${effect.duration} days`);
+        console.log(i18n.t('messages.cultivationSpeedIncreased', { value, duration: effect.duration }));
         break;
 
       case 'combat_power':
         // Equipment bonus (tracked separately)
-        console.log(`Combat power increased by ${value}`);
+        console.log(i18n.t('messages.combatPowerIncreased', { value }));
         break;
 
       case 'element_boost':
@@ -311,16 +312,16 @@ export class ItemInteractionSystem {
 
       case 'comprehension':
         // Increase talent temporarily
-        console.log(`Comprehension increased by ${value}% for ${effect.duration} days`);
+        console.log(i18n.t('messages.comprehensionIncreased', { value, duration: effect.duration }));
         break;
 
       case 'luck':
         // Luck effects (would need luck system)
-        console.log(`Luck increased by ${value}% for ${effect.duration} days`);
+        console.log(i18n.t('messages.luckIncreased', { value, duration: effect.duration }));
         break;
 
       default:
-        console.log(`Applied ${effect.type} effect: ${value}`);
+        console.log(i18n.t('messages.effectApplied', { effectType: effect.type, value }));
     }
   }
 
