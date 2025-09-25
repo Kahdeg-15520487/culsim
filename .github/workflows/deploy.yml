@@ -27,7 +27,7 @@ jobs:
       run: npm test
 
     - name: Build
-      run: npm run build
+      run: npm run build:github
 
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/master'

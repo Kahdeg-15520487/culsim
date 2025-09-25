@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  base: mode === 'github' ? '/culsim/' : '/',
   build: {
     outDir: 'dist',
     rollupOptions: {
@@ -12,4 +13,4 @@ export default defineConfig({
   server: {
     open: true
   }
-});
+}));
