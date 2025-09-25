@@ -25,7 +25,7 @@ export const INITIAL_GAME_VALUES = {
  */
 export const AUTO_SAVE = {
   /** Days between auto-saves */
-  INTERVAL_DAYS: 10,
+  INTERVAL_DAYS: 100,
 } as const;
 
 /**

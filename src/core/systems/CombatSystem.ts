@@ -23,8 +23,6 @@ export class CombatSystem {
     
     if (!this.inventorySystem) {
       console.error('WARNING: CombatSystem created with undefined inventorySystem!');
-    } else {
-      console.log('DEBUG: CombatSystem initialized with valid inventorySystem');
     }
   }
 
@@ -160,30 +158,20 @@ export class CombatSystem {
       maxQi: enemy.maxQi
     }));
 
-    console.log('DEBUG: Starting combat resolution');
-
     // Calculate combat power with item bonuses
     const playerCombatBonus = this.itemEffectProcessor.calculateCombatPowerBonus();
     const playerDefenseBonus = this.itemEffectProcessor.calculateDefenseBonus();
     const playerCritBonus = this.itemEffectProcessor.calculateCriticalChanceBonus();
 
-    console.log('DEBUG: Player bonuses - combat:', playerCombatBonus, 'defense:', playerDefenseBonus, 'crit:', playerCritBonus);
-
     const playerPower = (player.qi + (player.talent * 2) + (player.realm * 100) + playerCombatBonus) * (1 + playerDefenseBonus / 100);
     const enemyPower = enemy.qi + (enemy.realm * 50);
-
-    console.log('DEBUG: Base powers - player:', playerPower, 'enemy:', enemyPower);
 
     // Apply elemental bonuses
     const playerElementBonus = this.calculateElementalCombatBonus(player, enemy);
     const enemyElementBonus = this.calculateElementalCombatBonus(enemy, player);
 
-    console.log('DEBUG: Elemental bonuses - player:', playerElementBonus, 'enemy:', enemyElementBonus);
-
     let finalPlayerPower = playerPower * playerElementBonus;
     const finalEnemyPower = enemyPower * enemyElementBonus;
-
-    console.log('DEBUG: Final powers - player:', finalPlayerPower, 'enemy:', finalEnemyPower);
 
     // Apply critical hit chance
     const critChance = Math.min(playerCritBonus / 100, 0.5); // Max 50% crit chance
@@ -196,21 +184,16 @@ export class CombatSystem {
 
     const playerWinChance = finalPlayerPower / (finalPlayerPower + finalEnemyPower);
 
-    console.log('DEBUG: Win chance:', playerWinChance);
-
     // Handle edge case where both powers are 0
     if (isNaN(playerWinChance)) {
-      console.log('DEBUG: Win chance is NaN, defaulting to 50%');
       const droppedLoot = this.handlePlayerDefeat(enemy);
       return { result: 'enemy_win', droppedLoot };
     }
 
     if (this.random.chance(playerWinChance)) {
-      console.log('DEBUG: Player wins');
       const droppedLoot = this.handlePlayerVictory(enemy);
       return { result: 'player_win', droppedLoot };
     } else {
-      console.log('DEBUG: Enemy wins');
       const droppedLoot = this.handlePlayerDefeat(enemy);
       return { result: 'enemy_win', droppedLoot };
     }
@@ -278,24 +261,17 @@ export class CombatSystem {
    * Handle player victory in combat
    */
   private handlePlayerVictory(enemy: Enemy): Item[] {
-    console.log('DEBUG: Handling player victory');
     const player = this.gameState.player;
 
     // Calculate rewards
     const qiReward = Math.floor(enemy.maxQi * 0.1);
     const talentReward = this.random.int(1, 3);
 
-    console.log('DEBUG: Rewards - qi:', qiReward, 'talent:', talentReward);
-
     player.qi = Math.min(player.qi + qiReward, player.maxQi);
     player.talent = Math.min(100, player.talent + talentReward);
 
-    console.log('DEBUG: Processing loot');
-
     // Process loot and get dropped items
     const droppedLoot = this.processLoot(enemy.lootTable);
-
-    console.log('DEBUG: Loot processed, dropped items:', droppedLoot.length);
 
     console.log(i18n.t('messages.combatVictory', {
       enemy: enemy.name,
@@ -303,7 +279,6 @@ export class CombatSystem {
       talent: talentReward
     }));
     
-    console.log('DEBUG: Victory handling complete');
     return droppedLoot;
   }
 
@@ -342,21 +317,17 @@ export class CombatSystem {
    * Process loot from defeated enemy
    */
   private processLoot(lootTable: LootItem[]): Item[] {
-    console.log('DEBUG: Processing loot table with', lootTable.length, 'items');
     const droppedItems: Item[] = [];
     
     lootTable.forEach((lootItem, index) => {
-      console.log('DEBUG: Processing loot item', index, lootItem.item.name, 'drop rate:', lootItem.dropRate);
       // Check if item drops based on drop rate
       if (this.random.chance(lootItem.dropRate)) {
-        console.log('DEBUG: Item dropped!');
         // Create a copy of the item with the specified quantity
         const itemToAdd = {
           ...lootItem.item,
           quantity: lootItem.quantity
         };
 
-        console.log('DEBUG: Adding item to inventory');
         // Check if inventory system is available
         if (!this.inventorySystem) {
           console.error('ERROR: InventorySystem is undefined in CombatSystem!');
@@ -367,14 +338,9 @@ export class CombatSystem {
         
         // Add to dropped items list for UI
         droppedItems.push(itemToAdd);
-
-        console.log('DEBUG: Item added successfully');
-      } else {
-        console.log('DEBUG: Item did not drop');
       }
     });
     
-    console.log('DEBUG: Loot processing complete, dropped', droppedItems.length, 'items');
     return droppedItems;
   }
 

@@ -166,19 +166,25 @@ export class ItemInteractionSystem {
    * Use spirit stone to enhance automatic qi gathering
    */
   private enhanceSpiritStone(item: Item): { success: boolean; message: string; effects?: ItemEffect[] } {
-    // Check if player already has a spirit stone enhancing qi gathering
-    if (this.player.enhancedSpiritStoneId) {
+    // Check if a spirit stone is already equipped (which would be enhanced)
+    const equippedItems = this.inventorySystem.getEquippedItems();
+    const equippedSpiritStone = equippedItems[EquipmentSlot.SpiritStone];
+
+    if (equippedSpiritStone) {
       return {
         success: false,
         message: 'You can only enhance qi gathering with one spirit stone at a time'
       };
     }
 
+    // No spirit stone equipped, equip this one first
+    const equipped = this.inventorySystem.equipItem(item.id, EquipmentSlot.SpiritStone);
+    if (!equipped) {
+      return { success: false, message: 'Failed to equip spirit stone' };
+    }
+
     // Set this stone as the enhanced stone
     this.player.enhancedSpiritStoneId = item.id;
-
-    // Remove the stone from inventory (it's now "in use" for enhancement)
-    this.inventorySystem.removeItem(item.id, 1);
 
     return {
       success: true,
@@ -324,23 +330,39 @@ export class ItemInteractionSystem {
   }
 
   /**
-   * Get equipment slot for item
+   * Get equipment slot for item based on category
    */
   private getEquipmentSlotForItem(item: Item): EquipmentSlot | null {
-    switch (item.category) {
-      case ItemCategory.Weapon:
-        return EquipmentSlot.Weapon;
-      case ItemCategory.Armor:
-        return EquipmentSlot.Armor;
-      case ItemCategory.Charm:
-        // Auto-assign to first available accessory slot
-        const equipped = this.inventorySystem.getEquippedItems();
-        if (!equipped[EquipmentSlot.Accessory1]) return EquipmentSlot.Accessory1;
-        if (!equipped[EquipmentSlot.Accessory2]) return EquipmentSlot.Accessory2;
-        return EquipmentSlot.Accessory1; // Default to first slot
-      default:
-        return null;
+    // Define which equipment slots are valid for each item category
+    const categorySlotMapping: Record<string, EquipmentSlot[]> = {
+      [ItemCategory.Weapon]: [EquipmentSlot.Weapon],
+      [ItemCategory.Armor]: [EquipmentSlot.Armor],
+      [ItemCategory.Charm]: [EquipmentSlot.Charm, EquipmentSlot.Amulet],
+      [ItemCategory.SpiritStone]: [EquipmentSlot.SpiritStone],
+      [ItemCategory.Manual]: [EquipmentSlot.Manual]
+    };
+
+    const validSlots = categorySlotMapping[item.category];
+    if (!validSlots || validSlots.length === 0) {
+      return null; // This item category cannot be equipped
     }
+
+    // If only one possible slot, use it
+    if (validSlots.length === 1) {
+      return validSlots[0];
+    }
+
+    // For items that can go in multiple slots, find the first available slot
+    const equipped = this.inventorySystem.getEquippedItems();
+
+    for (const slot of validSlots) {
+      if (!equipped[slot]) {
+        return slot; // Found an empty slot
+      }
+    }
+
+    // All slots are occupied, default to the first valid slot
+    return validSlots[0];
   }
 
   /**
@@ -418,8 +440,10 @@ export class ItemInteractionSystem {
     const effects: Record<EquipmentSlot, ItemEffect[]> = {
       [EquipmentSlot.Weapon]: [],
       [EquipmentSlot.Armor]: [],
-      [EquipmentSlot.Accessory1]: [],
-      [EquipmentSlot.Accessory2]: []
+      [EquipmentSlot.Amulet]: [],
+      [EquipmentSlot.Charm]: [],
+      [EquipmentSlot.Manual]: [],
+      [EquipmentSlot.SpiritStone]: []
     };
 
     Object.entries(equipped).forEach(([slot, item]) => {

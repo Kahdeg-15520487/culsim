@@ -46,10 +46,10 @@ const inventoryCapacityEl = document.getElementById('inventory-capacity')!;
 const itemGridEl = document.getElementById('item-grid')!;
 const itemDetailsEl = document.getElementById('item-details')!;
 const itemActionsEl = document.getElementById('item-actions')!;
-const weaponSlotEl = document.getElementById('weapon-slot')!;
-const armorSlotEl = document.getElementById('armor-slot')!;
-const accessory1SlotEl = document.getElementById('accessory1-slot')!;
-const accessory2SlotEl = document.getElementById('accessory2-slot')!;
+const equipmentSlotsEl = document.getElementById('equipment-slots')!;
+
+// Equipment slot elements (will be populated dynamically)
+const equipmentSlotElements: Record<string, HTMLElement> = {};
 
 // Legacy inventory elements (for backward compatibility)
 const artifactCountEl = document.getElementById('artifact-count')!;
@@ -85,6 +85,36 @@ function switchPage(pageName: string) {
   if (pageName === 'inventory') {
     updateInventoryDisplay();
   }
+}
+
+// Generate equipment slots dynamically
+function generateEquipmentSlots() {
+  equipmentSlotsEl.innerHTML = ''; // Clear existing slots
+
+  // Get all equipment slot types from the enum
+  const slotTypes = Object.values(EquipmentSlot);
+
+  slotTypes.forEach(slotType => {
+    const slotDiv = document.createElement('div');
+    slotDiv.className = 'equipment-slot';
+    slotDiv.setAttribute('data-slot', slotType);
+
+    const slotLabel = document.createElement('div');
+    slotLabel.className = 'slot-label';
+    slotLabel.textContent = slotType.charAt(0).toUpperCase() + slotType.slice(1).replace(/(\d+)/, ' $1');
+
+    const slotContent = document.createElement('div');
+    slotContent.className = 'slot-content';
+    slotContent.id = `${slotType}-slot`;
+    slotContent.innerHTML = '<div class="equipment-empty">Empty</div>';
+
+    slotDiv.appendChild(slotLabel);
+    slotDiv.appendChild(slotContent);
+    equipmentSlotsEl.appendChild(slotDiv);
+
+    // Store reference to the slot content element
+    equipmentSlotElements[slotType] = slotContent;
+  });
 }
 
 // Title elements
@@ -301,52 +331,26 @@ function updateEquipmentDisplay() {
 
   const equipment = inventory.equippedItems;
 
-  // Update weapon slot
-  if (equipment.weapon) {
-    weaponSlotEl.innerHTML = `
-      <div class="equipment-item" data-item-id="${equipment.weapon.id}">
-        <div class="item-name">${equipment.weapon.name}</div>
-        <div class="item-quality quality-${equipment.weapon.quality}">${ItemQuality[equipment.weapon.quality]}</div>
-      </div>
-    `;
-  } else {
-    weaponSlotEl.innerHTML = '<div class="equipment-empty">Empty</div>';
-  }
+  // Update all equipment slots dynamically
+  Object.values(EquipmentSlot).forEach(slotType => {
+    const slotElement = equipmentSlotElements[slotType];
+    if (!slotElement) return;
 
-  // Update armor slot
-  if (equipment.armor) {
-    armorSlotEl.innerHTML = `
-      <div class="equipment-item" data-item-id="${equipment.armor.id}">
-        <div class="item-name">${equipment.armor.name}</div>
-        <div class="item-quality quality-${equipment.armor.quality}">${ItemQuality[equipment.armor.quality]}</div>
-      </div>
-    `;
-  } else {
-    armorSlotEl.innerHTML = '<div class="equipment-empty">Empty</div>';
-  }
+    const equippedItem = equipment[slotType as EquipmentSlot];
 
-  // Update accessory slots
-  if (equipment.accessory1) {
-    accessory1SlotEl.innerHTML = `
-      <div class="equipment-item" data-item-id="${equipment.accessory1.id}">
-        <div class="item-name">${equipment.accessory1.name}</div>
-        <div class="item-quality quality-${equipment.accessory1.quality}">${ItemQuality[equipment.accessory1.quality]}</div>
-      </div>
-    `;
-  } else {
-    accessory1SlotEl.innerHTML = '<div class="equipment-empty">Empty</div>';
-  }
-
-  if (equipment.accessory2) {
-    accessory2SlotEl.innerHTML = `
-      <div class="equipment-item" data-item-id="${equipment.accessory2.id}">
-        <div class="item-name">${equipment.accessory2.name}</div>
-        <div class="item-quality quality-${equipment.accessory2.quality}">${ItemQuality[equipment.accessory2.quality]}</div>
-      </div>
-    `;
-  } else {
-    accessory2SlotEl.innerHTML = '<div class="equipment-empty">Empty</div>';
-  }
+    if (equippedItem) {
+      slotElement.innerHTML = `
+        <div class="equipment-item" data-item-id="${equippedItem.id}">
+          <div class="item-name">${equippedItem.name}</div>
+          <div class="item-quality quality-${equippedItem.quality}">${ItemQuality[equippedItem.quality]}</div>
+        </div>
+      `;
+      slotElement.classList.add('equipped');
+    } else {
+      slotElement.innerHTML = '<div class="equipment-empty">Empty</div>';
+      slotElement.classList.remove('equipped');
+    }
+  });
 }
 
 function updateItemGrid(items: Item[]) {
@@ -407,6 +411,7 @@ function selectItem(itemId: string) {
     <div class="item-detail-description">${item.description}</div>
     <div class="item-detail-effects">${effectsHtml}</div>
     <div class="item-detail-value">Value: ${item.value}💰</div>
+    ${item.durability !== undefined && item.maxDurability !== undefined ? `<div class="item-detail-durability">Durability: ${item.durability}/${item.maxDurability}</div>` : ''}
     ${item.stackable ? `<div class="item-detail-quantity">Quantity: ${item.quantity}</div>` : ''}
   `;
 
@@ -1020,57 +1025,30 @@ sortSelectEl.addEventListener('change', () => {
   updateInventoryDisplay();
 });
 
-// Equipment slot click handlers
-weaponSlotEl.addEventListener('click', () => {
-  if (!itemInteractionSystem) return;
-  const result = itemInteractionSystem.unequipItem(EquipmentSlot.Weapon);
-  if (result.success) {
-    logMessage(`✅ ${result.message}`);
-    updateInventoryDisplay();
-    updateUI();
-  } else {
-    logMessage(`❌ ${result.message}`);
-  }
-});
+// Equipment slot click handlers (will be set up dynamically)
+function setupEquipmentSlotListeners() {
+  Object.values(EquipmentSlot).forEach(slotType => {
+    const slotElement = equipmentSlotElements[slotType];
+    if (!slotElement) return;
 
-armorSlotEl.addEventListener('click', () => {
-  if (!itemInteractionSystem) return;
-  const result = itemInteractionSystem.unequipItem(EquipmentSlot.Armor);
-  if (result.success) {
-    logMessage(`✅ ${result.message}`);
-    updateInventoryDisplay();
-    updateUI();
-  } else {
-    logMessage(`❌ ${result.message}`);
-  }
-});
-
-accessory1SlotEl.addEventListener('click', () => {
-  if (!itemInteractionSystem) return;
-  const result = itemInteractionSystem.unequipItem(EquipmentSlot.Accessory1);
-  if (result.success) {
-    logMessage(`✅ ${result.message}`);
-    updateInventoryDisplay();
-    updateUI();
-  } else {
-    logMessage(`❌ ${result.message}`);
-  }
-});
-
-accessory2SlotEl.addEventListener('click', () => {
-  if (!itemInteractionSystem) return;
-  const result = itemInteractionSystem.unequipItem(EquipmentSlot.Accessory2);
-  if (result.success) {
-    logMessage(`✅ ${result.message}`);
-    updateInventoryDisplay();
-    updateUI();
-  } else {
-    logMessage(`❌ ${result.message}`);
-  }
-});
+    slotElement.addEventListener('click', () => {
+      if (!itemInteractionSystem) return;
+      const result = itemInteractionSystem.unequipItem(slotType as EquipmentSlot);
+      if (result.success) {
+        logMessage(`✅ ${result.message}`);
+        updateInventoryDisplay();
+        updateUI();
+      } else {
+        logMessage(`❌ ${result.message}`);
+      }
+    });
+  });
+}
 
 // Initial UI setup
 initializeCardCollapse(); // Initialize collapsible cards
+generateEquipmentSlots(); // Generate equipment slots dynamically
+setupEquipmentSlotListeners(); // Set up equipment slot event listeners
 switchPage('overview'); // Start with overview page
 updateUIText();
 updateUI();

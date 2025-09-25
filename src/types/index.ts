@@ -59,8 +59,10 @@ export enum CombatType {
 export enum EquipmentSlot {
   Weapon = 'weapon',
   Armor = 'armor',
-  Accessory1 = 'accessory1',
-  Accessory2 = 'accessory2'
+  Amulet = 'amulet',
+  Charm = 'charm',
+  Manual = 'manual',
+  SpiritStone = 'spirit stone'
 }
 
 // Game State
@@ -268,7 +270,8 @@ export const BASE_ITEM_STATS = {
     value: 60
   },
   [ItemCategory.SpiritStone]: {
-    qiStorage: 100,
+    qiStorage: 10,
+    durability: 10, // Spirit stones can be absorbed 10 times before depleting
     value: 20
   },
   [ItemCategory.Herb]: {

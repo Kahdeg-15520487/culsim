@@ -39,8 +39,10 @@ export class InventorySystem {
         equippedItems: {
           [EquipmentSlot.Weapon]: undefined,
           [EquipmentSlot.Armor]: undefined,
-          [EquipmentSlot.Accessory1]: undefined,
-          [EquipmentSlot.Accessory2]: undefined
+          [EquipmentSlot.Amulet]: undefined,
+          [EquipmentSlot.Charm]: undefined,
+          [EquipmentSlot.Manual]: undefined,
+          [EquipmentSlot.SpiritStone]: undefined
         },
         storageCapacity: this.maxSlots,
         weight: 0,
@@ -322,9 +324,13 @@ export class InventorySystem {
         return item.category === ItemCategory.Weapon;
       case EquipmentSlot.Armor:
         return item.category === ItemCategory.Armor;
-      case EquipmentSlot.Accessory1:
-      case EquipmentSlot.Accessory2:
+      case EquipmentSlot.Amulet:
+      case EquipmentSlot.Charm:
         return item.category === ItemCategory.Charm;
+      case EquipmentSlot.Manual:
+        return item.category === ItemCategory.Manual;
+      case EquipmentSlot.SpiritStone:
+        return item.category === ItemCategory.SpiritStone;
       default:
         return false;
     }

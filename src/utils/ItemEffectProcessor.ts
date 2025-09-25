@@ -53,7 +53,6 @@ export class ItemEffectProcessor {
       // Find the enhanced spirit stone and get its flat bonus
       const enhancedStone = this.findItemById(this.gameState.player.enhancedSpiritStoneId);
       if (enhancedStone) {
-        console.log(enhancedStone.name);
         enhancedStone.effects.forEach(effect => {
           if (effect.type === 'qi_absorption' && !effect.isPercentage) {
             enhancedStoneBonus = effect.value;

@@ -5,8 +5,10 @@
  */
 
 import { Game } from '../core/Game';
-import { Element } from '../types';
+import { Element, ItemCategory, ItemQuality, CultivationRealm, EquipmentSlot } from '../types';
 import { InventorySystem } from '../utils/InventorySystem';
+import { ItemSystem } from '../utils/ItemSystem';
+import { ItemInteractionSystem } from '../utils/ItemInteractionSystem';
 
 describe('Game', () => {
   let game: Game;
@@ -222,4 +224,120 @@ describe('Game', () => {
       }, 2500); // Wait 2.5 seconds for multiple update cycles
     });
   });
+
+  test('should equip and unequip spirit stone correctly', () => {
+    // Create a separate inventory system for this test
+    const player = game.getState().player;
+    const inventorySystem = new InventorySystem(player);
+    
+    // Create a spirit stone
+    const spiritStone = ItemSystem.createItem(
+      ItemCategory.SpiritStone,
+      ItemQuality.Uncommon,
+      CultivationRealm.Mortal
+    );
+    
+    // Add it to inventory
+    const added = inventorySystem.addItem(spiritStone);
+    expect(added).toBe(true);
+    
+    // Verify it's in inventory
+    const inventoryItems = inventorySystem.getItems();
+    expect(inventoryItems).toContain(spiritStone);
+    
+    // Check that no spirit stone is currently equipped
+    const equippedItems = inventorySystem.getEquippedItems();
+    expect(equippedItems[EquipmentSlot.SpiritStone]).toBeUndefined();
+    
+    // Equip the spirit stone
+    const equipped = inventorySystem.equipItem(spiritStone.id, EquipmentSlot.SpiritStone);
+    expect(equipped).toBe(true);
+    
+    // Verify it's equipped
+    const equippedItemsAfter = inventorySystem.getEquippedItems();
+    expect(equippedItemsAfter[EquipmentSlot.SpiritStone]).toBe(spiritStone);
+    
+    // Verify it's removed from inventory
+    const inventoryItemsAfterEquip = inventorySystem.getItems();
+    expect(inventoryItemsAfterEquip).not.toContain(spiritStone);
+
+    // Verify player's qi gathering speed increased due to equipped spirit stone
+    
+    // Unequip the spirit stone
+    const unequipped = inventorySystem.unequipItem(EquipmentSlot.SpiritStone);
+    expect(unequipped).toBe(true);
+    
+    // Verify it's back in inventory
+    const inventoryItemsAfterUnequip = inventorySystem.getItems();
+    expect(inventoryItemsAfterUnequip).toContain(spiritStone);
+    
+    // Verify it's no longer equipped
+    const equippedItemsAfterUnequip = inventorySystem.getEquippedItems();
+    expect(equippedItemsAfterUnequip[EquipmentSlot.SpiritStone]).toBeUndefined();
+
+    
+    // Verify player's qi gathering speed returned to normal due to equipped spirit stone
+  });
+
+  test('should enhance spirit stone correctly', () => {
+    // Create a separate inventory system and item interaction system for this test
+    const player = game.getState().player;
+    const inventorySystem = new InventorySystem(player);
+    const itemInteractionSystem = new ItemInteractionSystem(inventorySystem);
+    
+    // Create a spirit stone
+    const spiritStone = ItemSystem.createItem(
+      ItemCategory.SpiritStone,
+      ItemQuality.Rare,
+      CultivationRealm.Mortal
+    );
+    
+    // Add it to inventory
+    const added = inventorySystem.addItem(spiritStone);
+    expect(added).toBe(true);
+    
+    // Verify it's in inventory
+    const inventoryItems = inventorySystem.getItems();
+    expect(inventoryItems).toContain(spiritStone);
+    
+    // Check that no spirit stone is currently equipped
+    const equippedItems = inventorySystem.getEquippedItems();
+    expect(equippedItems[EquipmentSlot.SpiritStone]).toBeUndefined();
+    
+    // Check that no spirit stone is enhanced
+    expect(player.enhancedSpiritStoneId).toBeUndefined();
+    
+    // Enhance the spirit stone
+    const result = itemInteractionSystem.useItem(spiritStone.id, 'enhance');
+    expect(result.success).toBe(true);
+    expect(result.message).toContain('Enhanced qi gathering');
+    
+    // Verify it's equipped
+    const equippedItemsAfter = inventorySystem.getEquippedItems();
+    expect(equippedItemsAfter[EquipmentSlot.SpiritStone]).toBe(spiritStone);
+    
+    // Verify it's removed from inventory
+    const inventoryItemsAfterEnhance = inventorySystem.getItems();
+    expect(inventoryItemsAfterEnhance).not.toContain(spiritStone);
+    
+    // Verify it's marked as enhanced
+    expect(player.enhancedSpiritStoneId).toBe(spiritStone.id);
+    
+    // Try to enhance a second spirit stone - should fail
+    const secondSpiritStone = ItemSystem.createItem(
+      ItemCategory.SpiritStone,
+      ItemQuality.Uncommon,
+      CultivationRealm.Mortal
+    );
+    
+    inventorySystem.addItem(secondSpiritStone);
+    const secondResult = itemInteractionSystem.useItem(secondSpiritStone.id, 'enhance');
+    expect(secondResult.success).toBe(false);
+    expect(secondResult.message).toContain('You can only enhance qi gathering with one spirit stone at a time');
+    
+    // Verify second stone is still in inventory
+    const inventoryItemsAfterSecond = inventorySystem.getItems();
+    expect(inventoryItemsAfterSecond).toContain(secondSpiritStone);
+  });
+
 });
