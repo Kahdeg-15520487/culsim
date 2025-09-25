@@ -62,46 +62,24 @@ export class ItemEffectProcessor {
       }
     }
 
-    // Check all player inventory items (new system)
-    if (this.gameState.player.inventory?.items) {
-      this.gameState.player.inventory.items.forEach(item => {
-        item.effects.forEach(effect => {
-          if (effect.type === 'qi_absorption') {
-            if (effect.isPercentage) {
-              // Percentage bonus to qi gathering (always applies)
-              percentageBonus += effect.value;
-            } else if (item.category === 'spirit_stone') {
-              // Spirit stone flat bonuses only count if this is the enhanced stone
-              if (this.gameState.player.enhancedSpiritStoneId === item.id) {
-                flatBonus += effect.value;
-              }
-              // If no enhanced stone, allow one spirit stone's bonus
-              else if (!this.gameState.player.enhancedSpiritStoneId && enhancedStoneBonus === 0) {
-                flatBonus += effect.value;
-                enhancedStoneBonus = effect.value; // Mark that we've used one stone
-              }
-            } else {
-              // Non-spirit stone flat bonuses always apply
-              flatBonus += effect.value;
-            }
-          }
-        });
-      });
-    }
-
-    // Check equipped items (new system)
+    // Only check equipped items (new system)
     if (this.gameState.player.inventory?.equippedItems) {
       Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
         if (item) {
           item.effects.forEach(effect => {
             if (effect.type === 'qi_absorption') {
               if (effect.isPercentage) {
-                // Percentage bonus to qi gathering
+                // Percentage bonus to qi gathering (always applies)
                 percentageBonus += effect.value;
               } else if (item.category === 'spirit_stone') {
                 // Spirit stone flat bonuses only count if this is the enhanced stone
                 if (this.gameState.player.enhancedSpiritStoneId === item.id) {
                   flatBonus += effect.value;
+                }
+                // If no enhanced stone, allow one spirit stone's bonus
+                else if (!this.gameState.player.enhancedSpiritStoneId && enhancedStoneBonus === 0) {
+                  flatBonus += effect.value;
+                  enhancedStoneBonus = effect.value; // Mark that we've used one stone
                 }
               } else {
                 // Non-spirit stone flat bonuses always apply
@@ -134,24 +112,15 @@ export class ItemEffectProcessor {
     });
 
     return { percentage: percentageBonus, flat: flatBonus };
-  }  /**
+  }
+  
+  /**
    * Calculate cultivation speed bonus from items
    */
   public calculateCultivationSpeedBonus(): number {
     let totalBonus = 0;
 
-    // Check player inventory items (new system)
-    if (this.gameState.player.inventory?.items) {
-      this.gameState.player.inventory.items.forEach(item => {
-        item.effects.forEach(effect => {
-          if (effect.type === 'cultivation_speed' && effect.isPercentage) {
-            totalBonus += effect.value;
-          }
-        });
-      });
-    }
-
-    // Check equipped items (new system)
+    // Only check equipped items (new system)
     if (this.gameState.player.inventory?.equippedItems) {
       Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
         if (item) {
@@ -182,18 +151,7 @@ export class ItemEffectProcessor {
   public calculateCombatPowerBonus(): number {
     let totalBonus = 0;
 
-    // Check player inventory items (new system)
-    if (this.gameState.player.inventory?.items) {
-      this.gameState.player.inventory.items.forEach(item => {
-        item.effects.forEach(effect => {
-          if (effect.type === 'combat_power' && !effect.isPercentage) {
-            totalBonus += effect.value;
-          }
-        });
-      });
-    }
-
-    // Check equipped items (new system)
+    // Only check equipped items (new system)
     if (this.gameState.player.inventory?.equippedItems) {
       Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
         if (item) {
@@ -224,18 +182,7 @@ export class ItemEffectProcessor {
   public calculateDefenseBonus(): number {
     let totalBonus = 0;
 
-    // Check player inventory items (new system)
-    if (this.gameState.player.inventory?.items) {
-      this.gameState.player.inventory.items.forEach(item => {
-        item.effects.forEach(effect => {
-          if (effect.type === 'defense' && !effect.isPercentage) {
-            totalBonus += effect.value;
-          }
-        });
-      });
-    }
-
-    // Check equipped items (new system)
+    // Only check equipped items (new system)
     if (this.gameState.player.inventory?.equippedItems) {
       Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
         if (item) {
@@ -266,18 +213,7 @@ export class ItemEffectProcessor {
   public calculateCriticalChanceBonus(): number {
     let totalBonus = 0;
 
-    // Check player inventory items (new system)
-    if (this.gameState.player.inventory?.items) {
-      this.gameState.player.inventory.items.forEach(item => {
-        item.effects.forEach(effect => {
-          if (effect.type === 'critical_chance' && effect.isPercentage) {
-            totalBonus += effect.value;
-          }
-        });
-      });
-    }
-
-    // Check equipped items (new system)
+    // Only check equipped items (new system)
     if (this.gameState.player.inventory?.equippedItems) {
       Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
         if (item) {
@@ -308,20 +244,7 @@ export class ItemEffectProcessor {
   public calculateElementalBoost(element: Element): number {
     let totalBonus = 0;
 
-    // Check player inventory items (new system)
-    if (this.gameState.player.inventory?.items) {
-      this.gameState.player.inventory.items.forEach(item => {
-        item.effects.forEach(effect => {
-          if (effect.type === 'element_boost' &&
-              effect.element === element &&
-              effect.isPercentage) {
-            totalBonus += effect.value;
-          }
-        });
-      });
-    }
-
-    // Check equipped items (new system)
+    // Only check equipped items (new system)
     if (this.gameState.player.inventory?.equippedItems) {
       Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
         if (item) {
@@ -356,20 +279,7 @@ export class ItemEffectProcessor {
   public calculateElementalResistance(element: Element): number {
     let totalBonus = 0;
 
-    // Check player inventory items (new system)
-    if (this.gameState.player.inventory?.items) {
-      this.gameState.player.inventory.items.forEach(item => {
-        item.effects.forEach(effect => {
-          if (effect.type === 'elemental_resistance' &&
-              effect.element === element &&
-              effect.isPercentage) {
-            totalBonus += effect.value;
-          }
-        });
-      });
-    }
-
-    // Check equipped items (new system)
+    // Only check equipped items (new system)
     if (this.gameState.player.inventory?.equippedItems) {
       Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
         if (item) {
@@ -404,18 +314,7 @@ export class ItemEffectProcessor {
   public calculateLuckBonus(): number {
     let totalBonus = 0;
 
-    // Check player inventory items (new system)
-    if (this.gameState.player.inventory?.items) {
-      this.gameState.player.inventory.items.forEach(item => {
-        item.effects.forEach(effect => {
-          if (effect.type === 'luck' && !effect.isPercentage) {
-            totalBonus += effect.value;
-          }
-        });
-      });
-    }
-
-    // Check equipped items (new system)
+    // Only check equipped items (new system)
     if (this.gameState.player.inventory?.equippedItems) {
       Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
         if (item) {
@@ -446,18 +345,7 @@ export class ItemEffectProcessor {
   public calculateComprehensionBonus(): number {
     let totalBonus = 0;
 
-    // Check player inventory items (new system)
-    if (this.gameState.player.inventory?.items) {
-      this.gameState.player.inventory.items.forEach(item => {
-        item.effects.forEach(effect => {
-          if (effect.type === 'comprehension' && effect.isPercentage) {
-            totalBonus += effect.value;
-          }
-        });
-      });
-    }
-
-    // Check equipped items (new system)
+    // Only check equipped items (new system)
     if (this.gameState.player.inventory?.equippedItems) {
       Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
         if (item) {
@@ -488,18 +376,7 @@ export class ItemEffectProcessor {
   public getActiveTemporaryEffects(): ItemEffect[] {
     const activeEffects: ItemEffect[] = [];
 
-    // Check player inventory items (new system)
-    if (this.gameState.player.inventory?.items) {
-      this.gameState.player.inventory.items.forEach(item => {
-        item.effects.forEach(effect => {
-          if (effect.duration && effect.duration > 0) {
-            activeEffects.push(effect);
-          }
-        });
-      });
-    }
-
-    // Check equipped items (new system)
+    // Only check equipped items (new system)
     if (this.gameState.player.inventory?.equippedItems) {
       Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
         if (item) {
@@ -528,35 +405,7 @@ export class ItemEffectProcessor {
    * Process temporary effect duration (called daily)
    */
   public processTemporaryEffects(): void {
-    if (!this.gameState.player.inventory?.items) return;
-
-    // Process inventory items (new system)
-    this.gameState.player.inventory.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.duration && effect.duration > 0) {
-          effect.duration--;
-
-          // Remove effect if duration expires
-          if (effect.duration <= 0) {
-            console.log(`⚡ ${item.name} effect expired: ${effect.type}`);
-          }
-        }
-      });
-
-      // Remove expired effects
-      item.effects = item.effects.filter(effect =>
-        !effect.duration || effect.duration > 0
-      );
-    });
-
-    // Clean up items with no effects
-    if (this.gameState.player.inventory) {
-      this.gameState.player.inventory.items = this.gameState.player.inventory.items.filter(item =>
-        item.effects.length > 0
-      );
-    }
-
-    // Also process equipped items (new system)
+    // Only process equipped items (new system) - effects only apply from equipped items
     if (this.gameState.player.inventory?.equippedItems) {
       Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
         if (item) {
@@ -578,30 +427,6 @@ export class ItemEffectProcessor {
         }
       });
     }
-
-    // Also process legacy player items (for backward compatibility during migration)
-    this.gameState.player.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.duration && effect.duration > 0) {
-          effect.duration--;
-
-          // Remove effect if duration expires
-          if (effect.duration <= 0) {
-            console.log(`⚡ ${item.name} effect expired: ${effect.type}`);
-          }
-        }
-      });
-
-      // Remove expired effects
-      item.effects = item.effects.filter(effect =>
-        !effect.duration || effect.duration > 0
-      );
-    });
-
-    // Clean up legacy player items with no effects
-    this.gameState.player.items = this.gameState.player.items.filter(item =>
-      item.effects.length > 0
-    );
 
     // Also process soul items (persistent across reincarnations)
     this.gameState.soul.items.forEach(item => {

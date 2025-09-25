@@ -469,6 +469,16 @@ function performItemAction(item: Item, actionType: string) {
     logMessage(`✅ ${result.message}`);
     updateInventoryDisplay();
     updateUI();
+    
+    // Clear item details if the item was consumed/removed/equipped
+    if (actionType === 'use' || actionType === 'equip' || actionType === 'study' || actionType === 'absorb' || actionType === 'enhance' || actionType === 'drop') {
+      itemDetailsEl.innerHTML = 'Select an item to view details';
+      itemActionsEl.innerHTML = '';
+      // Clear selection visual
+      document.querySelectorAll('.item-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+    }
   } else {
     logMessage(`❌ ${result.message}`);
   }
