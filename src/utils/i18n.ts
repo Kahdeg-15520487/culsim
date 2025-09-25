@@ -170,6 +170,14 @@ export interface Translations {
     gameSpeed: string;
     running: string;
     paused: string;
+    type: string;
+    aggression: string;
+  };
+
+  // Combat Types
+  combatTypes: {
+    melee: string;
+    ranged: string;
   };
 
   // Realm Names
@@ -376,6 +384,20 @@ export interface Translations {
     realmVoidRefinement: string;
     realmImmortalAscension: string;
   };
+
+  // Item Name Templates (for proper grammar per category and language)
+  itemNameTemplates: {
+    armor: string;
+    weapon: string;
+    pill: string;
+    drug: string;
+    poison: string;
+    spiritStone: string;
+    herb: string;
+    beastPart: string;
+    charm: string;
+    manual: string;
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -488,6 +510,12 @@ export const translations: Record<Language, Translations> = {
       gameSpeed: 'Game Speed',
       running: 'Running',
       paused: 'Paused',
+      type: 'Type',
+      aggression: 'Aggression',
+    },
+    combatTypes: {
+      melee: 'Melee',
+      ranged: 'Ranged',
     },
     realms: {
       mortal: 'Mortal',
@@ -705,6 +733,21 @@ export const translations: Record<Language, Translations> = {
       realmVoidRefinement: ' of Void Refinement',
       realmImmortalAscension: ' of Immortal Ascension',
     },
+
+    // Item Name Templates (for proper grammar per category and language)
+    itemNameTemplates: {
+      armor: '{quality} {element} {base} {realm}',
+      weapon: '{quality} {element} {base} {realm}',
+      pill: '{quality} {element} {base} {realm}',
+      drug: '{quality} {element} {base} {realm}',
+      poison: '{quality} {element} {base} {realm}',
+      spiritStone: '{quality} {element} {base} {realm}',
+      herb: '{quality} {element} {base} {realm}',
+      beastPart: '{quality} {element} {base} {realm}',
+      charm: '{quality} {element} {base} {realm}',
+      manual: '{quality} {element} {base} {realm}',
+    },
+
     effects: {
       qiAbsorption: 'Qi Absorption',
       cultivationSpeed: 'Cultivation Speed',
@@ -825,6 +868,12 @@ export const translations: Record<Language, Translations> = {
       gameSpeed: 'Tốc Độ Trò Chơi',
       running: 'Đang Chạy',
       paused: 'Tạm Dừng',
+      type: 'Loại',
+      aggression: 'Ác ý',
+    },
+    combatTypes: {
+      melee: 'Cận Chiến',
+      ranged: 'Tầm Xa',
     },
     realms: {
       mortal: 'Phàm Nhân',
@@ -1009,16 +1058,16 @@ export const translations: Record<Language, Translations> = {
     // Item Name Components
     itemNames: {
       // Quality prefixes
-      qualityCommon: '',
-      qualityRefined: 'Tinh Luyện ',
-      qualitySuperior: 'Thượng Hạng ',
-      qualityExquisite: 'Tinh Xảo ',
-      qualityLegendary: 'Truyền Thuyết ',
-      qualityMythical: 'Thần Bí ',
+      qualityCommon: 'Hạ Phẩm',
+      qualityRefined: 'Trung Phẩm',
+      qualitySuperior: 'Thượng Phẩm',
+      qualityExquisite: 'Tinh Phẩm',
+      qualityLegendary: 'Truyền Thuyết',
+      qualityMythical: 'Thần Bí',
       // Base item names
       baseArmor: 'Đạo Phục',
       baseWeapon: 'Tiên Kiếm',
-      basePill: 'Tu Luyện Đan',
+      basePill: 'Luyện Đan',
       baseDrug: 'Linh Tửu',
       basePoison: 'Độc Dịch',
       baseSpiritStone: 'Linh Thạch',
@@ -1034,14 +1083,29 @@ export const translations: Record<Language, Translations> = {
       elementEarth: 'Thổ',
       // Realm suffixes
       realmMortal: '',
-      realmQiCondensation: ' Khí Luyện Kỳ',
-      realmFoundationEstablishment: ' Trúc Cơ Kỳ',
-      realmCoreFormation: ' Kim Đan Kỳ',
-      realmNascentSoul: ' Nguyên Anh Kỳ',
-      realmDivineTransformation: ' Hóa Thần Kỳ',
-      realmVoidRefinement: ' Luyện Không Kỳ',
-      realmImmortalAscension: ' Phi Thăng Kỳ',
+      realmQiCondensation: 'Luyện Khí Kỳ',
+      realmFoundationEstablishment: 'Trúc Cơ Kỳ',
+      realmCoreFormation: 'Kim Đan Kỳ',
+      realmNascentSoul: 'Nguyên Anh Kỳ',
+      realmDivineTransformation: 'Hóa Thần Kỳ',
+      realmVoidRefinement: 'Luyện Không Kỳ',
+      realmImmortalAscension: 'Phi Thăng Kỳ',
     },
+
+    // Item Name Templates (for proper grammar per category and language)
+    itemNameTemplates: {
+      armor: '{element} {quality} {base} {realm}',
+      weapon: '{element} {quality} {base} {realm}',
+      pill: '{quality} {element} {base} {realm}',
+      drug: '{quality} {element} {base} {realm}',
+      poison: '{quality} {element} {base} {realm}',
+      spiritStone: '{element} {quality} {base} {realm}',
+      herb: '{quality} {element} {base} {realm}',
+      beastPart: '{element} {quality} {base} {realm}',
+      charm: '{element} {quality} {base} {realm}',
+      manual: '{quality} {element} {base} {realm}',
+    },
+
     effects: {
       qiAbsorption: 'Hấp Thụ Linh Khí',
       cultivationSpeed: 'Tốc Độ Tu Luyện',
@@ -1267,6 +1331,20 @@ export class I18n {
     };
 
     return this.t(effectNames[effectType] || effectType.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()));
+  }
+
+  /**
+   * Get combat type name
+   */
+  getCombatTypeName(combatType: string): string {
+    switch (combatType) {
+      case 'melee':
+        return this.t('combatTypes.melee');
+      case 'ranged':
+        return this.t('combatTypes.ranged');
+      default:
+        return combatType;
+    }
   }
 }
 

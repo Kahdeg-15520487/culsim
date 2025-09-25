@@ -108,7 +108,7 @@ export class ItemSystem {
         if (element) {
           effects.push({
             type: 'element_boost',
-            value: quality * 5,
+            value: (quality+1) * 2,
             element,
             isPercentage: true
           });
@@ -195,20 +195,39 @@ export class ItemSystem {
   }
 
   /**
-   * Generate translated item name from i18n keys
+   * Generate translated item name from i18n keys using category-specific templates
    */
   static getTranslatedItemName(item: Item): string {
-    let name = i18n.t(item.nameQuality) + i18n.t(item.nameBase);
+    // Map category enum to template key
+    const categoryTemplateKeys = {
+      [ItemCategory.Armor]: 'armor',
+      [ItemCategory.Weapon]: 'weapon',
+      [ItemCategory.Pill]: 'pill',
+      [ItemCategory.Drug]: 'drug',
+      [ItemCategory.Poison]: 'poison',
+      [ItemCategory.SpiritStone]: 'spiritStone',
+      [ItemCategory.Herb]: 'herb',
+      [ItemCategory.BeastPart]: 'beastPart',
+      [ItemCategory.Charm]: 'charm',
+      [ItemCategory.Manual]: 'manual'
+    };
 
-    if (item.nameElement) {
-      name = `${i18n.t(item.nameElement)} ${name}`;
-    }
+    const categoryKey = categoryTemplateKeys[item.category];
+    const template = i18n.t(`itemNameTemplates.${categoryKey}`);
 
-    if (item.nameRealm) {
-      name += i18n.t(item.nameRealm);
-    }
+    // Get the translated components
+    const quality = i18n.t(item.nameQuality);
+    const base = i18n.t(item.nameBase);
+    const element = item.nameElement ? i18n.t(item.nameElement) : '';
+    const realm = item.nameRealm ? i18n.t(item.nameRealm) : '';
 
-    return name;
+    // Replace placeholders in template
+    return template
+      .replace('{quality}', quality)
+      .replace('{element}', element)
+      .replace('{base}', base)
+      .replace('{realm}', realm)
+      .trim(); // Remove any extra whitespace
   }
 
   /**

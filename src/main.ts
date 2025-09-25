@@ -179,10 +179,10 @@ function updateEnemyDisplay() {
     <div class="enemy-info">
       <div class="enemy-name">${currentEnemy.name}</div>
       <div class="enemy-stats">
-        <div class="enemy-stat">Realm: ${game.getRealmName(currentEnemy.realm)}</div>
+        <div class="enemy-stat">${i18n.t('status.realm')}: ${game.getRealmName(currentEnemy.realm)}</div>
         <div class="enemy-stat">Qi: ${currentEnemy.qi.toFixed(0)}/${currentEnemy.maxQi.toFixed(0)}</div>
-        <div class="enemy-stat">Type: ${currentEnemy.combatType}</div>
-        <div class="enemy-stat">Aggression: ${currentEnemy.aggression}%</div>
+        <div class="enemy-stat">${i18n.t('status.type')}: ${i18n.getCombatTypeName(currentEnemy.combatType)}</div>
+        <div class="enemy-stat">${i18n.t('status.aggression')}: ${currentEnemy.aggression}%</div>
       </div>
     </div>
   `;
@@ -227,7 +227,7 @@ function updateCombatLoot() {
       case 'manual': emoji = '📚'; break;
     }
     
-    return `${emoji} ${ItemSystem.getTranslatedItemName(item)}: ${item.description} (Value: ${item.value})`;
+    return `${emoji} ${ItemSystem.getTranslatedItemName(item)}: ${ItemSystem.getTranslatedItemDescription(item)} (Value: ${item.value})`;
   }).join('<br>');
 
   combatLootEl.innerHTML = lootHtml;
@@ -301,7 +301,7 @@ function updateInventoryDisplay() {
   // Update stats
   totalItemsEl.textContent = summary.totalItems.toString();
   uniqueItemsEl.textContent = summary.uniqueItems.toString();
-  totalValueEl.textContent = summary.totalValue.toString();
+  totalValueEl.textContent = `${summary.totalValue.toString()} $`;
   inventoryCapacityEl.textContent = `${summary.weight}/${summary.capacity}`;
 
   // Update equipment slots
@@ -349,8 +349,8 @@ function updateEquipmentDisplay() {
     if (equippedItem) {
       slotElement.innerHTML = `
         <div class="equipment-item" data-item-id="${equippedItem.id}">
-          <div class="item-name">${ItemSystem.getTranslatedItemName(equippedItem)}</div>
-          <div class="item-quality quality-${equippedItem.quality}">${ItemQuality[equippedItem.quality]}</div>
+          <div class="item-name quality-${ItemQuality[equippedItem.quality].toLowerCase()}">${ItemSystem.getTranslatedItemName(equippedItem)}</div>
+          <div class="item-quality quality-${ItemQuality[equippedItem.quality].toLowerCase()}">${ItemQuality[equippedItem.quality]}</div>
         </div>
       `;
       slotElement.classList.add('equipped');
@@ -371,7 +371,7 @@ function updateItemGrid(items: Item[]) {
 
   const itemHtml = items.map(item => `
     <div class="item-card" data-item-id="${item.id}">
-      <div class="item-name quality-${item.quality}">${ItemSystem.getTranslatedItemName(item)}</div>
+      <div class="item-name quality-${ItemQuality[item.quality].toLowerCase()}">${ItemSystem.getTranslatedItemName(item)}</div>
       <div class="item-category">${i18n.getCategoryName(item.category)}</div>
       <div class="item-quantity">${item.stackable ? `${item.quantity}` : ''}</div>
       <div class="item-value">${item.value}$</div>
@@ -406,7 +406,7 @@ function selectItem(itemId: string) {
   itemDetailsEl.innerHTML = `
     <div class="item-detail-header">
       <h3>${ItemSystem.getTranslatedItemName(item)}</h3>
-      <div class="item-detail-quality quality-${item.quality}">${i18n.t('ui.rarity')}: ${i18n.getQualityName(item.quality)}</div>
+      <div class="item-detail-quality quality-${ItemQuality[item.quality].toLowerCase()}">${i18n.t('ui.rarity')}: ${i18n.getQualityName(item.quality)}</div>
     </div>
     <div class="item-detail-category">${i18n.t('ui.category')}: ${i18n.getCategoryName(item.category)}</div>
     <div class="item-detail-description">${ItemSystem.getTranslatedItemDescription(item)}</div>
