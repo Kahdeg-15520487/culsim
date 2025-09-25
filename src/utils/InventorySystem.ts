@@ -81,24 +81,40 @@ export class InventorySystem {
    * Add item to inventory with stacking logic
    */
   addItem(item: Item): boolean {
+    console.log('DEBUG: InventorySystem.addItem called with:', item.name, item.category);
+    
     if (this.isInventoryFull()) {
+      console.log('DEBUG: Inventory is full');
       return false; // Inventory full
     }
 
+    console.log('DEBUG: Inventory not full, checking if stackable');
+
     // Check if item can stack
     if (item.stackable) {
+      console.log('DEBUG: Item is stackable');
       const existingStack = this.findStackableItem(item);
       if (existingStack) {
+        console.log('DEBUG: Found existing stack, updating quantity');
         existingStack.quantity += item.quantity;
         this.updateWeight();
+        console.log('DEBUG: Stack updated successfully');
         return true;
       }
     }
 
+    console.log('DEBUG: Adding as new item');
     // Add as new item
     this.player.inventory!.items.push(item);
+    console.log('DEBUG: Item pushed to inventory');
+    
     this.updateWeight();
+    console.log('DEBUG: Weight updated');
+    
     this.updateCategories();
+    console.log('DEBUG: Categories updated');
+    
+    console.log('DEBUG: Item added successfully');
     return true;
   }
 
@@ -163,15 +179,25 @@ export class InventorySystem {
    * Update category organization
    */
   private updateCategories(): void {
+    console.log('DEBUG: updateCategories called');
+    
     // Reset categories
     this.player.inventory!.organization.categories = this.initializeCategories();
-
+    console.log('DEBUG: Categories reset');
+    
     // Reorganize items
     for (const item of this.player.inventory!.items) {
+      console.log('DEBUG: Processing item:', item.name, 'category:', item.category);
+      
       if (item.category in this.player.inventory!.organization.categories) {
+        console.log('DEBUG: Category exists, pushing item');
         this.player.inventory!.organization.categories[item.category].push(item);
+      } else {
+        console.log('DEBUG: Category does not exist for item:', item.category);
       }
     }
+    
+    console.log('DEBUG: updateCategories completed');
   }
 
   /**

@@ -177,14 +177,19 @@ function updateCombatLoot() {
   }
 
   const lootHtml = combatLoot.map(item => {
-    if (item.type === 'artifact') {
-      return `📿 ${item.name}: ${item.description} (Value: ${item.value})`;
-    } else if (item.type === 'elemental_crystal') {
-      return `💎 ${item.element} Crystal: ${item.description} (Value: ${item.value})`;
-    } else if (item.type === 'cultivation_insight') {
-      return `📚 ${item.name}: ${item.description} (Value: ${item.value})`;
+    // Display item based on category with appropriate emoji
+    let emoji = '�';
+    switch (item.category) {
+      case 'spirit_stone': emoji = '💎'; break;
+      case 'pill': emoji = '💊'; break;
+      case 'herb': emoji = '🌿'; break;
+      case 'weapon': emoji = '⚔️'; break;
+      case 'armor': emoji = '🛡️'; break;
+      case 'charm': emoji = '📿'; break;
+      case 'manual': emoji = '📚'; break;
     }
-    return `${item.name}: ${item.description}`;
+    
+    return `${emoji} ${item.name}: ${item.description} (Value: ${item.value})`;
   }).join('<br>');
 
   combatLootEl.innerHTML = lootHtml;
@@ -202,14 +207,18 @@ function findEnemy() {
 function attackEnemy() {
   if (!currentEnemy) return;
 
-  // Resolve combat
-  const result = game.resolveCombat(currentEnemy);
+  // Disable buttons during combat resolution
+  attackBtn.disabled = true;
+  fleeBtn.disabled = true;
 
-  if (result === 'player_win') {
-    // Get loot from enemy
-    combatLoot = currentEnemy.lootTable || [];
+  // Resolve combat
+  const combatResult = game.resolveCombat(currentEnemy);
+
+  if (combatResult.result === 'player_win') {
+    // Get actual dropped loot
+    combatLoot = combatResult.droppedLoot;
     console.log(`🎉 Victory! Gained ${combatLoot.length} loot items.`);
-  } else if (result === 'enemy_win') {
+  } else if (combatResult.result === 'enemy_win') {
     combatLoot = [];
     console.log(`💀 Defeated by ${currentEnemy.name}.`);
   } else {
@@ -465,6 +474,8 @@ function performItemAction(item: Item, actionType: string) {
   }
 }
 
+// Removed: selectArtifact function - artifacts replaced by inventory system
+/*
 function selectArtifact(index: number) {
   if (!game) return;
 
@@ -492,6 +503,7 @@ function selectArtifact(index: number) {
     <div class="artifact-effects-list">${effectsHtml}</div>
   `;
 }
+*/
 
 // Add language selector and top controls
 const languageSelect = document.createElement('select');
@@ -585,13 +597,25 @@ function initializeGame() {
   if (hasSavedGame()) {
     // Auto-load saved game
     logMessage(i18n.t('ui.savedGameDetected'));
+    
+    // Create a temporary game to get the player reference for inventory system
+    const tempGame = new Game(undefined, updateUI);
+    const player = tempGame.getState().player;
+    inventorySystem = new InventorySystem(player);
+    lootSystem = new LootSystem(new Random());
+
+    // Recreate game with inventory system
     game = new Game(undefined, updateUI, inventorySystem);
     const loaded = game.loadGame();
     if (loaded) {
-      // Initialize game systems with loaded game state
-      const player = game.getState().player;
-      inventorySystem = new InventorySystem(player);
+      // Re-initialize game systems with loaded game state
+      const loadedPlayer = game.getState().player;
+      const newInventorySystem = new InventorySystem(loadedPlayer);
       lootSystem = new LootSystem(new Random());
+      
+      // Update the game's inventory system
+      game.updateInventorySystem(newInventorySystem);
+      inventorySystem = newInventorySystem;
       itemInteractionSystem = new ItemInteractionSystem(inventorySystem);
 
       // Start the game loop for the loaded game
@@ -1045,5 +1069,4 @@ updateUI();
 logMessage('🏮 Welcome to CULSIM - Cultivation Simulator');
 logMessage('📜 Game log initialized');
 
-// Initialize game on page load
 initializeGame();

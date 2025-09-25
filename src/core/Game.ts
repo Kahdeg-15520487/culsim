@@ -4,7 +4,7 @@
  * This class has been refactored from a monolithic design into focused subsystems.
  */
 
-import { GameState, Player, Soul, Enemy, CultivationRealm, Element, ElementAffinities, CombatType, Meridian } from '../types';
+import { GameState, Player, Soul, Enemy, CultivationRealm, Element, ElementAffinities, CombatType, Meridian, Item } from '../types';
 import { Random } from '../utils/Random';
 import { i18n } from '../utils/i18n';
 import { GameController } from './systems/GameController';
@@ -190,7 +190,7 @@ export class Game {
   /**
    * Resolve combat with enemy - delegates to combat system
    */
-  public resolveCombat(enemy: Enemy): 'player_win' | 'enemy_win' | 'flee' {
+  public resolveCombat(enemy: Enemy): { result: 'player_win' | 'enemy_win' | 'flee', droppedLoot: Item[] } {
     return this.combatSystem.resolveCombat(enemy);
   }
 
@@ -220,9 +220,14 @@ export class Game {
   }
 
   /**
-   * Get random instance for external use
+   * Update the inventory system reference (used after loading saved games)
    */
-  public getRandom(): Random {
-    return this.gameController.getRandom();
+  public updateInventorySystem(inventorySystem: InventorySystem): void {
+    this.inventorySystem = inventorySystem;
+    // Recreate combat system with new inventory system
+    const gameState = this.gameController.getStateReference();
+    const random = this.gameController.getRandom();
+    this.combatSystem = new CombatSystem(gameState, random, inventorySystem);
   }
+
 }

@@ -20,6 +20,12 @@ export class CombatSystem {
   constructor(private gameState: GameState, private random: Random, inventorySystem: InventorySystem) {
     this.itemEffectProcessor = new ItemEffectProcessor(gameState);
     this.inventorySystem = inventorySystem;
+    
+    if (!this.inventorySystem) {
+      console.error('WARNING: CombatSystem created with undefined inventorySystem!');
+    } else {
+      console.log('DEBUG: CombatSystem initialized with valid inventorySystem');
+    }
   }
 
   /**
@@ -144,7 +150,7 @@ export class CombatSystem {
   /**
    * Resolve combat between player and enemy
    */
-  public resolveCombat(enemy: Enemy): 'player_win' | 'enemy_win' | 'flee' {
+  public resolveCombat(enemy: Enemy): { result: 'player_win' | 'enemy_win' | 'flee', droppedLoot: Item[] } {
     const player = this.gameState.player;
 
     console.log(i18n.t('messages.enemyEncounter', {
@@ -154,20 +160,30 @@ export class CombatSystem {
       maxQi: enemy.maxQi
     }));
 
+    console.log('DEBUG: Starting combat resolution');
+
     // Calculate combat power with item bonuses
     const playerCombatBonus = this.itemEffectProcessor.calculateCombatPowerBonus();
     const playerDefenseBonus = this.itemEffectProcessor.calculateDefenseBonus();
     const playerCritBonus = this.itemEffectProcessor.calculateCriticalChanceBonus();
 
+    console.log('DEBUG: Player bonuses - combat:', playerCombatBonus, 'defense:', playerDefenseBonus, 'crit:', playerCritBonus);
+
     const playerPower = (player.qi + (player.talent * 2) + (player.realm * 100) + playerCombatBonus) * (1 + playerDefenseBonus / 100);
     const enemyPower = enemy.qi + (enemy.realm * 50);
+
+    console.log('DEBUG: Base powers - player:', playerPower, 'enemy:', enemyPower);
 
     // Apply elemental bonuses
     const playerElementBonus = this.calculateElementalCombatBonus(player, enemy);
     const enemyElementBonus = this.calculateElementalCombatBonus(enemy, player);
 
+    console.log('DEBUG: Elemental bonuses - player:', playerElementBonus, 'enemy:', enemyElementBonus);
+
     let finalPlayerPower = playerPower * playerElementBonus;
     const finalEnemyPower = enemyPower * enemyElementBonus;
+
+    console.log('DEBUG: Final powers - player:', finalPlayerPower, 'enemy:', finalEnemyPower);
 
     // Apply critical hit chance
     const critChance = Math.min(playerCritBonus / 100, 0.5); // Max 50% crit chance
@@ -180,12 +196,23 @@ export class CombatSystem {
 
     const playerWinChance = finalPlayerPower / (finalPlayerPower + finalEnemyPower);
 
+    console.log('DEBUG: Win chance:', playerWinChance);
+
+    // Handle edge case where both powers are 0
+    if (isNaN(playerWinChance)) {
+      console.log('DEBUG: Win chance is NaN, defaulting to 50%');
+      const droppedLoot = this.handlePlayerDefeat(enemy);
+      return { result: 'enemy_win', droppedLoot };
+    }
+
     if (this.random.chance(playerWinChance)) {
-      this.handlePlayerVictory(enemy);
-      return 'player_win';
+      console.log('DEBUG: Player wins');
+      const droppedLoot = this.handlePlayerVictory(enemy);
+      return { result: 'player_win', droppedLoot };
     } else {
-      this.handlePlayerDefeat(enemy);
-      return 'enemy_win';
+      console.log('DEBUG: Enemy wins');
+      const droppedLoot = this.handlePlayerDefeat(enemy);
+      return { result: 'enemy_win', droppedLoot };
     }
   }
 
@@ -250,30 +277,40 @@ export class CombatSystem {
   /**
    * Handle player victory in combat
    */
-  private handlePlayerVictory(enemy: Enemy): void {
+  private handlePlayerVictory(enemy: Enemy): Item[] {
+    console.log('DEBUG: Handling player victory');
     const player = this.gameState.player;
 
     // Calculate rewards
     const qiReward = Math.floor(enemy.maxQi * 0.1);
     const talentReward = this.random.int(1, 3);
 
+    console.log('DEBUG: Rewards - qi:', qiReward, 'talent:', talentReward);
+
     player.qi = Math.min(player.qi + qiReward, player.maxQi);
     player.talent = Math.min(100, player.talent + talentReward);
 
-    // Process loot
-    this.processLoot(enemy.lootTable);
+    console.log('DEBUG: Processing loot');
+
+    // Process loot and get dropped items
+    const droppedLoot = this.processLoot(enemy.lootTable);
+
+    console.log('DEBUG: Loot processed, dropped items:', droppedLoot.length);
 
     console.log(i18n.t('messages.combatVictory', {
       enemy: enemy.name,
       qi: qiReward,
       talent: talentReward
     }));
+    
+    console.log('DEBUG: Victory handling complete');
+    return droppedLoot;
   }
 
   /**
    * Handle player defeat in combat
    */
-  private handlePlayerDefeat(enemy: Enemy): void {
+  private handlePlayerDefeat(enemy: Enemy): Item[] {
     const player = this.gameState.player;
 
     // Calculate penalties
@@ -297,65 +334,48 @@ export class CombatSystem {
       enemy: enemy.name,
       qiLoss: qiLoss
     }));
+    
+    return []; // No loot on defeat
   }
 
   /**
    * Process loot from defeated enemy
    */
-  private processLoot(lootTable: LootItem[]): void {
-    lootTable.forEach(lootItem => {
+  private processLoot(lootTable: LootItem[]): Item[] {
+    console.log('DEBUG: Processing loot table with', lootTable.length, 'items');
+    const droppedItems: Item[] = [];
+    
+    lootTable.forEach((lootItem, index) => {
+      console.log('DEBUG: Processing loot item', index, lootItem.item.name, 'drop rate:', lootItem.dropRate);
       // Check if item drops based on drop rate
       if (this.random.chance(lootItem.dropRate)) {
+        console.log('DEBUG: Item dropped!');
         // Create a copy of the item with the specified quantity
         const itemToAdd = {
           ...lootItem.item,
           quantity: lootItem.quantity
         };
 
+        console.log('DEBUG: Adding item to inventory');
+        // Check if inventory system is available
+        if (!this.inventorySystem) {
+          console.error('ERROR: InventorySystem is undefined in CombatSystem!');
+          return droppedItems;
+        }
         // Add to inventory system
         this.inventorySystem.addItem(itemToAdd);
+        
+        // Add to dropped items list for UI
+        droppedItems.push(itemToAdd);
 
-        // Log the loot based on item category
-        switch (lootItem.item.category) {
-          case ItemCategory.SpiritStone:
-            console.log(i18n.t('messages.lootArtifact', {
-              name: lootItem.item.name,
-              value: lootItem.item.value
-            }));
-            break;
-
-          case ItemCategory.Herb:
-            // For elemental herbs, boost elemental affinity
-            if (lootItem.item.element) {
-              const element = lootItem.item.element;
-              const currentAffinity = this.gameState.player.elements[element] || 0;
-              const affinityBoost = Math.floor(lootItem.item.value / 10);
-              this.gameState.player.elements[element] = Math.min(100, currentAffinity + affinityBoost);
-              console.log(i18n.t('messages.lootElementalCrystal', {
-                element: element,
-                affinity: affinityBoost.toFixed(1)
-              }));
-            }
-            break;
-
-          case ItemCategory.Pill:
-            // For cultivation pills, boost talent
-            const talentBoost = Math.floor(lootItem.item.value / 10);
-            this.gameState.player.talent = Math.min(100, this.gameState.player.talent + talentBoost);
-            console.log(i18n.t('messages.lootCultivationInsight', {
-              talent: talentBoost
-            }));
-            break;
-
-          default:
-            console.log(i18n.t('messages.lootArtifact', {
-              name: lootItem.item.name,
-              value: lootItem.item.value
-            }));
-            break;
-        }
+        console.log('DEBUG: Item added successfully');
+      } else {
+        console.log('DEBUG: Item did not drop');
       }
     });
+    
+    console.log('DEBUG: Loot processing complete, dropped', droppedItems.length, 'items');
+    return droppedItems;
   }
 
   /**
