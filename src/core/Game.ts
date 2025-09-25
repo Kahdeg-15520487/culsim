@@ -26,8 +26,12 @@ export class Game {
   private combatSystem: CombatSystem;
   private eventSystem: EventSystem;
   private saveLoadSystem: SaveLoadSystem;
+  private inventorySystem?: InventorySystem;
 
   constructor(seed?: number, uiUpdateCallback?: () => void, inventorySystem?: InventorySystem) {
+    // Store inventory system reference
+    this.inventorySystem = inventorySystem;
+    
     // Initialize core game controller with update callback
     this.gameController = new GameController(seed, () => this.update(), uiUpdateCallback, () => this.saveGame());
     const gameState = this.gameController.getStateReference();
@@ -62,10 +66,6 @@ export class Game {
    */
   private update(): void {
     const gameState = this.gameController.getStateReference();
-
-    // Validate and fix any malformed artifacts
-    this.validateAndFixArtifacts(gameState.player.artifacts);
-    this.validateAndFixArtifacts(gameState.soul.artifacts);
 
     // Process cultivation
     this.cultivationSystem.processCultivation();
@@ -176,7 +176,7 @@ export class Game {
     this.meridianSystem = new MeridianSystem(gameState, random);
     this.elementSystem = new ElementSystem(gameState);
     this.breakthroughSystem = new BreakthroughSystem(gameState, random);
-    this.combatSystem = new CombatSystem(gameState, random);
+    this.combatSystem = new CombatSystem(gameState, random, this.inventorySystem!);
     this.eventSystem = new EventSystem(gameState, random);
   }
 
@@ -217,31 +217,6 @@ export class Game {
 
   public debugAddElementProgress(amount: number = 10): void {
     this.elementSystem.debugAddElementProgress(amount);
-  }
-
-  /**
-   * Validate and fix any malformed artifacts in the given array
-   */
-  private validateAndFixArtifacts(artifacts: any[]): void {
-    for (let i = artifacts.length - 1; i >= 0; i--) {
-      const artifact = artifacts[i];
-
-      // Check if artifact has required properties
-      if (!artifact.id || !artifact.name || !artifact.type) {
-        console.warn('Removing malformed artifact:', artifact);
-        artifacts.splice(i, 1);
-        continue;
-      }
-
-      // Ensure effects array exists
-      if (!artifact.effects || !Array.isArray(artifact.effects)) {
-        console.warn('Fixing artifact with missing effects:', artifact.name);
-        artifact.effects = [{
-          type: 'qi_absorption',
-          value: artifact.value || 10
-        }];
-      }
-    }
   }
 
   /**

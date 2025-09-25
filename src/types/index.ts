@@ -82,7 +82,6 @@ export interface Player {
   meridians: Meridian[];
   elements: ElementAffinities;
   talent: number; // 1-100 scale
-  artifacts: Artifact[]; // Legacy artifacts for backward compatibility
   items: Item[]; // New comprehensive item system
   inventory?: Inventory; // Unified inventory system
   lifetime: number; // in days
@@ -97,7 +96,6 @@ export interface Soul {
   cultivationInsights: CultivationInsights; // Knowledge carried over
   karmicBalance: number; // Good/bad karma affecting rebirth
   maxRealmAchieved: CultivationRealm;
-  artifacts: Artifact[]; // Soul-bound artifacts (legacy)
   items: Item[]; // Soul-bound items (new system)
 }
 
@@ -177,14 +175,6 @@ export interface ElementAffinities {
   [Element.Earth]: number;
 }
 
-// Basic Artifact (legacy - kept for compatibility)
-export interface Artifact {
-  id: string;
-  name: string;
-  type: string;
-  effects: ArtifactEffect[];
-}
-
 // Enhanced Item System
 export interface Item {
   id: string;
@@ -213,13 +203,6 @@ export interface ItemEffect {
   element?: Element;
   duration?: number; // For temporary effects (in days)
   isPercentage: boolean; // Whether the value is a percentage modifier
-}
-
-// Artifact Effects (legacy compatibility)
-export interface ArtifactEffect {
-  type: 'qi_absorption' | 'cultivation_speed' | 'combat_power' | 'element_boost';
-  value: number;
-  element?: Element;
 }
 
 // Combat Result

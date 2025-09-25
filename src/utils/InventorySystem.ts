@@ -9,7 +9,6 @@ import {
   Item,
   ItemCategory,
   ItemQuality,
-  Artifact,
   Resource,
   CultivationInsight,
   Element,
@@ -37,7 +36,12 @@ export class InventorySystem {
     if (!this.player.inventory) {
       this.player.inventory = {
         items: [],
-        equippedItems: {},
+        equippedItems: {
+          [EquipmentSlot.Weapon]: undefined,
+          [EquipmentSlot.Armor]: undefined,
+          [EquipmentSlot.Accessory1]: undefined,
+          [EquipmentSlot.Accessory2]: undefined
+        },
         storageCapacity: this.maxSlots,
         weight: 0,
         maxWeight: 1000,
@@ -49,9 +53,7 @@ export class InventorySystem {
     }
 
     // Migrate legacy artifacts to new system if needed
-    if (this.player.artifacts && this.player.artifacts.length > 0) {
-      this.migrateLegacyArtifacts();
-    }
+    // Removed: legacy artifact migration no longer needed
   }
 
   /**
@@ -73,38 +75,6 @@ export class InventorySystem {
       resources: [], // Raw materials
       insights: [] // Knowledge items
     };
-  }
-
-  /**
-   * Migrate legacy artifacts to new inventory system
-   */
-  private migrateLegacyArtifacts(): void {
-    if (!this.player.artifacts) return;
-
-    for (const artifact of this.player.artifacts) {
-      // Convert legacy artifact to new item format
-      const migratedItem: Item = {
-        id: artifact.id,
-        name: artifact.name,
-        category: ItemCategory.Charm, // Default category for migrated artifacts
-        quality: ItemQuality.Rare, // Assume rare quality
-        realm: this.player.realm,
-        effects: artifact.effects.map(effect => ({
-          ...effect,
-          isPercentage: false,
-          duration: undefined
-        })),
-        description: `Legacy artifact: ${artifact.name}`,
-        value: 100,
-        stackable: false,
-        quantity: 1
-      };
-
-      this.addItem(migratedItem);
-    }
-
-    // Clear legacy artifacts
-    this.player.artifacts = [];
   }
 
   /**

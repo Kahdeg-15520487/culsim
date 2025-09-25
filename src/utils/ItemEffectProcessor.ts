@@ -113,31 +113,6 @@ export class ItemEffectProcessor {
       });
     }
 
-    // Also check legacy player items (for backward compatibility during migration)
-    this.gameState.player.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.type === 'qi_absorption') {
-          if (effect.isPercentage) {
-            // Percentage bonus to qi gathering
-            percentageBonus += effect.value;
-          } else if (item.category === 'spirit_stone') {
-            // Spirit stone flat bonuses only count if this is the enhanced stone
-            if (this.gameState.player.enhancedSpiritStoneId === item.id) {
-              flatBonus += effect.value;
-            }
-            // If no enhanced stone, allow one spirit stone's bonus
-            else if (!this.gameState.player.enhancedSpiritStoneId && enhancedStoneBonus === 0) {
-              flatBonus += effect.value;
-              enhancedStoneBonus = effect.value; // Mark that we've used one stone
-            }
-          } else {
-            // Non-spirit stone flat bonuses always apply
-            flatBonus += effect.value;
-          }
-        }
-      });
-    });
-
     // Also check soul items (persistent across reincarnations)
     this.gameState.soul.items.forEach(item => {
       item.effects.forEach(effect => {
@@ -189,15 +164,6 @@ export class ItemEffectProcessor {
       });
     }
 
-    // Also check legacy player items (for backward compatibility during migration)
-    this.gameState.player.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.type === 'cultivation_speed' && effect.isPercentage) {
-          totalBonus += effect.value;
-        }
-      });
-    });
-
     // Also check soul items (persistent across reincarnations)
     this.gameState.soul.items.forEach(item => {
       item.effects.forEach(effect => {
@@ -239,15 +205,6 @@ export class ItemEffectProcessor {
         }
       });
     }
-
-    // Also check legacy player items (for backward compatibility during migration)
-    this.gameState.player.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.type === 'combat_power' && !effect.isPercentage) {
-          totalBonus += effect.value;
-        }
-      });
-    });
 
     // Also check soul items (persistent across reincarnations)
     this.gameState.soul.items.forEach(item => {
@@ -291,15 +248,6 @@ export class ItemEffectProcessor {
       });
     }
 
-    // Also check legacy player items (for backward compatibility during migration)
-    this.gameState.player.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.type === 'defense' && !effect.isPercentage) {
-          totalBonus += effect.value;
-        }
-      });
-    });
-
     // Also check soul items (persistent across reincarnations)
     this.gameState.soul.items.forEach(item => {
       item.effects.forEach(effect => {
@@ -341,15 +289,6 @@ export class ItemEffectProcessor {
         }
       });
     }
-
-    // Also check legacy player items (for backward compatibility during migration)
-    this.gameState.player.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.type === 'critical_chance' && effect.isPercentage) {
-          totalBonus += effect.value;
-        }
-      });
-    });
 
     // Also check soul items (persistent across reincarnations)
     this.gameState.soul.items.forEach(item => {
@@ -396,17 +335,6 @@ export class ItemEffectProcessor {
         }
       });
     }
-
-    // Also check legacy player items (for backward compatibility during migration)
-    this.gameState.player.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.type === 'element_boost' &&
-            effect.element === element &&
-            effect.isPercentage) {
-          totalBonus += effect.value;
-        }
-      });
-    });
 
     // Also check soul items (persistent across reincarnations)
     this.gameState.soul.items.forEach(item => {
@@ -456,17 +384,6 @@ export class ItemEffectProcessor {
       });
     }
 
-    // Also check legacy player items (for backward compatibility during migration)
-    this.gameState.player.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.type === 'elemental_resistance' &&
-            effect.element === element &&
-            effect.isPercentage) {
-          totalBonus += effect.value;
-        }
-      });
-    });
-
     // Also check soul items (persistent across reincarnations)
     this.gameState.soul.items.forEach(item => {
       item.effects.forEach(effect => {
@@ -511,15 +428,6 @@ export class ItemEffectProcessor {
       });
     }
 
-    // Also check legacy player items (for backward compatibility during migration)
-    this.gameState.player.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.type === 'luck' && !effect.isPercentage) {
-          totalBonus += effect.value;
-        }
-      });
-    });
-
     // Also check soul items (persistent across reincarnations)
     this.gameState.soul.items.forEach(item => {
       item.effects.forEach(effect => {
@@ -562,15 +470,6 @@ export class ItemEffectProcessor {
       });
     }
 
-    // Also check legacy player items (for backward compatibility during migration)
-    this.gameState.player.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.type === 'comprehension' && effect.isPercentage) {
-          totalBonus += effect.value;
-        }
-      });
-    });
-
     // Also check soul items (persistent across reincarnations)
     this.gameState.soul.items.forEach(item => {
       item.effects.forEach(effect => {
@@ -612,15 +511,6 @@ export class ItemEffectProcessor {
         }
       });
     }
-
-    // Also check legacy player items (for backward compatibility during migration)
-    this.gameState.player.items.forEach(item => {
-      item.effects.forEach(effect => {
-        if (effect.duration && effect.duration > 0) {
-          activeEffects.push(effect);
-        }
-      });
-    });
 
     // Also check soul items (persistent across reincarnations)
     this.gameState.soul.items.forEach(item => {
@@ -858,13 +748,7 @@ export class ItemEffectProcessor {
       ));
     }
 
-    // Also check legacy player items (for backward compatibility during migration)
-    consumables.push(...this.gameState.player.items.filter(item =>
-      item.category === ItemCategory.Pill ||
-      item.category === ItemCategory.SpiritStone ||
-      item.category === ItemCategory.Herb ||
-      item.category === ItemCategory.Drug
-    ));
+    
 
     // Also check soul items (persistent across reincarnations)
     consumables.push(...this.gameState.soul.items.filter(item =>

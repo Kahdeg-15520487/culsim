@@ -42,7 +42,6 @@ export class GameController {
       meridians: this.createInitialMeridians(),
       elements: this.initializeElementAffinities(),
       talent: INITIAL_GAME_VALUES.TALENT,
-      artifacts: [], // Legacy artifacts
       items: [], // Start with no items
       lifetime: 0
     };
@@ -65,7 +64,6 @@ export class GameController {
       },
       karmicBalance: 0,
       maxRealmAchieved: CultivationRealm.Mortal,
-      artifacts: [], // Legacy artifacts
       items: [] // Start with no items
     };
 

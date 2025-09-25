@@ -209,7 +209,6 @@ export class SaveLoadSystem {
           earth: 0
         },
         talent: 50,
-        artifacts: [], // Legacy artifacts
         items: [], // New item system
         lifetime: 0
       },
@@ -231,7 +230,6 @@ export class SaveLoadSystem {
         },
         karmicBalance: 0,
         maxRealmAchieved: 0,
-        artifacts: [], // Legacy artifacts
         items: [] // New item system
       },
       time: 0,

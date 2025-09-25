@@ -5,7 +5,7 @@
  * including elemental interactions and loot generation.
  */
 
-import { GameState, Enemy, CombatType, Element, ItemCategory } from '../../types';
+import { GameState, Enemy, CombatType, Element, ItemCategory, Item, LootItem } from '../../types';
 import { Random } from '../../utils/Random';
 import { i18n } from '../../utils/i18n';
 import { CultivationRealm } from '../../types';
@@ -15,9 +15,9 @@ import { InventorySystem } from '../../utils/InventorySystem';
 
 export class CombatSystem {
   private itemEffectProcessor: ItemEffectProcessor;
-  private inventorySystem?: InventorySystem;
+  private inventorySystem: InventorySystem;
 
-  constructor(private gameState: GameState, private random: Random, inventorySystem?: InventorySystem) {
+  constructor(private gameState: GameState, private random: Random, inventorySystem: InventorySystem) {
     this.itemEffectProcessor = new ItemEffectProcessor(gameState);
     this.inventorySystem = inventorySystem;
   }
@@ -78,42 +78,63 @@ export class CombatSystem {
   /**
    * Generate loot table based on enemy realm
    */
-  private generateLootTable(realm: CultivationRealm): any[] {
-    const lootTable = [];
+  private generateLootTable(realm: CultivationRealm): LootItem[] {
+    const lootTable: LootItem[] = [];
 
     // Higher realm enemies have better loot
     const qualityMultiplier = realm + 1;
 
     // Chance for spirit stones
     if (this.random.chance(0.6)) {
+      const quality = ItemSystem.determineItemQuality(realm, {
+        chance: (percent: number) => this.random.chance(percent / 100)
+      });
+      const spiritStone = ItemSystem.createItem(
+        ItemCategory.SpiritStone,
+        quality,
+        realm
+      );
       lootTable.push({
-        type: 'artifact',
-        name: i18n.t('loot.spiritStone'),
-        description: i18n.t('loot.spiritStoneDescription'),
-        value: this.random.int(10, 50) * qualityMultiplier
+        item: spiritStone,
+        dropRate: 1.0, // Always drops if chance passes
+        quantity: 1
       });
     }
 
-    // Chance for elemental crystals
+    // Chance for elemental crystals (herbs with elemental affinity)
     if (this.random.chance(0.3)) {
       const elements = [Element.Metal, Element.Wood, Element.Water, Element.Fire, Element.Earth];
       const element = this.random.choice(elements);
+      const quality = ItemSystem.determineItemQuality(realm, {
+        chance: (percent: number) => this.random.chance(percent / 100)
+      });
+      const elementalHerb = ItemSystem.createItem(
+        ItemCategory.Herb,
+        quality,
+        realm,
+        element
+      );
       lootTable.push({
-        type: 'elemental_crystal',
-        element,
-        name: i18n.t('loot.elementalCrystal', { element: i18n.t(`elements.${element.toLowerCase()}`) }),
-        description: i18n.t('loot.elementalCrystalDescription', { element: i18n.t(`elements.${element.toLowerCase()}`) }),
-        value: this.random.int(25, 100) * qualityMultiplier
+        item: elementalHerb,
+        dropRate: 1.0,
+        quantity: 1
       });
     }
 
-    // Rare chance for cultivation insight
+    // Rare chance for cultivation pills
     if (this.random.chance(0.1)) {
+      const quality = ItemSystem.determineItemQuality(realm, {
+        chance: (percent: number) => this.random.chance(percent / 100)
+      });
+      const cultivationPill = ItemSystem.createItem(
+        ItemCategory.Pill,
+        quality,
+        realm
+      );
       lootTable.push({
-        type: 'cultivation_insight',
-        name: i18n.t('loot.ancientScroll'),
-        description: i18n.t('loot.ancientScrollDescription'),
-        value: this.random.int(50, 200) * qualityMultiplier
+        item: cultivationPill,
+        dropRate: 1.0,
+        quantity: 1
       });
     }
 
@@ -128,7 +149,7 @@ export class CombatSystem {
 
     console.log(i18n.t('messages.enemyEncounter', {
       enemy: enemy.name,
-      realm: enemy.realm,
+      realm: i18n.getRealmName(enemy.realm),
       qi: enemy.qi,
       maxQi: enemy.maxQi
     }));
@@ -281,72 +302,58 @@ export class CombatSystem {
   /**
    * Process loot from defeated enemy
    */
-  private processLoot(lootTable: any[]): void {
-    lootTable.forEach(item => {
-      switch (item.type) {
-        case 'artifact':
-          // Create proper Item object for spirit stones
-          if (item.name === 'Spirit Stone') {
-            const quality = ItemSystem.determineItemQuality(this.gameState.player.realm, {
-              chance: (percent: number) => this.random.chance(percent / 100)
-            });
-            const spiritStone = ItemSystem.createItem(
-              ItemCategory.SpiritStone,
-              quality,
-              this.gameState.player.realm
-            );
-            if (this.inventorySystem) {
-              this.inventorySystem.addItem(spiritStone);
-            } else {
-              // Fallback if no inventory system
-              this.gameState.player.items.push(spiritStone);
-            }
-            console.log(i18n.t('messages.lootArtifact', {
-              name: spiritStone.name,
-              value: spiritStone.value
-            }));
-          } else {
-            // For other artifacts, create proper Item objects
-            const quality = ItemSystem.determineItemQuality(this.gameState.player.realm, {
-              chance: (percent: number) => this.random.chance(percent / 100)
-            });
-            const artifactItem = ItemSystem.createItem(
-              ItemCategory.Charm,
-              quality,
-              this.gameState.player.realm
-            );
-            if (this.inventorySystem) {
-              this.inventorySystem.addItem(artifactItem);
-            } else {
-              // Fallback if no inventory system
-              this.gameState.player.items.push(artifactItem);
-            }
-            console.log(i18n.t('messages.lootArtifact', {
-              name: artifactItem.name,
-              value: artifactItem.value
-            }));
-          }
-          break;
+  private processLoot(lootTable: LootItem[]): void {
+    lootTable.forEach(lootItem => {
+      // Check if item drops based on drop rate
+      if (this.random.chance(lootItem.dropRate)) {
+        // Create a copy of the item with the specified quantity
+        const itemToAdd = {
+          ...lootItem.item,
+          quantity: lootItem.quantity
+        };
 
-        case 'elemental_crystal':
-          // Boost elemental affinity
-          const element = item.element as Element;
-          const currentAffinity = this.gameState.player.elements[element] || 0;
-          this.gameState.player.elements[element] = Math.min(100, currentAffinity + item.value / 10);
-          console.log(i18n.t('messages.lootElementalCrystal', {
-            element: element,
-            affinity: (item.value / 10).toFixed(1)
-          }));
-          break;
+        // Add to inventory system
+        this.inventorySystem.addItem(itemToAdd);
 
-        case 'cultivation_insight':
-          // Boost talent
-          const talentBoost = Math.floor(item.value / 10);
-          this.gameState.player.talent = Math.min(100, this.gameState.player.talent + talentBoost);
-          console.log(i18n.t('messages.lootCultivationInsight', {
-            talent: talentBoost
-          }));
-          break;
+        // Log the loot based on item category
+        switch (lootItem.item.category) {
+          case ItemCategory.SpiritStone:
+            console.log(i18n.t('messages.lootArtifact', {
+              name: lootItem.item.name,
+              value: lootItem.item.value
+            }));
+            break;
+
+          case ItemCategory.Herb:
+            // For elemental herbs, boost elemental affinity
+            if (lootItem.item.element) {
+              const element = lootItem.item.element;
+              const currentAffinity = this.gameState.player.elements[element] || 0;
+              const affinityBoost = Math.floor(lootItem.item.value / 10);
+              this.gameState.player.elements[element] = Math.min(100, currentAffinity + affinityBoost);
+              console.log(i18n.t('messages.lootElementalCrystal', {
+                element: element,
+                affinity: affinityBoost.toFixed(1)
+              }));
+            }
+            break;
+
+          case ItemCategory.Pill:
+            // For cultivation pills, boost talent
+            const talentBoost = Math.floor(lootItem.item.value / 10);
+            this.gameState.player.talent = Math.min(100, this.gameState.player.talent + talentBoost);
+            console.log(i18n.t('messages.lootCultivationInsight', {
+              talent: talentBoost
+            }));
+            break;
+
+          default:
+            console.log(i18n.t('messages.lootArtifact', {
+              name: lootItem.item.name,
+              value: lootItem.item.value
+            }));
+            break;
+        }
       }
     });
   }

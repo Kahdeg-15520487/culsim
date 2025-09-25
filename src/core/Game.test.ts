@@ -6,12 +6,17 @@
 
 import { Game } from '../core/Game';
 import { Element } from '../types';
+import { InventorySystem } from '../utils/InventorySystem';
 
 describe('Game', () => {
   let game: Game;
 
   beforeEach(() => {
-    game = new Game();
+    // Create a temporary game to get player reference for inventory system
+    const tempGame = new Game();
+    const player = tempGame.getState().player;
+    const inventorySystem = new InventorySystem(player);
+    game = new Game(undefined, undefined, inventorySystem);
   });
 
   afterEach(() => {
