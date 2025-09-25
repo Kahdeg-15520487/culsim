@@ -294,6 +294,14 @@ export class ItemInteractionSystem {
         this.player.qi = Math.min(this.player.maxQi, this.player.qi + value);
         break;
 
+      case 'health_recovery':
+        if (this.player.health !== undefined && this.player.maxHealth !== undefined) {
+          const healthHealed = Math.min(this.player.maxHealth - this.player.health, value);
+          this.player.health += healthHealed;
+          console.log(i18n.t('messages.healthRecovered', { amount: healthHealed }));
+        }
+        break;
+
       case 'cultivation_speed':
         // Temporary cultivation speed boost (would need timer system)
         console.log(i18n.t('messages.cultivationSpeedIncreased', { value, duration: effect.duration }));
@@ -333,6 +341,8 @@ export class ItemInteractionSystem {
     switch (effectType) {
       case 'qi_absorption':
         return this.player.maxQi;
+      case 'health_recovery':
+        return this.player.maxHealth || 100; // Default to 100 if not initialized
       case 'cultivation_speed':
         return 100; // Base cultivation speed
       case 'combat_power':

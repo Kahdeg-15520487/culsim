@@ -10,6 +10,7 @@ import { i18n } from '../../utils/i18n';
 import { INITIAL_GAME_VALUES, AUTO_SAVE } from '../constants';
 import { ItemSystem } from '../../utils/ItemSystem';
 import { ItemCategory, ItemQuality } from '../../types';
+import { HealthSystem } from './HealthSystem';
 
 export class GameController {
   private state: GameState;
@@ -39,6 +40,8 @@ export class GameController {
       realm: CultivationRealm.Mortal,
       qi: 0,
       maxQi: INITIAL_GAME_VALUES.MAX_QI,
+      health: 100, // Start with base health
+      maxHealth: 100, // Will be recalculated by HealthSystem
       meridians: this.createInitialMeridians(),
       elements: this.initializeElementAffinities(),
       talent: INITIAL_GAME_VALUES.TALENT,
@@ -67,13 +70,19 @@ export class GameController {
       items: [] // Start with no items
     };
 
-    return {
+    const gameState: GameState = {
       player,
       soul,
       time: 0,
       isRunning: false,
       seed: this.random.getSeed()
     };
+
+    // Initialize player health using HealthSystem
+    const healthSystem = new HealthSystem(gameState);
+    healthSystem.initializePlayerHealth(player);
+
+    return gameState;
   }
 
   /**

@@ -181,6 +181,7 @@ function updateEnemyDisplay() {
       <div class="enemy-stats">
         <div class="enemy-stat">${i18n.t('status.realm')}: ${game.getRealmName(currentEnemy.realm)}</div>
         <div class="enemy-stat">Qi: ${currentEnemy.qi.toFixed(0)}/${currentEnemy.maxQi.toFixed(0)}</div>
+        <div class="enemy-stat">${i18n.t('status.health')}: ${currentEnemy.health.toFixed(0)}/${currentEnemy.maxHealth.toFixed(0)}</div>
         <div class="enemy-stat">${i18n.t('status.type')}: ${i18n.getCombatTypeName(currentEnemy.combatType)}</div>
         <div class="enemy-stat">${i18n.t('status.aggression')}: ${currentEnemy.aggression}%</div>
       </div>
@@ -249,41 +250,68 @@ function attackEnemy() {
   attackBtn.disabled = true;
   fleeBtn.disabled = true;
 
-  // Resolve combat
-  const combatResult = game.resolveCombat(currentEnemy);
+  // Player performs attack
+  const playerAttackResult = game.playerAttack(currentEnemy);
 
-  if (combatResult.result === 'player_win') {
-    // Get actual dropped loot
-    combatLoot = combatResult.droppedLoot;
+  // Update enemy display with new health
+  updateEnemyDisplay();
+
+  if (playerAttackResult.enemyDefeated) {
+    // Player wins - get loot
+    combatLoot = game.handlePlayerVictory(currentEnemy);
     console.log(i18n.t('messages.victoryGainedLoot', { count: combatLoot.length }));
-  } else if (combatResult.result === 'enemy_win') {
-    combatLoot = [];
-    console.log(i18n.t('messages.defeatedBy', { enemy: currentEnemy.name }));
-  } else {
-    combatLoot = [];
-    console.log(i18n.t('messages.successfullyFled', { enemy: currentEnemy.name }));
+
+    // Clear current enemy after combat
+    currentEnemy = null;
+    updateEnemyDisplay();
+    updateCombatStats();
+    updateCombatLoot();
+    return;
   }
 
-  // Clear current enemy after combat
-  currentEnemy = null;
-  updateEnemyDisplay();
-  updateCombatStats();
-  updateCombatLoot();
+  // Enemy counterattacks if still alive
+  setTimeout(() => {
+    const enemyAttackResult = game.enemyAttack(currentEnemy);
+
+    if (enemyAttackResult.playerDefeated) {
+      // Player loses
+      combatLoot = game.handlePlayerDefeat(currentEnemy);
+      console.log(i18n.t('messages.defeatedBy', { enemy: currentEnemy.name }));
+
+      // Clear current enemy after combat
+      currentEnemy = null;
+    }
+
+    // Re-enable buttons after enemy attack
+    attackBtn.disabled = false;
+    fleeBtn.disabled = false;
+
+    updateEnemyDisplay();
+    updateCombatStats();
+    updateCombatLoot();
+  }, 1000); // Small delay for dramatic effect
 }
 
 function fleeFromEnemy() {
   if (!currentEnemy) return;
 
-  // Simple flee mechanic - 70% success rate
-  const fleeSuccess = Math.random() < 0.7;
+  // Attempt to flee
+  const fleeSuccess = game.attemptFlee();
 
   if (fleeSuccess) {
     console.log(i18n.t('messages.successfullyFled', { enemy: currentEnemy.name }));
     currentEnemy = null;
   } else {
     console.log(i18n.t('messages.failedToFlee', { enemy: currentEnemy.name }));
-    attackEnemy();
-    return;
+    // Failed flee - enemy gets a free attack
+    const enemyAttackResult = game.enemyAttack(currentEnemy);
+
+    if (enemyAttackResult.playerDefeated) {
+      // Player loses from failed flee
+      combatLoot = game.handlePlayerDefeat(currentEnemy);
+      console.log(i18n.t('messages.defeatedBy', { enemy: currentEnemy.name }));
+      currentEnemy = null;
+    }
   }
 
   combatLoot = [];
@@ -681,6 +709,7 @@ function updateUI() {
   playerStatusEl.innerHTML = `
     <strong>${i18n.t('status.player')}:</strong> ${player.name}<br>
     <strong>${i18n.t('status.realm')}:</strong> ${i18n.getRealmName(player.realm)}<br>
+    <strong>${i18n.t('status.health')}:</strong> ${player.health} / ${player.maxHealth}<br>
     <strong>${i18n.t('status.qi')}:</strong> ${player.qi.toFixed(1)} / ${player.maxQi}<br>
     <strong>${i18n.t('ui.qiGathering')}:</strong> ${(game.calculateQiGatheringSpeed()).toFixed(3)} ${i18n.t('ui.qiPerDay')}<br>
     <strong>${i18n.t('status.meridians')}:</strong> ${player.meridians.filter(m => m.isOpen).length}/12 ${i18n.t('ui.meridiansOpen')}<br>

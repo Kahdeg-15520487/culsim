@@ -15,6 +15,7 @@ import { BreakthroughSystem } from './systems/BreakthroughSystem';
 import { CombatSystem } from './systems/CombatSystem';
 import { EventSystem } from './systems/EventSystem';
 import { SaveLoadSystem } from './systems/SaveLoadSystem';
+import { HealthSystem } from './systems/HealthSystem';
 import { InventorySystem } from '../utils/InventorySystem';
 
 export class Game {
@@ -26,6 +27,7 @@ export class Game {
   private combatSystem: CombatSystem;
   private eventSystem: EventSystem;
   private saveLoadSystem: SaveLoadSystem;
+  private healthSystem: HealthSystem;
   private inventorySystem?: InventorySystem;
 
   constructor(seed?: number, uiUpdateCallback?: () => void, inventorySystem?: InventorySystem) {
@@ -44,6 +46,7 @@ export class Game {
     this.breakthroughSystem = new BreakthroughSystem(gameState, random);
     this.combatSystem = new CombatSystem(gameState, random, inventorySystem!);
     this.eventSystem = new EventSystem(gameState, random);
+    this.healthSystem = new HealthSystem(gameState);
     this.saveLoadSystem = new SaveLoadSystem();
   }
 
@@ -69,6 +72,9 @@ export class Game {
 
     // Process cultivation
     this.cultivationSystem.processCultivation();
+
+    // Process health regeneration
+    this.healthSystem.regenerateHealth(gameState.player);
 
     // Process random events
     if (this.gameController.getRandom().chance(0.02)) {
@@ -192,6 +198,42 @@ export class Game {
    */
   public resolveCombat(enemy: Enemy): { result: 'player_win' | 'enemy_win' | 'flee', droppedLoot: Item[] } {
     return this.combatSystem.resolveCombat(enemy);
+  }
+
+  /**
+   * Player performs one attack in turn-based combat
+   */
+  public playerAttack(enemy: Enemy): { damage: number; enemyDefeated: boolean; enemyHealth: number; enemyMaxHealth: number } {
+    return this.combatSystem.playerAttack(enemy);
+  }
+
+  /**
+   * Enemy performs one attack in turn-based combat
+   */
+  public enemyAttack(enemy: Enemy): { damage: number; playerDefeated: boolean; playerHealth: number; playerMaxHealth: number } {
+    const player = this.getState().player;
+    return this.combatSystem.enemyAttack(player, enemy);
+  }
+
+  /**
+   * Attempt to flee from combat
+   */
+  public attemptFlee(): boolean {
+    return this.combatSystem.attemptFlee();
+  }
+
+  /**
+   * Handle player victory in combat
+   */
+  public handlePlayerVictory(enemy: Enemy): Item[] {
+    return this.combatSystem.handlePlayerVictory(enemy);
+  }
+
+  /**
+   * Handle player defeat in combat
+   */
+  public handlePlayerDefeat(enemy: Enemy): Item[] {
+    return this.combatSystem.handlePlayerDefeat(enemy);
   }
 
   /**

@@ -55,6 +55,13 @@ export enum CombatType {
   Ranged = 'ranged'
 }
 
+// Damage Types
+export enum DamageType {
+  Physical = 'physical',
+  Spiritual = 'spiritual',
+  Elemental = 'elemental'
+}
+
 // Equipment Slots
 export enum EquipmentSlot {
   Weapon = 'weapon',
@@ -81,6 +88,8 @@ export interface Player {
   realm: CultivationRealm;
   qi: number;
   maxQi: number;
+  health?: number;
+  maxHealth?: number;
   meridians: Meridian[];
   elements: ElementAffinities;
   talent: number; // 1-100 scale
@@ -122,6 +131,8 @@ export interface Enemy {
   realm: CultivationRealm;
   qi: number;
   maxQi: number;
+  health?: number;
+  maxHealth?: number;
   elements: ElementAffinities;
   combatType: CombatType;
   aggression: number; // 1-100 (how likely to attack)
@@ -201,7 +212,7 @@ export interface Item {
 // Item Effects (expanded from ArtifactEffect)
 export interface ItemEffect {
   type: 'qi_absorption' | 'cultivation_speed' | 'combat_power' | 'element_boost' |
-        'defense' | 'health_regen' | 'qi_regen' | 'critical_chance' | 'critical_damage' |
+        'defense' | 'health_regen' | 'health_recovery' | 'qi_regen' | 'critical_chance' | 'critical_damage' |
         'elemental_damage' | 'elemental_resistance' | 'meridian_purity' | 'comprehension' |
         'lifespan' | 'talent_boost' | 'luck' | 'experience_boost';
   value: number;
@@ -214,6 +225,7 @@ export interface ItemEffect {
 export interface CombatResult {
   winner: 'player' | 'enemy';
   damage: number;
+  damageType: DamageType;
   elementalBonus: number;
   criticalHit: boolean;
 }

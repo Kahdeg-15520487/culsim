@@ -567,4 +567,59 @@ export class ItemEffectProcessor {
 
     return consumables;
   }
+
+  /**
+   * Calculate health regeneration bonus from equipped items
+   */
+  public calculateHealthRegenerationBonus(): number {
+    let totalBonus = 0;
+
+    // Check equipped items
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.type === 'health_regen') {
+              const bonus = effect.isPercentage ?
+                (effect.value / 100) * this.getBaseHealthRegen() :
+                effect.value;
+              totalBonus += bonus;
+            }
+          });
+        }
+      });
+    }
+
+    // Also check soul items (persistent across reincarnations)
+    this.gameState.soul.items.forEach(item => {
+      item.effects.forEach(effect => {
+        if (effect.type === 'health_regen') {
+          const bonus = effect.isPercentage ?
+            (effect.value / 100) * this.getBaseHealthRegen() :
+            effect.value;
+          totalBonus += bonus;
+        }
+      });
+    });
+
+    return totalBonus;
+  }
+
+  /**
+   * Get base health regeneration rate (for percentage calculations)
+   */
+  private getBaseHealthRegen(): number {
+    // Base regeneration is 1 health per day for mortals
+    const player = this.gameState.player;
+    let baseRegen = 1.0;
+
+    // Higher realms regenerate faster
+    const realmMultiplier = Math.sqrt(player.realm + 1); // +1 to avoid sqrt(0)
+    baseRegen *= realmMultiplier;
+
+    // Talent affects regeneration
+    baseRegen *= (1 + player.talent / 200); // Up to 50% bonus at max talent
+
+    return baseRegen;
+  }
 }

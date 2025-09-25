@@ -152,6 +152,7 @@ export interface Translations {
     combatPower: string;
     defense: string;
     healthRegeneration: string;
+    healthRecovery: string;
     manaRegeneration: string;
   };
 
@@ -159,6 +160,7 @@ export interface Translations {
   status: {
     player: string;
     realm: string;
+    health: string;
     qi: string;
     talent: string;
     lifetime: string;
@@ -301,6 +303,7 @@ export interface Translations {
     lootElementalCrystal: string;
     lootCultivationInsight: string;
     meridianDamage: string;
+    healthRecovered: string;
     criticalHit: string;
     tribulationStart: string;
     tribulationSuccess: string;
@@ -340,6 +343,10 @@ export interface Translations {
     qiGained: string;
     talentIncreased: string;
     elementAffinityBoosted: string;
+    // Combat action messages
+    playerAttack: string;
+    enemyAttack: string;
+    combatFlee: string;
   };
 
   // Item Descriptions
@@ -499,6 +506,7 @@ export const translations: Record<Language, Translations> = {
     status: {
       player: 'Player',
       realm: 'Realm',
+      health: 'Health',
       qi: 'Qi',
       talent: 'Talent',
       lifetime: 'Lifetime',
@@ -625,6 +633,7 @@ export const translations: Record<Language, Translations> = {
       lootElementalCrystal: '💎 Obtained {element} Crystal! {element} affinity increased by {affinity}%.',
       lootCultivationInsight: '📚 Obtained cultivation insight! Talent increased by {talent} points.',
       meridianDamage: '💥 {meridian} damaged in combat! Purity decreased by {damage}%.',
+      healthRecovered: '💚 Recovered {amount} health.',
       criticalHit: '💥 Critical hit! Damage doubled!',
       tribulationStart: '⚡ Heavenly Tribulation: {type}! Success rate: {rate}%',
       tribulationSuccess: '✨ Tribulation overcome! Breakthrough successful!',
@@ -664,6 +673,10 @@ export const translations: Record<Language, Translations> = {
       qiGained: '💎 Gained {qiGain} qi from {itemName}',
       talentIncreased: '🎓 Talent increased by {talentGain} from {itemName}',
       elementAffinityBoosted: '🌟 {element} affinity boosted by {boost}% from {itemName}',
+      // Combat action messages
+      playerAttack: '⚔️ You attack {enemy} for {damage} damage!',
+      enemyAttack: '👹 {enemy} attacks you for {damage} damage!',
+      combatFlee: '🏃 Attempting to flee from combat...',
     },
     itemCategories: {
       weapon: 'Weapons',
@@ -756,6 +769,7 @@ export const translations: Record<Language, Translations> = {
       combatPower: 'Combat Power',
       defense: 'Defense',
       healthRegeneration: 'Health Regeneration',
+      healthRecovery: 'Health Recovery',
       manaRegeneration: 'Mana Regeneration'
     }
   },
@@ -857,6 +871,7 @@ export const translations: Record<Language, Translations> = {
     status: {
       player: 'Người Chơi',
       realm: 'Cảnh Giới',
+      health: 'Sinh Mệnh',
       qi: 'Khí',
       talent: 'Tài Năng',
       lifetime: 'Tuổi Thọ',
@@ -983,6 +998,7 @@ export const translations: Record<Language, Translations> = {
       lootElementalCrystal: '💎 Nhận được Tinh Thạch {element}! Độ tương hợp {element} tăng {affinity}%.',
       lootCultivationInsight: '📚 Nhận được hiểu biết tu luyện! Tài năng tăng {talent} điểm.',
       meridianDamage: '💥 Kinh mạch {meridian} bị thương trong chiến đấu! Độ tinh khiết giảm {damage}%.',
+      healthRecovered: '💚 Phục hồi {amount} sinh mệnh.',
       criticalHit: '💥 Đòn chí mạng! Sát thương gấp đôi!',
       tribulationStart: '⚡ Thiên Kiếp: {type}! Tỷ lệ thành công: {rate}%',
       tribulationSuccess: '✨ Vượt qua kiếp nạn! Đột phá thành công!',
@@ -1022,6 +1038,10 @@ export const translations: Record<Language, Translations> = {
       qiGained: '💎 Nhận được {qiGain} khí từ {itemName}',
       talentIncreased: '🎓 Tài năng tăng {talentGain} từ {itemName}',
       elementAffinityBoosted: '🌟 Độ tương hợp {element} tăng {boost}% từ {itemName}',
+      // Combat action messages
+      playerAttack: '⚔️ Bạn tấn công {enemy} gây {damage} sát thương!',
+      enemyAttack: '👹 {enemy} tấn công bạn gây {damage} sát thương!',
+      combatFlee: '🏃 Đang cố gắng chạy trốn khỏi trận chiến...',
     },
     itemCategories: {
       weapon: 'Vũ Khí',
@@ -1114,6 +1134,7 @@ export const translations: Record<Language, Translations> = {
       combatPower: 'Sức Chiến Đấu',
       defense: 'Phòng Thủ',
       healthRegeneration: 'Hồi Phục Sinh Mệnh',
+      healthRecovery: 'Phục Hồi Sinh Mệnh',
       manaRegeneration: 'Hồi Phục Linh Lực'
     },
   },
@@ -1327,6 +1348,7 @@ export class I18n {
       'combat_power': 'effects.combatPower',
       'defense': 'effects.defense',
       'health_regeneration': 'effects.healthRegeneration',
+      'health_recovery': 'effects.healthRecovery',
       'mana_regeneration': 'effects.manaRegeneration'
     };
 
