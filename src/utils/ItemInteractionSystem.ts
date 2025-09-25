@@ -443,7 +443,7 @@ export class ItemInteractionSystem {
       tooltip += `• ${effect.type.replace('_', ' ')}: ${value}${element}${duration}\n`;
     });
 
-    tooltip += `\n${item.description}`;
+    tooltip += `\n${ItemSystem.getTranslatedItemDescription(item)}`;
 
     return tooltip;
   }

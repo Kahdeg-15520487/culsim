@@ -273,7 +273,7 @@ export class ItemSystem {
       realm,
       element,
       effects,
-      description: this.generateItemDescription(category, quality, realm, element),
+      descriptionKey: this.generateItemDescriptionKey(category, quality, realm, element),
       value,
       durability,
       maxDurability: durability,
@@ -286,31 +286,66 @@ export class ItemSystem {
   }
 
   /**
-   * Generate item description
+   * Generate item description key for translation
    */
-  private static generateItemDescription(
+  private static generateItemDescriptionKey(
     category: ItemCategory,
     quality: ItemQuality,
     realm: CultivationRealm,
     element?: Element
   ): string {
+    return 'itemDescriptions.generic';
+  }
+
+  /**
+   * Get translated item description with parameters
+   */
+  static getTranslatedItemDescription(item: Item): string {
     const qualityWords = {
-      [ItemQuality.Common]: 'ordinary',
-      [ItemQuality.Uncommon]: 'refined',
-      [ItemQuality.Rare]: 'superior',
-      [ItemQuality.Epic]: 'exquisite',
-      [ItemQuality.Legendary]: 'legendary',
-      [ItemQuality.Mythical]: 'mythical'
+      [ItemQuality.Common]: 'itemQualities.common',
+      [ItemQuality.Uncommon]: 'itemQualities.uncommon',
+      [ItemQuality.Rare]: 'itemQualities.rare',
+      [ItemQuality.Epic]: 'itemQualities.epic',
+      [ItemQuality.Legendary]: 'itemQualities.legendary',
+      [ItemQuality.Mythical]: 'itemQualities.mythical'
     };
 
-    let desc = `A ${qualityWords[quality]} ${category.toLowerCase().replace('_', ' ')}`;
+    const realmNames = {
+      0: 'realms.mortal',
+      1: 'realms.qiCondensation',
+      2: 'realms.foundationEstablishment',
+      3: 'realms.coreFormation',
+      4: 'realms.nascentSoul',
+      5: 'realms.divineTransformation',
+      6: 'realms.voidRefinement',
+      7: 'realms.immortalAscension'
+    };
 
-    if (element) {
-      desc += ` infused with ${element} energy`;
+    const categoryNames = {
+      [ItemCategory.Armor]: 'itemCategories.armor',
+      [ItemCategory.Weapon]: 'itemCategories.weapon',
+      [ItemCategory.Charm]: 'itemCategories.charm',
+      [ItemCategory.Manual]: 'itemCategories.manual',
+      [ItemCategory.Pill]: 'itemCategories.pill',
+      [ItemCategory.Drug]: 'itemCategories.drug',
+      [ItemCategory.Herb]: 'itemCategories.herb',
+      [ItemCategory.SpiritStone]: 'itemCategories.spirit_stone',
+      [ItemCategory.Poison]: 'itemCategories.poison',
+      [ItemCategory.BeastPart]: 'itemCategories.beast_part'
+    };
+
+    const params: any = {
+      quality: i18n.t(qualityWords[item.quality]).toLowerCase(),
+      category: i18n.t(categoryNames[item.category as keyof typeof categoryNames]).toLowerCase(),
+      realm: i18n.t(realmNames[item.realm as keyof typeof realmNames]).toLowerCase()
+    };
+
+    if (item.element !== undefined) {
+      const elementIndex = Object.values(Element).indexOf(item.element as any);
+      params.element = i18n.getElementName(elementIndex);
+      return i18n.t('itemDescriptions.elemental', params);
+    } else {
+      return i18n.t('itemDescriptions.basic', params);
     }
-
-    desc += ` suitable for cultivators at the ${CultivationRealm[realm].toLowerCase().replace('_', ' ')} realm and above.`;
-
-    return desc;
   }
 }

@@ -189,7 +189,7 @@ export interface Item {
   realm: CultivationRealm; // Minimum realm to use effectively
   element?: Element;
   effects: ItemEffect[];
-  description: string;
+  descriptionKey: string;
   value: number; // Base gold/essence value
   durability?: number; // For equipment items
   maxDurability?: number;

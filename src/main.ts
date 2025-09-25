@@ -371,11 +371,10 @@ function updateItemGrid(items: Item[]) {
 
   const itemHtml = items.map(item => `
     <div class="item-card" data-item-id="${item.id}">
-      <div class="item-name">${ItemSystem.getTranslatedItemName(item)}</div>
-      <div class="item-category">${item.category}</div>
-      <div class="item-quality quality-${item.quality}">${ItemQuality[item.quality]}</div>
-      <div class="item-quantity">${item.stackable ? `x${item.quantity}` : ''}</div>
-      <div class="item-value">${item.value}💰</div>
+      <div class="item-name quality-${item.quality}">${ItemSystem.getTranslatedItemName(item)}</div>
+      <div class="item-category">${i18n.getCategoryName(item.category)}</div>
+      <div class="item-quantity">${item.stackable ? `${item.quantity}` : ''}</div>
+      <div class="item-value">${item.value}$</div>
     </div>
   `).join('');
 
@@ -400,17 +399,17 @@ function selectItem(itemId: string) {
 
   // Update item details
   const effectsHtml = item.effects?.map((effect: any) => {
-    const effectType = effect.type.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
-    return `${effectType}: ${effect.value}${effect.element ? ` (${effect.element})` : ''}`;
+    const effectType = i18n.getEffectTypeName(effect.type);
+    return `${effectType}: ${effect.value}${effect.element ? ` (${i18n.getElementName(effect.element)})` : ''}`;
   }).join('<br>') || i18n.t('ui.noSpecialEffects');
 
   itemDetailsEl.innerHTML = `
     <div class="item-detail-header">
       <h3>${ItemSystem.getTranslatedItemName(item)}</h3>
-      <div class="item-detail-quality quality-${item.quality}">${ItemQuality[item.quality]}</div>
+      <div class="item-detail-quality quality-${item.quality}">${i18n.t('ui.rarity')}: ${i18n.getQualityName(item.quality)}</div>
     </div>
-    <div class="item-detail-category">${item.category}</div>
-    <div class="item-detail-description">${item.description}</div>
+    <div class="item-detail-category">${i18n.t('ui.category')}: ${i18n.getCategoryName(item.category)}</div>
+    <div class="item-detail-description">${ItemSystem.getTranslatedItemDescription(item)}</div>
     <div class="item-detail-effects">${effectsHtml}</div>
     <div class="item-detail-value">${i18n.t('ui.value')} ${item.value}💰</div>
     ${item.durability !== undefined && item.maxDurability !== undefined ? `<div class="item-detail-durability">${i18n.t('ui.durability')} ${item.durability}/${item.maxDurability}</div>` : ''}

@@ -5,6 +5,9 @@
 
 export type Language = 'en' | 'vi';
 
+// Import types
+import { ItemQuality, ItemCategory } from '../types';
+
 // Extend window interface for global functions
 declare global {
   interface Window {
@@ -98,6 +101,8 @@ export interface Translations {
     value: string;
     durability: string;
     quantity: string;
+    rarity: string;
+    category: string;
     use: string;
     equip: string;
     study: string;
@@ -136,6 +141,18 @@ export interface Translations {
     epic: string;
     legendary: string;
     mythical: string;
+  };
+
+  // Item Effects
+  effects: {
+    qiAbsorption: string;
+    cultivationSpeed: string;
+    elementalAffinity: string;
+    meridianEfficiency: string;
+    combatPower: string;
+    defense: string;
+    healthRegeneration: string;
+    manaRegeneration: string;
   };
 
   // Game Status
@@ -317,6 +334,12 @@ export interface Translations {
     elementAffinityBoosted: string;
   };
 
+  // Item Descriptions
+  itemDescriptions: {
+    basic: string;
+    elemental: string;
+  };
+
   // Item Name Components
   itemNames: {
     // Quality prefixes
@@ -441,6 +464,8 @@ export const translations: Record<Language, Translations> = {
       value: 'Value:',
       durability: 'Durability:',
       quantity: 'Quantity:',
+      rarity: 'Rarity',
+      category: 'Category',
       use: 'Use',
       equip: 'Equip',
       study: 'Study',
@@ -638,6 +663,12 @@ export const translations: Record<Language, Translations> = {
       mythical: 'Mythical',
     },
 
+    // Item Descriptions
+    itemDescriptions: {
+      basic: 'A {quality} {category} from the {realm} realm.',
+      elemental: 'A {quality} {element} {category} from the {realm} realm.',
+    },
+
     // Item Name Components
     itemNames: {
       // Quality prefixes
@@ -674,6 +705,16 @@ export const translations: Record<Language, Translations> = {
       realmVoidRefinement: ' of Void Refinement',
       realmImmortalAscension: ' of Immortal Ascension',
     },
+    effects: {
+      qiAbsorption: 'Qi Absorption',
+      cultivationSpeed: 'Cultivation Speed',
+      elementalAffinity: 'Elemental Affinity',
+      meridianEfficiency: 'Meridian Efficiency',
+      combatPower: 'Combat Power',
+      defense: 'Defense',
+      healthRegeneration: 'Health Regeneration',
+      manaRegeneration: 'Mana Regeneration'
+    }
   },
   vi: {
     ui: {
@@ -760,6 +801,8 @@ export const translations: Record<Language, Translations> = {
       value: 'Giá Trị:',
       durability: 'Độ Bền:',
       quantity: 'Số Lượng:',
+      rarity: 'Độ Hiếm',
+      category: 'Loại',
       use: 'Sử Dụng',
       equip: 'Trang Bị',
       study: 'Nghiên Cứu',
@@ -957,6 +1000,12 @@ export const translations: Record<Language, Translations> = {
       mythical: 'Thần Bí',
     },
 
+    // Item Descriptions
+    itemDescriptions: {
+      basic: 'Một {category} {quality} từ cảnh giới {realm}.',
+      elemental: 'Một {category} {element} {quality} từ cảnh giới {realm}.',
+    },
+
     // Item Name Components
     itemNames: {
       // Quality prefixes
@@ -992,6 +1041,16 @@ export const translations: Record<Language, Translations> = {
       realmDivineTransformation: ' Hóa Thần Kỳ',
       realmVoidRefinement: ' Luyện Không Kỳ',
       realmImmortalAscension: ' Phi Thăng Kỳ',
+    },
+    effects: {
+      qiAbsorption: 'Hấp Thụ Linh Khí',
+      cultivationSpeed: 'Tốc Độ Tu Luyện',
+      elementalAffinity: 'Tương Thích Ngũ Hành',
+      meridianEfficiency: 'Hiệu Suất Kinh Mạch',
+      combatPower: 'Sức Chiến Đấu',
+      defense: 'Phòng Thủ',
+      healthRegeneration: 'Hồi Phục Sinh Mệnh',
+      manaRegeneration: 'Hồi Phục Linh Lực'
     },
   },
 };
@@ -1154,6 +1213,60 @@ export class I18n {
     };
 
     return this.t(elementNames[element as keyof typeof elementNames] || 'elements.metal');
+  }
+
+  /**
+   * Get quality name
+   */
+  getQualityName(quality: ItemQuality): string {
+    const qualityNames = {
+      [ItemQuality.Common]: 'itemQualities.common',
+      [ItemQuality.Uncommon]: 'itemQualities.uncommon',
+      [ItemQuality.Rare]: 'itemQualities.rare',
+      [ItemQuality.Epic]: 'itemQualities.epic',
+      [ItemQuality.Legendary]: 'itemQualities.legendary',
+      [ItemQuality.Mythical]: 'itemQualities.mythical'
+    };
+
+    return this.t(qualityNames[quality as keyof typeof qualityNames] || 'itemQualities.common');
+  }
+
+  /**
+   * Get category name
+   */
+  getCategoryName(category: ItemCategory): string {
+    const categoryNames = {
+      [ItemCategory.Armor]: 'itemCategories.armor',
+      [ItemCategory.Weapon]: 'itemCategories.weapon',
+      [ItemCategory.Charm]: 'itemCategories.charm',
+      [ItemCategory.Manual]: 'itemCategories.manual',
+      [ItemCategory.Pill]: 'itemCategories.pill',
+      [ItemCategory.Drug]: 'itemCategories.drug',
+      [ItemCategory.Herb]: 'itemCategories.herb',
+      [ItemCategory.SpiritStone]: 'itemCategories.spirit_stone',
+      [ItemCategory.Poison]: 'itemCategories.poison',
+      [ItemCategory.BeastPart]: 'itemCategories.beast_part'
+    };
+
+    return this.t(categoryNames[category as keyof typeof categoryNames] || 'categories.misc');
+  }
+
+  /**
+   * Get effect type name
+   */
+  getEffectTypeName(effectType: string): string {
+    const effectNames: { [key: string]: string } = {
+      'qi_absorption': 'effects.qiAbsorption',
+      'cultivation_speed': 'effects.cultivationSpeed',
+      'elemental_affinity': 'effects.elementalAffinity',
+      'meridian_efficiency': 'effects.meridianEfficiency',
+      'combat_power': 'effects.combatPower',
+      'defense': 'effects.defense',
+      'health_regeneration': 'effects.healthRegeneration',
+      'mana_regeneration': 'effects.manaRegeneration'
+    };
+
+    return this.t(effectNames[effectType] || effectType.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()));
   }
 }
 

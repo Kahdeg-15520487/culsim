@@ -247,7 +247,7 @@ export class InventorySystem {
       if (filter.searchText) {
         const searchLower = filter.searchText.toLowerCase();
         if (!ItemSystem.getTranslatedItemName(item).toLowerCase().includes(searchLower) &&
-            !item.description.toLowerCase().includes(searchLower)) {
+            !ItemSystem.getTranslatedItemDescription(item).toLowerCase().includes(searchLower)) {
           return false;
         }
       }
