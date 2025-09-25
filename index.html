@@ -935,9 +935,9 @@
 
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-      <button class="nav-tab active" data-page="overview">Overview</button>
-      <button class="nav-tab" data-page="combat">Combat</button>
-      <button class="nav-tab" data-page="inventory">Inventory</button>
+      <button class="nav-tab active" data-page="overview" data-i18n="ui.overview">Overview</button>
+      <button class="nav-tab" data-page="combat" data-i18n="ui.combat">Combat</button>
+      <button class="nav-tab" data-page="inventory" data-i18n="ui.inventory">Inventory</button>
     </div>
 
     <div class="top-controls">
@@ -1000,25 +1000,25 @@
     <div class="page combat-page" id="combat-page" style="display: none;">
       <div class="combat-container">
         <div class="combat-section">
-          <h3>⚔️ Combat Arena</h3>
+          <h3 data-i18n="ui.combatArena">⚔️ Combat Arena</h3>
           <div class="enemy-display" id="enemy-display">
-            <div class="no-enemy">No enemy encountered. Click "Find Enemy" to search for opponents.</div>
+            <div class="no-enemy" data-i18n="messages.noEnemyEncountered">No enemy encountered. Click "Find Enemy" to search for opponents.</div>
           </div>
           <div class="combat-actions" id="combat-actions">
-            <button id="find-enemy-btn" class="combat-btn">🔍 Find Enemy</button>
-            <button id="attack-btn" class="combat-btn" disabled>⚔️ Attack</button>
-            <button id="flee-btn" class="combat-btn" disabled>🏃 Flee</button>
+            <button id="find-enemy-btn" class="combat-btn" data-i18n="messages.findEnemy">🔍 Find Enemy</button>
+            <button id="attack-btn" class="combat-btn" disabled data-i18n="ui.attack">⚔️ Attack</button>
+            <button id="flee-btn" class="combat-btn" disabled data-i18n="ui.flee">🏃 Flee</button>
           </div>
         </div>
 
         <div class="combat-section">
-          <h3>📊 Combat Stats</h3>
-          <div id="combat-stats">No active combat</div>
+          <h3 data-i18n="ui.combatStats">📊 Combat Stats</h3>
+          <div id="combat-stats" data-i18n="messages.noActiveCombat">No active combat</div>
         </div>
 
         <div class="combat-section">
-          <h3>🎁 Loot & Rewards</h3>
-          <div id="combat-loot">No loot available</div>
+          <h3 data-i18n="ui.lootAndRewards">🎁 Loot & Rewards</h3>
+          <div id="combat-loot" data-i18n="messages.noLootAvailable">No loot available</div>
         </div>
       </div>
     </div>

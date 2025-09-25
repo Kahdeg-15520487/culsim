@@ -60,6 +60,14 @@ export interface Translations {
     addElements: string;
     addSpiritStone: string;
     qiUnit: string;
+    attack: string;
+    flee: string;
+    combatArena: string;
+    combatStats: string;
+    lootAndRewards: string;
+    overview: string;
+    combat: string;
+    inventory: string;
   };
 
   // Game Status
@@ -208,10 +216,24 @@ export interface Translations {
     maxQiIncreased: string;
     elementCultivationEnabled: string;
     unlockedElements: string;
+    // Combat UI
+    noEnemyEncountered: string;
+    findEnemy: string;
+    noActiveCombat: string;
+    yourPower: string;
+    enemyPower: string;
+    winChance: string;
+    noLootAvailable: string;
+    foundEnemy: string;
+    victoryGainedLoot: string;
+    defeatedBy: string;
+    successfullyFled: string;
+    failedToFlee: string;
     gameSaved: string;
     gameLoaded: string;
     saveError: string;
     loadError: string;
+    enemyEncounterGeneric: string;
   };
 }
 
@@ -270,6 +292,14 @@ export const translations: Record<Language, Translations> = {
       addElements: 'Add 10% Elements',
       addSpiritStone: 'Add Superior Spirit Stone',
       qiUnit: 'qi',
+      attack: 'Attack',
+      flee: 'Flee',
+      combatArena: 'Combat Arena',
+      combatStats: 'Combat Stats',
+      lootAndRewards: 'Loot & Rewards',
+      overview: 'Overview',
+      combat: 'Combat',
+      inventory: 'Inventory',
     },
     status: {
       player: 'Player',
@@ -406,6 +436,20 @@ export const translations: Record<Language, Translations> = {
       gameLoaded: '📂 Game loaded successfully!',
       saveError: '❌ Failed to save game:',
       loadError: '❌ Failed to load game:',
+      // Combat UI
+      noEnemyEncountered: 'No enemy encountered. Click "Find Enemy" to search for opponents.',
+      findEnemy: 'Find Enemy',
+      noActiveCombat: 'No active combat',
+      yourPower: 'Your Power:',
+      enemyPower: 'Enemy Power:',
+      winChance: 'Win Chance:',
+      noLootAvailable: 'No loot available',
+      foundEnemy: '🔍 Found enemy: {enemy}',
+      victoryGainedLoot: '🎉 Victory! Gained {count} loot items.',
+      defeatedBy: '💀 Defeated by {enemy}.',
+      successfullyFled: '🏃 Successfully fled from {enemy}.',
+      failedToFlee: '❌ Failed to flee! {enemy} attacks!',
+      enemyEncounterGeneric: '⚔️ An enemy has been encountered!',
     },
   },
   vi: {
@@ -462,6 +506,14 @@ export const translations: Record<Language, Translations> = {
       addElements: 'Thêm 10% Ngũ Hành',
       addSpiritStone: 'Thêm Linh Thạch Cấp Cao',
       qiUnit: 'khí',
+      attack: 'Tấn Công',
+      flee: 'Chạy Trốn',
+      combatArena: 'Chiến Trường',
+      combatStats: 'Thống Kê Chiến Đấu',
+      lootAndRewards: 'Chiến Lợi Phần Thưởng',
+      overview: 'Tổng Quan',
+      combat: 'Chiến Đấu',
+      inventory: 'Túi Đồ',
     },
     status: {
       player: 'Người Chơi',
@@ -598,6 +650,20 @@ export const translations: Record<Language, Translations> = {
       gameLoaded: '📂 Đã tải trò chơi thành công!',
       saveError: '❌ Lưu trò chơi thất bại:',
       loadError: '❌ Tải trò chơi thất bại:',
+      // Combat UI
+      noEnemyEncountered: 'Chưa gặp kẻ thù. Nhấp "Tìm Kẻ Thù" để tìm đối thủ.',
+      findEnemy: 'Tìm Kẻ Thù',
+      noActiveCombat: 'Không có trận chiến đang diễn ra',
+      yourPower: 'Sức Mạnh Của Bạn:',
+      enemyPower: 'Sức Mạnh Kẻ Thù:',
+      winChance: 'Tỷ Lệ Thắng:',
+      noLootAvailable: 'Không có chiến lợi phẩm',
+      foundEnemy: '🔍 Tìm thấy kẻ thù: {enemy}',
+      victoryGainedLoot: '🎉 Chiến thắng! Nhận được {count} vật phẩm.',
+      defeatedBy: '💀 Bị {enemy} đánh bại.',
+      successfullyFled: '🏃 Thành công chạy trốn khỏi {enemy}.',
+      failedToFlee: '❌ Chạy trốn thất bại! {enemy} tấn công!',
+      enemyEncounterGeneric: '⚔️ Đã gặp kẻ thù!',
     },
   },
 };

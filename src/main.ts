@@ -163,7 +163,7 @@ function formatDays(days: number): string {
 // Combat functions
 function updateEnemyDisplay() {
   if (!currentEnemy) {
-    enemyDisplayEl.innerHTML = '<div class="no-enemy">No enemy encountered. Click "Find Enemy" to search for opponents.</div>';
+    enemyDisplayEl.innerHTML = '<div class="no-enemy">' + i18n.t('messages.noEnemyEncountered') + '</div>';
     attackBtn.disabled = true;
     fleeBtn.disabled = true;
     return;
@@ -187,7 +187,7 @@ function updateEnemyDisplay() {
 
 function updateCombatStats() {
   if (!currentEnemy) {
-    combatStatsEl.textContent = 'No active combat';
+    combatStatsEl.textContent = i18n.t('messages.noActiveCombat');
     return;
   }
 
@@ -196,15 +196,15 @@ function updateCombatStats() {
   const enemyPower = currentEnemy.qi + (currentEnemy.realm * 50);
 
   combatStatsEl.innerHTML = `
-    <strong>Your Power:</strong> ${playerPower.toFixed(0)}<br>
-    <strong>Enemy Power:</strong> ${enemyPower.toFixed(0)}<br>
-    <strong>Win Chance:</strong> ${((playerPower / (playerPower + enemyPower)) * 100).toFixed(1)}%
+    <strong>${i18n.t('messages.yourPower')}</strong> ${playerPower.toFixed(0)}<br>
+    <strong>${i18n.t('messages.enemyPower')}</strong> ${enemyPower.toFixed(0)}<br>
+    <strong>${i18n.t('messages.winChance')}</strong> ${((playerPower / (playerPower + enemyPower)) * 100).toFixed(1)}%
   `;
 }
 
 function updateCombatLoot() {
   if (combatLoot.length === 0) {
-    combatLootEl.textContent = 'No loot available';
+    combatLootEl.textContent = i18n.t('messages.noLootAvailable');
     return;
   }
 
@@ -233,7 +233,7 @@ function findEnemy() {
   updateEnemyDisplay();
   updateCombatStats();
   updateCombatLoot();
-  console.log(`🔍 Found enemy: ${currentEnemy.name}`);
+  console.log(i18n.t('messages.foundEnemy', { enemy: currentEnemy.name }));
 }
 
 function attackEnemy() {
@@ -249,13 +249,13 @@ function attackEnemy() {
   if (combatResult.result === 'player_win') {
     // Get actual dropped loot
     combatLoot = combatResult.droppedLoot;
-    console.log(`🎉 Victory! Gained ${combatLoot.length} loot items.`);
+    console.log(i18n.t('messages.victoryGainedLoot', { count: combatLoot.length }));
   } else if (combatResult.result === 'enemy_win') {
     combatLoot = [];
-    console.log(`💀 Defeated by ${currentEnemy.name}.`);
+    console.log(i18n.t('messages.defeatedBy', { enemy: currentEnemy.name }));
   } else {
     combatLoot = [];
-    console.log(`🏃 Successfully fled from ${currentEnemy.name}.`);
+    console.log(i18n.t('messages.successfullyFled', { enemy: currentEnemy.name }));
   }
 
   // Clear current enemy after combat
@@ -272,10 +272,10 @@ function fleeFromEnemy() {
   const fleeSuccess = Math.random() < 0.7;
 
   if (fleeSuccess) {
-    console.log(`🏃 Successfully fled from ${currentEnemy.name}.`);
+    console.log(i18n.t('messages.successfullyFled', { enemy: currentEnemy.name }));
     currentEnemy = null;
   } else {
-    console.log(`❌ Failed to flee! ${currentEnemy.name} attacks!`);
+    console.log(i18n.t('messages.failedToFlee', { enemy: currentEnemy.name }));
     attackEnemy();
     return;
   }
@@ -773,6 +773,9 @@ function updateUIText() {
   cultivateBtn.textContent = i18n.t('ui.cultivate');
   breakthroughBtn.textContent = i18n.t('ui.breakthrough');
   unlockMeridianBtn.textContent = i18n.t('ui.unlockSelectedMeridian');
+  findEnemyBtn.textContent = i18n.t('messages.findEnemy');
+  attackBtn.textContent = i18n.t('ui.attack');
+  fleeBtn.textContent = i18n.t('ui.flee');
   debugAddQiBtn.textContent = i18n.t('ui.addQi');
   debugAddMeridianBtn.textContent = i18n.t('ui.addMeridians');
   debugAddElementBtn.textContent = i18n.t('ui.addElements');
@@ -781,12 +784,39 @@ function updateUIText() {
   loadBtn.textContent = i18n.t('ui.loadGame');
   clearBtn.textContent = i18n.t('ui.clearSavedGame');
 
+  // Update navigation tabs
+  const overviewTab = document.querySelector('.nav-tab[data-page="overview"]') as HTMLElement;
+  const combatTab = document.querySelector('.nav-tab[data-page="combat"]') as HTMLElement;
+  const inventoryTab = document.querySelector('.nav-tab[data-page="inventory"]') as HTMLElement;
+  if (overviewTab) overviewTab.textContent = i18n.t('ui.overview');
+  if (combatTab) combatTab.textContent = i18n.t('ui.combat');
+  if (inventoryTab) inventoryTab.textContent = i18n.t('ui.inventory');
+
+  // Update combat section titles
+  const combatArenaTitle = document.querySelector('#combat-page h3[data-i18n="ui.combatArena"]') as HTMLElement;
+  const combatStatsTitle = document.querySelector('#combat-page h3[data-i18n="ui.combatStats"]') as HTMLElement;
+  const lootRewardsTitle = document.querySelector('#combat-page h3[data-i18n="ui.lootAndRewards"]') as HTMLElement;
+  if (combatArenaTitle) combatArenaTitle.textContent = '⚔️ ' + i18n.t('ui.combatArena');
+  if (combatStatsTitle) combatStatsTitle.textContent = '📊 ' + i18n.t('ui.combatStats');
+  if (lootRewardsTitle) lootRewardsTitle.textContent = '🎁 ' + i18n.t('ui.lootAndRewards');
+
   // Update loading text
   if (!game) {
     playerStatusEl.textContent = i18n.t('ui.loading');
     cultivationInfoEl.textContent = i18n.t('ui.loading');
     meridianInfoEl.textContent = i18n.t('ui.loading');
     timeInfoEl.textContent = i18n.t('ui.loading');
+  }
+
+  // Update combat UI texts
+  if (!currentEnemy) {
+    enemyDisplayEl.innerHTML = '<div class="no-enemy">' + i18n.t('messages.noEnemyEncountered') + '</div>';
+  }
+  if (!currentEnemy) {
+    combatStatsEl.textContent = i18n.t('messages.noActiveCombat');
+  }
+  if (!combatLoot || combatLoot.length === 0) {
+    combatLootEl.textContent = i18n.t('messages.noLootAvailable');
   }
 }
 
