@@ -166,25 +166,22 @@ export class ItemInteractionSystem {
    * Use spirit stone to enhance automatic qi gathering
    */
   private enhanceSpiritStone(item: Item): { success: boolean; message: string; effects?: ItemEffect[] } {
-    // Check if a spirit stone is already equipped (which would be enhanced)
+    // Check if a spirit stone is already equipped
     const equippedItems = this.inventorySystem.getEquippedItems();
     const equippedSpiritStone = equippedItems[EquipmentSlot.SpiritStone];
 
     if (equippedSpiritStone) {
       return {
         success: false,
-        message: 'You can only enhance qi gathering with one spirit stone at a time'
+        message: 'You already have a spirit stone equipped for qi gathering enhancement'
       };
     }
 
-    // No spirit stone equipped, equip this one first
+    // No spirit stone equipped, equip this one
     const equipped = this.inventorySystem.equipItem(item.id, EquipmentSlot.SpiritStone);
     if (!equipped) {
       return { success: false, message: 'Failed to equip spirit stone' };
     }
-
-    // Set this stone as the enhanced stone
-    this.player.enhancedSpiritStoneId = item.id;
 
     return {
       success: true,

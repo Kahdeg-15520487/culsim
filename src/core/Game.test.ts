@@ -304,9 +304,6 @@ describe('Game', () => {
     const equippedItems = inventorySystem.getEquippedItems();
     expect(equippedItems[EquipmentSlot.SpiritStone]).toBeUndefined();
     
-    // Check that no spirit stone is enhanced
-    expect(player.enhancedSpiritStoneId).toBeUndefined();
-    
     // Enhance the spirit stone
     const result = itemInteractionSystem.useItem(spiritStone.id, 'enhance');
     expect(result.success).toBe(true);
@@ -320,9 +317,6 @@ describe('Game', () => {
     const inventoryItemsAfterEnhance = inventorySystem.getItems();
     expect(inventoryItemsAfterEnhance).not.toContain(spiritStone);
     
-    // Verify it's marked as enhanced
-    expect(player.enhancedSpiritStoneId).toBe(spiritStone.id);
-    
     // Try to enhance a second spirit stone - should fail
     const secondSpiritStone = ItemSystem.createItem(
       ItemCategory.SpiritStone,
@@ -333,7 +327,7 @@ describe('Game', () => {
     inventorySystem.addItem(secondSpiritStone);
     const secondResult = itemInteractionSystem.useItem(secondSpiritStone.id, 'enhance');
     expect(secondResult.success).toBe(false);
-    expect(secondResult.message).toContain('You can only enhance qi gathering with one spirit stone at a time');
+    expect(secondResult.message).toContain('You already have a spirit stone equipped');
     
     // Verify second stone is still in inventory
     const inventoryItemsAfterSecond = inventorySystem.getItems();

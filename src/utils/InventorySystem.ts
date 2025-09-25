@@ -54,6 +54,9 @@ export class InventorySystem {
       };
     }
 
+    // Ensure categories are up to date (important for loading saved games)
+    this.updateCategories();
+
     // Migrate legacy artifacts to new system if needed
     // Removed: legacy artifact migration no longer needed
   }

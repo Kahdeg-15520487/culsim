@@ -46,20 +46,6 @@ export class ItemEffectProcessor {
   public calculateQiAbsorptionBonus(): { percentage: number; flat: number } {
     let percentageBonus = 0;
     let flatBonus = 0;
-    let enhancedStoneBonus = 0;
-
-    // Check for enhanced spirit stone first
-    if (this.gameState.player.enhancedSpiritStoneId) {
-      // Find the enhanced spirit stone and get its flat bonus
-      const enhancedStone = this.findItemById(this.gameState.player.enhancedSpiritStoneId);
-      if (enhancedStone) {
-        enhancedStone.effects.forEach(effect => {
-          if (effect.type === 'qi_absorption' && !effect.isPercentage) {
-            enhancedStoneBonus = effect.value;
-          }
-        });
-      }
-    }
 
     // Only check equipped items (new system)
     if (this.gameState.player.inventory?.equippedItems) {
@@ -71,14 +57,9 @@ export class ItemEffectProcessor {
                 // Percentage bonus to qi gathering (always applies)
                 percentageBonus += effect.value;
               } else if (item.category === 'spirit_stone') {
-                // Spirit stone flat bonuses only count if this is the enhanced stone
-                if (this.gameState.player.enhancedSpiritStoneId === item.id) {
+                // Only one spirit stone provides flat bonus (the first equipped one)
+                if (flatBonus === 0) {
                   flatBonus += effect.value;
-                }
-                // If no enhanced stone, allow one spirit stone's bonus
-                else if (!this.gameState.player.enhancedSpiritStoneId && enhancedStoneBonus === 0) {
-                  flatBonus += effect.value;
-                  enhancedStoneBonus = effect.value; // Mark that we've used one stone
                 }
               } else {
                 // Non-spirit stone flat bonuses always apply
@@ -98,8 +79,8 @@ export class ItemEffectProcessor {
             // Percentage bonus to qi gathering
             percentageBonus += effect.value;
           } else if (item.category === 'spirit_stone') {
-            // Spirit stone flat bonuses only count if this is the enhanced stone
-            if (this.gameState.player.enhancedSpiritStoneId === item.id) {
+            // Only one spirit stone provides flat bonus (the first one)
+            if (flatBonus === 0) {
               flatBonus += effect.value;
             }
           } else {

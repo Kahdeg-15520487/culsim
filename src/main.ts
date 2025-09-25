@@ -1,9 +1,10 @@
 import { Game } from './core/Game';
-import { Player, Element, Item, ItemCategory, ItemQuality, EquipmentSlot, InventoryFilter, InventorySort } from './types/index';
+import { Player, Element, Item, ItemCategory, ItemQuality, EquipmentSlot, InventoryFilter, InventorySort, CultivationRealm } from './types/index';
 import { i18n } from './utils/i18n';
 import { MERIDIAN_CONSTANTS, PURITY_THRESHOLDS, MERIDIAN_BREAKTHROUGH } from './core/constants';
 import { InventorySystem } from './utils/InventorySystem';
 import { ItemInteractionSystem } from './utils/ItemInteractionSystem';
+import { ItemSystem } from './utils/ItemSystem';
 import { LootSystem } from './utils/LootSystem';
 import { Random } from './utils/Random';
 
@@ -128,6 +129,7 @@ const debugTitleEl = document.getElementById('debug-title')!;
 const debugAddQiBtn = document.getElementById('debug-add-qi-btn') as HTMLButtonElement;
 const debugAddMeridianBtn = document.getElementById('debug-add-meridian-btn') as HTMLButtonElement;
 const debugAddElementBtn = document.getElementById('debug-add-element-btn') as HTMLButtonElement;
+const debugAddSpiritStoneBtn = document.getElementById('debug-add-spirit-stone-btn') as HTMLButtonElement;
 
 // Utility function to format days into years/months/days
 function formatDays(days: number): string {
@@ -774,6 +776,7 @@ function updateUIText() {
   debugAddQiBtn.textContent = i18n.t('ui.addQi');
   debugAddMeridianBtn.textContent = i18n.t('ui.addMeridians');
   debugAddElementBtn.textContent = i18n.t('ui.addElements');
+  debugAddSpiritStoneBtn.textContent = i18n.t('ui.addSpiritStone');
   saveBtn.textContent = i18n.t('ui.saveGame');
   loadBtn.textContent = i18n.t('ui.loadGame');
   clearBtn.textContent = i18n.t('ui.clearSavedGame');
@@ -885,6 +888,26 @@ debugAddElementBtn.addEventListener('click', () => {
 
   // Debug: Add 10% to elements
   game.debugAddElementProgress(10);
+  updateUI(); // Refresh UI to show changes
+});
+
+debugAddSpiritStoneBtn.addEventListener('click', () => {
+  if (!game || !inventorySystem) return;
+
+  // Debug: Add a superior spirit stone to inventory
+  const spiritStone = ItemSystem.createItem(
+    ItemCategory.SpiritStone,
+    ItemQuality.Rare, // Superior = Rare quality
+    CultivationRealm.Mortal
+  );
+  
+  const added = inventorySystem.addItem(spiritStone);
+  if (added) {
+    logMessage(`✅ Added ${spiritStone.name} to inventory`);
+  } else {
+    logMessage(`❌ Failed to add spirit stone - inventory full`);
+  }
+  
   updateUI(); // Refresh UI to show changes
 });
 

@@ -58,6 +58,7 @@ export interface Translations {
     addCultivation: string;
     addMeridians: string;
     addElements: string;
+    addSpiritStone: string;
     qiUnit: string;
   };
 
@@ -267,6 +268,7 @@ export const translations: Record<Language, Translations> = {
       addCultivation: 'Add Cultivation (10 Qi + 10% Meridians + 10% Elements)',
       addMeridians: 'Add 10% Meridians',
       addElements: 'Add 10% Elements',
+      addSpiritStone: 'Add Superior Spirit Stone',
       qiUnit: 'qi',
     },
     status: {
@@ -458,6 +460,7 @@ export const translations: Record<Language, Translations> = {
       addCultivation: 'Thêm Tu Luyện (10 Khí + 10% Kinh Mạch + 10% Ngũ Hành)',
       addMeridians: 'Thêm 10% Kinh Mạch',
       addElements: 'Thêm 10% Ngũ Hành',
+      addSpiritStone: 'Thêm Linh Thạch Cấp Cao',
       qiUnit: 'khí',
     },
     status: {

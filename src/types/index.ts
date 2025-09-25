@@ -87,7 +87,6 @@ export interface Player {
   items: Item[]; // New comprehensive item system
   inventory?: Inventory; // Unified inventory system
   lifetime: number; // in days
-  enhancedSpiritStoneId?: string; // ID of spirit stone used for qi gathering enhancement
 }
 
 // Soul Entity (persistent across reincarnations)
@@ -275,7 +274,7 @@ export const BASE_ITEM_STATS = {
     value: 20
   },
   [ItemCategory.Herb]: {
-    qiContent: 50,
+    qiContent: 5,
     value: 15
   },
   [ItemCategory.BeastPart]: {
