@@ -43,7 +43,7 @@ export class GameController {
       elements: this.initializeElementAffinities(),
       talent: INITIAL_GAME_VALUES.TALENT,
       artifacts: [], // Legacy artifacts
-      items: [ItemSystem.createItem(ItemCategory.SpiritStone, ItemQuality.Common, CultivationRealm.Mortal)], // Add test spirit stone
+      items: [], // Start with no items
       lifetime: 0
     };
 
@@ -66,24 +66,7 @@ export class GameController {
       karmicBalance: 0,
       maxRealmAchieved: CultivationRealm.Mortal,
       artifacts: [], // Legacy artifacts
-      items: [{
-        id: 'test-spirit-stone',
-        name: 'Test Spirit Stone',
-        category: ItemCategory.SpiritStone,
-        quality: ItemQuality.Common,
-        realm: CultivationRealm.Mortal,
-        effects: [{
-          type: 'qi_absorption',
-          value: 36,
-          isPercentage: false
-        }],
-        description: 'A test spirit stone with 36 qi absorption',
-        value: 20,
-        durability: undefined,
-        maxDurability: undefined,
-        stackable: false,
-        quantity: 1
-      }] // Test spirit stone with 36 qi absorption
+      items: [] // Start with no items
     };
 
     return {

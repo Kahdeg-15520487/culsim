@@ -55,6 +55,14 @@ export enum CombatType {
   Ranged = 'ranged'
 }
 
+// Equipment Slots
+export enum EquipmentSlot {
+  Weapon = 'weapon',
+  Armor = 'armor',
+  Accessory1 = 'accessory1',
+  Accessory2 = 'accessory2'
+}
+
 // Game State
 export interface GameState {
   player: Player;
@@ -76,7 +84,9 @@ export interface Player {
   talent: number; // 1-100 scale
   artifacts: Artifact[]; // Legacy artifacts for backward compatibility
   items: Item[]; // New comprehensive item system
+  inventory?: Inventory; // Unified inventory system
   lifetime: number; // in days
+  enhancedSpiritStoneId?: string; // ID of spirit stone used for qi gathering enhancement
 }
 
 // Soul Entity (persistent across reincarnations)
@@ -119,11 +129,18 @@ export interface Enemy {
   lootTable: LootItem[];
 }
 
-// Loot Item
+// Loot Item (enhanced with quantity)
 export interface LootItem {
-  type: 'artifact' | 'resource' | 'insight';
-  item: Artifact | Resource | CultivationInsight;
-  dropRate: number; // 0-1
+  item: Item;
+  dropRate: number; // 0-1 chance of dropping
+  quantity: number; // How many of this item drop
+}
+
+// Loot Table (structured loot drops)
+export interface LootTable {
+  guaranteed: LootItem[]; // Always drops
+  chance: LootItem[]; // Has dropRate chance to drop
+  rare: LootItem[]; // Rare drops with low dropRate
 }
 
 // Basic Resource
@@ -299,3 +316,46 @@ export const QUALITY_DROP_RATES = {
   [ItemQuality.Legendary]: 0.9,
   [ItemQuality.Mythical]: 0.1
 };
+
+// Inventory Slot (for future expansion)
+export interface InventorySlot {
+  item: Item | null;
+  locked: boolean;
+}
+
+// Inventory Filter Options
+export interface InventoryFilter {
+  category?: ItemCategory;
+  quality?: ItemQuality;
+  element?: Element;
+  realm?: CultivationRealm;
+  searchText?: string;
+}
+
+// Inventory Sort Options
+export interface InventorySort {
+  by: 'name' | 'quality' | 'value' | 'category' | 'quantity';
+  direction: 'asc' | 'desc';
+}
+
+// Comprehensive Inventory Structure
+export interface Inventory {
+  items: Item[];
+  equippedItems: Record<EquipmentSlot, Item | undefined>;
+  storageCapacity: number;
+  weight: number;
+  maxWeight: number;
+  organization: {
+    bags: InventoryBag[];
+    categories: Record<string, Item[]>;
+  };
+}
+
+// Inventory Bag (for organization)
+export interface InventoryBag {
+  id: string;
+  name: string;
+  capacity: number;
+  items: Item[];
+  category: ItemCategory | 'all';
+}

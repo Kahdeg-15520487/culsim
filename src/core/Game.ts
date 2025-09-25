@@ -15,6 +15,7 @@ import { BreakthroughSystem } from './systems/BreakthroughSystem';
 import { CombatSystem } from './systems/CombatSystem';
 import { EventSystem } from './systems/EventSystem';
 import { SaveLoadSystem } from './systems/SaveLoadSystem';
+import { InventorySystem } from '../utils/InventorySystem';
 
 export class Game {
   private gameController: GameController;
@@ -26,7 +27,7 @@ export class Game {
   private eventSystem: EventSystem;
   private saveLoadSystem: SaveLoadSystem;
 
-  constructor(seed?: number, uiUpdateCallback?: () => void) {
+  constructor(seed?: number, uiUpdateCallback?: () => void, inventorySystem?: InventorySystem) {
     // Initialize core game controller with update callback
     this.gameController = new GameController(seed, () => this.update(), uiUpdateCallback, () => this.saveGame());
     const gameState = this.gameController.getStateReference();
@@ -37,7 +38,7 @@ export class Game {
     this.meridianSystem = new MeridianSystem(gameState, random);
     this.elementSystem = new ElementSystem(gameState);
     this.breakthroughSystem = new BreakthroughSystem(gameState, random);
-    this.combatSystem = new CombatSystem(gameState, random);
+    this.combatSystem = new CombatSystem(gameState, random, inventorySystem!);
     this.eventSystem = new EventSystem(gameState, random);
     this.saveLoadSystem = new SaveLoadSystem();
   }

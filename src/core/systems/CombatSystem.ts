@@ -11,12 +11,15 @@ import { i18n } from '../../utils/i18n';
 import { CultivationRealm } from '../../types';
 import { ItemEffectProcessor } from '../../utils/ItemEffectProcessor';
 import { ItemSystem } from '../../utils/ItemSystem';
+import { InventorySystem } from '../../utils/InventorySystem';
 
 export class CombatSystem {
   private itemEffectProcessor: ItemEffectProcessor;
+  private inventorySystem?: InventorySystem;
 
-  constructor(private gameState: GameState, private random: Random) {
+  constructor(private gameState: GameState, private random: Random, inventorySystem?: InventorySystem) {
     this.itemEffectProcessor = new ItemEffectProcessor(gameState);
+    this.inventorySystem = inventorySystem;
   }
 
   /**
@@ -29,8 +32,13 @@ export class CombatSystem {
     );
 
     const enemyNames = [
-      'Wild Beast', 'Bandit', 'Spirit Beast', 'Demon Cultivator',
-      'Heavenly Tribulation Remnant', 'Ancient Guardian', 'Chaos Spirit'
+      i18n.t('enemies.wildBeast'),
+      i18n.t('enemies.bandit'),
+      i18n.t('enemies.spiritBeast'),
+      i18n.t('enemies.demonCultivator'),
+      i18n.t('enemies.heavenlyTribulationRemnant'),
+      i18n.t('enemies.ancientGuardian'),
+      i18n.t('enemies.chaosSpirit')
     ];
 
     let qiMin = 20, qiMax = 80;
@@ -80,8 +88,8 @@ export class CombatSystem {
     if (this.random.chance(0.6)) {
       lootTable.push({
         type: 'artifact',
-        name: 'Spirit Stone',
-        description: 'A stone containing spiritual energy',
+        name: i18n.t('loot.spiritStone'),
+        description: i18n.t('loot.spiritStoneDescription'),
         value: this.random.int(10, 50) * qualityMultiplier
       });
     }
@@ -93,8 +101,8 @@ export class CombatSystem {
       lootTable.push({
         type: 'elemental_crystal',
         element,
-        name: `${element} Crystal`,
-        description: `A crystal infused with ${element} energy`,
+        name: i18n.t('loot.elementalCrystal', { element: i18n.t(`elements.${element.toLowerCase()}`) }),
+        description: i18n.t('loot.elementalCrystalDescription', { element: i18n.t(`elements.${element.toLowerCase()}`) }),
         value: this.random.int(25, 100) * qualityMultiplier
       });
     }
@@ -103,8 +111,8 @@ export class CombatSystem {
     if (this.random.chance(0.1)) {
       lootTable.push({
         type: 'cultivation_insight',
-        name: 'Ancient Scroll',
-        description: 'Contains insights into cultivation techniques',
+        name: i18n.t('loot.ancientScroll'),
+        description: i18n.t('loot.ancientScrollDescription'),
         value: this.random.int(50, 200) * qualityMultiplier
       });
     }
@@ -145,7 +153,7 @@ export class CombatSystem {
     const isCritical = this.random.chance(critChance);
 
     if (isCritical) {
-      console.log('💥 Critical hit! Damage doubled!');
+      console.log(i18n.t('messages.criticalHit'));
       finalPlayerPower *= 2;
     }
 
@@ -287,26 +295,35 @@ export class CombatSystem {
               quality,
               this.gameState.player.realm
             );
-            this.gameState.player.items.push(spiritStone);
+            if (this.inventorySystem) {
+              this.inventorySystem.addItem(spiritStone);
+            } else {
+              // Fallback if no inventory system
+              this.gameState.player.items.push(spiritStone);
+            }
             console.log(i18n.t('messages.lootArtifact', {
               name: spiritStone.name,
               value: spiritStone.value
             }));
           } else {
-            // For other artifacts, still use legacy system for now
-            const artifact = {
-              id: `artifact-${Date.now()}-${this.random.int(1000, 9999)}`,
-              name: item.name,
-              type: 'spirit_stone',
-              effects: [{
-                type: 'qi_absorption' as const,
-                value: item.value
-              }]
-            };
-            this.gameState.player.artifacts.push(artifact);
+            // For other artifacts, create proper Item objects
+            const quality = ItemSystem.determineItemQuality(this.gameState.player.realm, {
+              chance: (percent: number) => this.random.chance(percent / 100)
+            });
+            const artifactItem = ItemSystem.createItem(
+              ItemCategory.Charm,
+              quality,
+              this.gameState.player.realm
+            );
+            if (this.inventorySystem) {
+              this.inventorySystem.addItem(artifactItem);
+            } else {
+              // Fallback if no inventory system
+              this.gameState.player.items.push(artifactItem);
+            }
             console.log(i18n.t('messages.lootArtifact', {
-              name: item.name,
-              value: item.value
+              name: artifactItem.name,
+              value: artifactItem.value
             }));
           }
           break;

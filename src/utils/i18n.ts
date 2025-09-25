@@ -115,6 +115,27 @@ export interface Translations {
     earth: string;
   };
 
+  // Enemy Names
+  enemies: {
+    wildBeast: string;
+    bandit: string;
+    spiritBeast: string;
+    demonCultivator: string;
+    heavenlyTribulationRemnant: string;
+    ancientGuardian: string;
+    chaosSpirit: string;
+  };
+
+  // Loot Item Names
+  loot: {
+    spiritStone: string;
+    spiritStoneDescription: string;
+    elementalCrystal: string;
+    elementalCrystalDescription: string;
+    ancientScroll: string;
+    ancientScrollDescription: string;
+  };
+
   // Event Names
   events: {
     fortuitousEncounter: string;
@@ -178,6 +199,7 @@ export interface Translations {
     lootElementalCrystal: string;
     lootCultivationInsight: string;
     meridianDamage: string;
+    criticalHit: string;
     tribulationStart: string;
     tribulationSuccess: string;
     tribulationFailed: string;
@@ -293,6 +315,23 @@ export const translations: Record<Language, Translations> = {
       fire: 'Fire (火)',
       earth: 'Earth (土)',
     },
+    enemies: {
+      wildBeast: 'Wild Beast',
+      bandit: 'Bandit',
+      spiritBeast: 'Spirit Beast',
+      demonCultivator: 'Demon Cultivator',
+      heavenlyTribulationRemnant: 'Heavenly Tribulation Remnant',
+      ancientGuardian: 'Ancient Guardian',
+      chaosSpirit: 'Chaos Spirit'
+    },
+    loot: {
+      spiritStone: 'Spirit Stone',
+      spiritStoneDescription: 'A stone containing spiritual energy',
+      elementalCrystal: '{element} Crystal',
+      elementalCrystalDescription: 'A crystal infused with {element} energy',
+      ancientScroll: 'Ancient Scroll',
+      ancientScrollDescription: 'Contains insights into cultivation techniques'
+    },
     events: {
       fortuitousEncounter: 'Fortuitous Encounter',
       tribulationChallenge: 'Tribulation Challenge',
@@ -353,6 +392,7 @@ export const translations: Record<Language, Translations> = {
       lootElementalCrystal: '💎 Obtained {element} Crystal! {element} affinity increased by {affinity}%.',
       lootCultivationInsight: '📚 Obtained cultivation insight! Talent increased by {talent} points.',
       meridianDamage: '💥 {meridian} damaged in combat! Purity decreased by {damage}%.',
+      criticalHit: '💥 Critical hit! Damage doubled!',
       tribulationStart: '⚡ Heavenly Tribulation: {type}! Success rate: {rate}%',
       tribulationSuccess: '✨ Tribulation overcome! Breakthrough successful!',
       tribulationFailed: '💥 Tribulation failed! Cultivation damaged.',
@@ -466,6 +506,23 @@ export const translations: Record<Language, Translations> = {
       fire: 'Hỏa (火)',
       earth: 'Thổ (土)',
     },
+    enemies: {
+      wildBeast: 'Dã Thú',
+      bandit: 'Tặc Đồ',
+      spiritBeast: 'Thú Linh',
+      demonCultivator: 'Ma Tu',
+      heavenlyTribulationRemnant: 'Dư Âm Thiên Kiếp',
+      ancientGuardian: 'Cổ Vệ',
+      chaosSpirit: 'Hỗn Độn Linh'
+    },
+    loot: {
+      spiritStone: 'Thiên Linh Thạch',
+      spiritStoneDescription: 'Một viên đá chứa năng lượng linh khí',
+      elementalCrystal: 'Tinh Thạch {element}',
+      elementalCrystalDescription: 'Một tinh thạch chứa năng lượng {element}',
+      ancientScroll: 'Cổ Cuốn',
+      ancientScrollDescription: 'Chứa đựng những hiểu biết về kỹ thuật tu luyện'
+    },
     events: {
       fortuitousEncounter: 'Hào Ngẫu Chi Kiếp',
       tribulationChallenge: 'Thử Thách Kiếp Nạn',
@@ -526,6 +583,7 @@ export const translations: Record<Language, Translations> = {
       lootElementalCrystal: '💎 Nhận được Tinh Thạch {element}! Độ tương hợp {element} tăng {affinity}%.',
       lootCultivationInsight: '📚 Nhận được hiểu biết tu luyện! Tài năng tăng {talent} điểm.',
       meridianDamage: '💥 Kinh mạch {meridian} bị thương trong chiến đấu! Độ tinh khiết giảm {damage}%.',
+      criticalHit: '💥 Đòn chí mạng! Sát thương gấp đôi!',
       tribulationStart: '⚡ Thiên Kiếp: {type}! Tỷ lệ thành công: {rate}%',
       tribulationSuccess: '✨ Vượt qua kiếp nạn! Đột phá thành công!',
       tribulationFailed: '💥 Thất bại trong kiếp nạn! Tu luyện bị tổn thương.',

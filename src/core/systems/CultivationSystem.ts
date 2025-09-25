@@ -175,9 +175,9 @@ export class CultivationSystem {
       qiGain += qiAbsorptionBonus.flat;
 
       // Debug logging for item effects
-      if (qiAbsorptionBonus.flat > 0 || qiAbsorptionBonus.percentage > 0) {
-        console.log(`Item Effects Applied - Qi Absorption: +${qiAbsorptionBonus.flat} flat, +${qiAbsorptionBonus.percentage}% multiplier`);
-      }
+      // if (qiAbsorptionBonus.flat > 0 || qiAbsorptionBonus.percentage > 0) {
+      //   console.log(`Item Effects Applied - Qi Absorption: +${qiAbsorptionBonus.flat} flat, +${qiAbsorptionBonus.percentage}% multiplier`);
+      // }
 
       return qiGain;
     } else {
@@ -206,9 +206,9 @@ export class CultivationSystem {
       qiGain += qiAbsorptionBonus.flat;
 
       // Debug logging for item effects
-      if (qiAbsorptionBonus.flat > 0 || qiAbsorptionBonus.percentage > 0) {
-        console.log(`Item Effects Applied - Qi Absorption: +${qiAbsorptionBonus.flat} flat, +${qiAbsorptionBonus.percentage}% multiplier`);
-      }
+      // if (qiAbsorptionBonus.flat > 0 || qiAbsorptionBonus.percentage > 0) {
+      //   console.log(`Item Effects Applied - Qi Absorption: +${qiAbsorptionBonus.flat} flat, +${qiAbsorptionBonus.percentage}% multiplier`);
+      // }
       return qiGain;
     }
   }

@@ -1,7 +1,11 @@
 import { Game } from './core/Game';
-import { Player, Element } from './types/index';
+import { Player, Element, Item, ItemCategory, ItemQuality, EquipmentSlot, InventoryFilter, InventorySort } from './types/index';
 import { i18n } from './utils/i18n';
 import { MERIDIAN_CONSTANTS, PURITY_THRESHOLDS, MERIDIAN_BREAKTHROUGH } from './core/constants';
+import { InventorySystem } from './utils/InventorySystem';
+import { ItemInteractionSystem } from './utils/ItemInteractionSystem';
+import { LootSystem } from './utils/LootSystem';
+import { Random } from './utils/Random';
 
 // Web UI elements
 const playerStatusEl = document.getElementById('player-status')!;
@@ -31,6 +35,23 @@ const combatStatsEl = document.getElementById('combat-stats')!;
 const combatLootEl = document.getElementById('combat-loot')!;
 
 // Inventory UI elements
+const inventorySearchEl = document.getElementById('inventory-search') as HTMLInputElement;
+const categoryFilterEl = document.getElementById('category-filter') as HTMLSelectElement;
+const qualityFilterEl = document.getElementById('quality-filter') as HTMLSelectElement;
+const sortSelectEl = document.getElementById('sort-select') as HTMLSelectElement;
+const totalItemsEl = document.getElementById('total-items')!;
+const uniqueItemsEl = document.getElementById('unique-items')!;
+const totalValueEl = document.getElementById('total-value')!;
+const inventoryCapacityEl = document.getElementById('inventory-capacity')!;
+const itemGridEl = document.getElementById('item-grid')!;
+const itemDetailsEl = document.getElementById('item-details')!;
+const itemActionsEl = document.getElementById('item-actions')!;
+const weaponSlotEl = document.getElementById('weapon-slot')!;
+const armorSlotEl = document.getElementById('armor-slot')!;
+const accessory1SlotEl = document.getElementById('accessory1-slot')!;
+const accessory2SlotEl = document.getElementById('accessory2-slot')!;
+
+// Legacy inventory elements (for backward compatibility)
 const artifactCountEl = document.getElementById('artifact-count')!;
 const inventorySpaceEl = document.getElementById('inventory-space')!;
 const artifactGridEl = document.getElementById('artifact-grid')!;
@@ -226,51 +247,222 @@ function fleeFromEnemy() {
 
 // Inventory functions
 function updateInventoryDisplay() {
+  if (!game || !inventorySystem) return;
+
+  const summary = inventorySystem.getInventorySummary();
+
+  // Update stats
+  totalItemsEl.textContent = summary.totalItems.toString();
+  uniqueItemsEl.textContent = summary.uniqueItems.toString();
+  totalValueEl.textContent = summary.totalValue.toString();
+  inventoryCapacityEl.textContent = `${summary.weight}/${summary.capacity}`;
+
+  // Update equipment slots
+  updateEquipmentDisplay();
+
+  // Apply filters and sorting
+  const searchTerm = inventorySearchEl.value;
+  const categoryFilter = categoryFilterEl.value as ItemCategory | '';
+  const qualityFilter = qualityFilterEl.value as ItemQuality | '';
+  const sortBy = sortSelectEl.value as InventorySort['by'];
+
+  const filter: InventoryFilter = {
+    searchText: searchTerm || undefined,
+    category: categoryFilter || undefined,
+    quality: qualityFilter ? (ItemQuality as any)[qualityFilter] : undefined
+  };
+
+  const sort: InventorySort = {
+    by: sortBy,
+    direction: 'asc'
+  };
+
+  const filteredItems = inventorySystem.getItems(filter, sort);
+
+  // Update item grid
+  updateItemGrid(filteredItems);
+}
+
+function updateEquipmentDisplay() {
   if (!game) return;
 
   const player = game.getState().player;
-  const artifacts = player.artifacts;
+  const inventory = player.inventory;
+  if (!inventory) return;
 
-  // Update stats
-  artifactCountEl.textContent = artifacts.length.toString();
-  inventorySpaceEl.textContent = '∞'; // Unlimited for now
+  const equipment = inventory.equippedItems;
 
-  // Clear previous selection
-  document.querySelectorAll('.artifact-card').forEach(card => {
-    card.classList.remove('selected');
-  });
+  // Update weapon slot
+  if (equipment.weapon) {
+    weaponSlotEl.innerHTML = `
+      <div class="equipment-item" data-item-id="${equipment.weapon.id}">
+        <div class="item-name">${equipment.weapon.name}</div>
+        <div class="item-quality quality-${equipment.weapon.quality}">${ItemQuality[equipment.weapon.quality]}</div>
+      </div>
+    `;
+  } else {
+    weaponSlotEl.innerHTML = '<div class="equipment-empty">Empty</div>';
+  }
 
-  // Update artifact grid
-  if (artifacts.length === 0) {
-    artifactGridEl.innerHTML = '<div class="no-artifacts">No artifacts collected yet. Defeat enemies in combat to obtain artifacts!</div>';
-    artifactDetailsEl.innerHTML = 'Select an artifact to view details';
+  // Update armor slot
+  if (equipment.armor) {
+    armorSlotEl.innerHTML = `
+      <div class="equipment-item" data-item-id="${equipment.armor.id}">
+        <div class="item-name">${equipment.armor.name}</div>
+        <div class="item-quality quality-${equipment.armor.quality}">${ItemQuality[equipment.armor.quality]}</div>
+      </div>
+    `;
+  } else {
+    armorSlotEl.innerHTML = '<div class="equipment-empty">Empty</div>';
+  }
+
+  // Update accessory slots
+  if (equipment.accessory1) {
+    accessory1SlotEl.innerHTML = `
+      <div class="equipment-item" data-item-id="${equipment.accessory1.id}">
+        <div class="item-name">${equipment.accessory1.name}</div>
+        <div class="item-quality quality-${equipment.accessory1.quality}">${ItemQuality[equipment.accessory1.quality]}</div>
+      </div>
+    `;
+  } else {
+    accessory1SlotEl.innerHTML = '<div class="equipment-empty">Empty</div>';
+  }
+
+  if (equipment.accessory2) {
+    accessory2SlotEl.innerHTML = `
+      <div class="equipment-item" data-item-id="${equipment.accessory2.id}">
+        <div class="item-name">${equipment.accessory2.name}</div>
+        <div class="item-quality quality-${equipment.accessory2.quality}">${ItemQuality[equipment.accessory2.quality]}</div>
+      </div>
+    `;
+  } else {
+    accessory2SlotEl.innerHTML = '<div class="equipment-empty">Empty</div>';
+  }
+}
+
+function updateItemGrid(items: Item[]) {
+  if (items.length === 0) {
+    itemGridEl.innerHTML = '<div class="no-items">No items match your filters</div>';
+    itemDetailsEl.innerHTML = 'Select an item to view details';
+    itemActionsEl.innerHTML = '';
     return;
   }
 
-  const artifactHtml = artifacts.map((artifact, index) => {
-    const effectsSummary = artifact.effects.map(effect => {
-      const effectType = effect.type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-      return `${effectType}: ${effect.value}${effect.element ? ` (${effect.element})` : ''}`;
-    }).join(', ');
+  const itemHtml = items.map(item => `
+    <div class="item-card" data-item-id="${item.id}">
+      <div class="item-name">${item.name}</div>
+      <div class="item-category">${item.category}</div>
+      <div class="item-quality quality-${item.quality}">${ItemQuality[item.quality]}</div>
+      <div class="item-quantity">${item.stackable ? `x${item.quantity}` : ''}</div>
+      <div class="item-value">${item.value}💰</div>
+    </div>
+  `).join('');
 
-    return `
-      <div class="artifact-card" data-artifact-index="${index}">
-        <div class="artifact-name">${artifact.name}</div>
-        <div class="artifact-type">${artifact.type}</div>
-        <div class="artifact-effects">${effectsSummary}</div>
-      </div>
-    `;
-  }).join('');
+  itemGridEl.innerHTML = itemHtml;
 
-  artifactGridEl.innerHTML = artifactHtml;
-
-  // Add click handlers for artifact cards
-  document.querySelectorAll('.artifact-card').forEach(card => {
+  // Add click handlers for item cards
+  document.querySelectorAll('.item-card').forEach(card => {
     card.addEventListener('click', () => {
-      const index = parseInt((card as HTMLElement).dataset.artifactIndex || '0');
-      selectArtifact(index);
+      const itemId = (card as HTMLElement).dataset.itemId!;
+      selectItem(itemId);
     });
   });
+}
+
+function selectItem(itemId: string) {
+  if (!inventorySystem || !itemInteractionSystem) return;
+
+  // Find item in inventory
+  const allItems = inventorySystem.getItems();
+  const item = allItems.find(i => i.id === itemId);
+  if (!item) return;
+
+  // Clear previous selection
+  document.querySelectorAll('.item-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  document.querySelector(`[data-item-id="${itemId}"]`)?.classList.add('selected');
+
+  // Update item details
+  const effectsHtml = item.effects?.map((effect: any) => {
+    const effectType = effect.type.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
+    return `${effectType}: ${effect.value}${effect.element ? ` (${effect.element})` : ''}`;
+  }).join('<br>') || 'No special effects';
+
+  itemDetailsEl.innerHTML = `
+    <div class="item-detail-header">
+      <h3>${item.name}</h3>
+      <div class="item-detail-quality quality-${item.quality}">${ItemQuality[item.quality]}</div>
+    </div>
+    <div class="item-detail-category">${item.category}</div>
+    <div class="item-detail-description">${item.description}</div>
+    <div class="item-detail-effects">${effectsHtml}</div>
+    <div class="item-detail-value">Value: ${item.value}💰</div>
+    ${item.stackable ? `<div class="item-detail-quantity">Quantity: ${item.quantity}</div>` : ''}
+  `;
+
+  // Update item actions - simplified for now
+  let actionsHtml = '';
+
+  if (item.category === ItemCategory.Pill || item.category === ItemCategory.Drug || item.category === ItemCategory.Herb) {
+    actionsHtml += '<button class="action-btn" data-action="use">Use</button>';
+  }
+
+  if (item.category === ItemCategory.Weapon || item.category === ItemCategory.Armor || item.category === ItemCategory.Charm) {
+    actionsHtml += '<button class="action-btn" data-action="equip">Equip</button>';
+  }
+
+  if (item.category === ItemCategory.Manual) {
+    actionsHtml += '<button class="action-btn" data-action="study">Study</button>';
+  }
+
+  if (item.category === ItemCategory.SpiritStone) {
+    actionsHtml += '<button class="action-btn" data-action="absorb">Absorb</button>';
+    actionsHtml += '<button class="action-btn" data-action="enhance">Enhance Qi Gathering</button>';
+  }
+
+  if (item.stackable && item.quantity > 1) {
+    actionsHtml += '<button class="action-btn" data-action="drop">Drop</button>';
+  }
+
+  itemActionsEl.innerHTML = actionsHtml || 'No actions available';
+
+  // Add action handlers
+  document.querySelectorAll('.action-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const actionType = (btn as HTMLElement).dataset.action!;
+      performItemAction(item, actionType);
+    });
+  });
+}
+
+function performItemAction(item: Item, actionType: string) {
+  if (!itemInteractionSystem) return;
+
+  let result: { success: boolean; message: string };
+
+  switch (actionType) {
+    case 'use':
+    case 'equip':
+    case 'study':
+    case 'absorb':
+    case 'enhance':
+      result = itemInteractionSystem.useItem(item.id, actionType);
+      break;
+    case 'drop':
+      result = { success: inventorySystem.removeItem(item.id, 1), message: 'Item dropped' };
+      break;
+    default:
+      result = { success: false, message: 'Unknown action' };
+  }
+
+  if (result.success) {
+    logMessage(`✅ ${result.message}`);
+    updateInventoryDisplay();
+    updateUI();
+  } else {
+    logMessage(`❌ ${result.message}`);
+  }
 }
 
 function selectArtifact(index: number) {
@@ -371,6 +563,11 @@ function initializeCardCollapse() {
   });
 }
 
+// Game systems (initialized after game creation)
+let inventorySystem: InventorySystem;
+let itemInteractionSystem: ItemInteractionSystem;
+let lootSystem: LootSystem;
+
 // Game instance
 let game: Game;
 let isRunning = false;
@@ -388,9 +585,15 @@ function initializeGame() {
   if (hasSavedGame()) {
     // Auto-load saved game
     logMessage(i18n.t('ui.savedGameDetected'));
-    game = new Game(undefined, updateUI);
+    game = new Game(undefined, updateUI, inventorySystem);
     const loaded = game.loadGame();
     if (loaded) {
+      // Initialize game systems with loaded game state
+      const player = game.getState().player;
+      inventorySystem = new InventorySystem(player);
+      lootSystem = new LootSystem(new Random());
+      itemInteractionSystem = new ItemInteractionSystem(inventorySystem);
+
       // Start the game loop for the loaded game
       game.start();
       isRunning = true;
@@ -411,7 +614,16 @@ function initializeGame() {
 
 // Start a new game
 function startNewGame() {
-  game = new Game(undefined, updateUI);
+  // Create a temporary game to get the player reference
+  const tempGame = new Game(undefined, updateUI);
+  const player = tempGame.getState().player;
+  inventorySystem = new InventorySystem(player);
+  lootSystem = new LootSystem(new Random());
+
+  // Recreate game with inventory system
+  game = new Game(undefined, updateUI, inventorySystem);
+  itemInteractionSystem = new ItemInteractionSystem(inventorySystem);
+
   game.start();
   isRunning = true;
   logMessage(i18n.t('ui.gameStarted'));
@@ -646,7 +858,14 @@ saveBtn.addEventListener('click', () => {
 
 loadBtn.addEventListener('click', () => {
   if (!game) {
-    game = new Game(undefined, updateUI);
+    // Create a temporary game to get the player reference for inventory system
+    const tempGame = new Game(undefined, updateUI);
+    const player = tempGame.getState().player;
+    inventorySystem = new InventorySystem(player);
+    lootSystem = new LootSystem(new Random());
+
+    // Recreate game with inventory system
+    game = new Game(undefined, updateUI, inventorySystem);
   }
   const loaded = game.loadGame();
   if (loaded) {
@@ -748,6 +967,72 @@ attackBtn.addEventListener('click', () => {
 fleeBtn.addEventListener('click', () => {
   if (!game) return;
   fleeFromEnemy();
+});
+
+// Inventory event listeners
+inventorySearchEl.addEventListener('input', () => {
+  updateInventoryDisplay();
+});
+
+categoryFilterEl.addEventListener('change', () => {
+  updateInventoryDisplay();
+});
+
+qualityFilterEl.addEventListener('change', () => {
+  updateInventoryDisplay();
+});
+
+sortSelectEl.addEventListener('change', () => {
+  updateInventoryDisplay();
+});
+
+// Equipment slot click handlers
+weaponSlotEl.addEventListener('click', () => {
+  if (!itemInteractionSystem) return;
+  const result = itemInteractionSystem.unequipItem(EquipmentSlot.Weapon);
+  if (result.success) {
+    logMessage(`✅ ${result.message}`);
+    updateInventoryDisplay();
+    updateUI();
+  } else {
+    logMessage(`❌ ${result.message}`);
+  }
+});
+
+armorSlotEl.addEventListener('click', () => {
+  if (!itemInteractionSystem) return;
+  const result = itemInteractionSystem.unequipItem(EquipmentSlot.Armor);
+  if (result.success) {
+    logMessage(`✅ ${result.message}`);
+    updateInventoryDisplay();
+    updateUI();
+  } else {
+    logMessage(`❌ ${result.message}`);
+  }
+});
+
+accessory1SlotEl.addEventListener('click', () => {
+  if (!itemInteractionSystem) return;
+  const result = itemInteractionSystem.unequipItem(EquipmentSlot.Accessory1);
+  if (result.success) {
+    logMessage(`✅ ${result.message}`);
+    updateInventoryDisplay();
+    updateUI();
+  } else {
+    logMessage(`❌ ${result.message}`);
+  }
+});
+
+accessory2SlotEl.addEventListener('click', () => {
+  if (!itemInteractionSystem) return;
+  const result = itemInteractionSystem.unequipItem(EquipmentSlot.Accessory2);
+  if (result.success) {
+    logMessage(`✅ ${result.message}`);
+    updateInventoryDisplay();
+    updateUI();
+  } else {
+    logMessage(`❌ ${result.message}`);
+  }
 });
 
 // Initial UI setup

@@ -11,21 +11,127 @@ export class ItemEffectProcessor {
   constructor(private gameState: GameState) {}
 
   /**
+   * Find an item by ID across all item collections
+   */
+  private findItemById(itemId: string): Item | null {
+    // Check player inventory
+    if (this.gameState.player.inventory?.items) {
+      const item = this.gameState.player.inventory.items.find(item => item.id === itemId);
+      if (item) return item;
+    }
+
+    // Check equipped items
+    if (this.gameState.player.inventory?.equippedItems) {
+      for (const equippedItem of Object.values(this.gameState.player.inventory.equippedItems)) {
+        if (equippedItem && equippedItem.id === itemId) {
+          return equippedItem;
+        }
+      }
+    }
+
+    // Check legacy player items
+    const legacyItem = this.gameState.player.items.find(item => item.id === itemId);
+    if (legacyItem) return legacyItem;
+
+    // Check soul items
+    const soulItem = this.gameState.soul.items.find(item => item.id === itemId);
+    if (soulItem) return soulItem;
+
+    return null;
+  }
+
+  /**
    * Calculate total qi absorption bonus from items
    */
   public calculateQiAbsorptionBonus(): { percentage: number; flat: number } {
     let percentageBonus = 0;
     let flatBonus = 0;
+    let enhancedStoneBonus = 0;
 
-    // Check all player items
+    // Check for enhanced spirit stone first
+    if (this.gameState.player.enhancedSpiritStoneId) {
+      // Find the enhanced spirit stone and get its flat bonus
+      const enhancedStone = this.findItemById(this.gameState.player.enhancedSpiritStoneId);
+      if (enhancedStone) {
+        console.log(enhancedStone.name);
+        enhancedStone.effects.forEach(effect => {
+          if (effect.type === 'qi_absorption' && !effect.isPercentage) {
+            enhancedStoneBonus = effect.value;
+          }
+        });
+      }
+    }
+
+    // Check all player inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      this.gameState.player.inventory.items.forEach(item => {
+        item.effects.forEach(effect => {
+          if (effect.type === 'qi_absorption') {
+            if (effect.isPercentage) {
+              // Percentage bonus to qi gathering (always applies)
+              percentageBonus += effect.value;
+            } else if (item.category === 'spirit_stone') {
+              // Spirit stone flat bonuses only count if this is the enhanced stone
+              if (this.gameState.player.enhancedSpiritStoneId === item.id) {
+                flatBonus += effect.value;
+              }
+              // If no enhanced stone, allow one spirit stone's bonus
+              else if (!this.gameState.player.enhancedSpiritStoneId && enhancedStoneBonus === 0) {
+                flatBonus += effect.value;
+                enhancedStoneBonus = effect.value; // Mark that we've used one stone
+              }
+            } else {
+              // Non-spirit stone flat bonuses always apply
+              flatBonus += effect.value;
+            }
+          }
+        });
+      });
+    }
+
+    // Check equipped items (new system)
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.type === 'qi_absorption') {
+              if (effect.isPercentage) {
+                // Percentage bonus to qi gathering
+                percentageBonus += effect.value;
+              } else if (item.category === 'spirit_stone') {
+                // Spirit stone flat bonuses only count if this is the enhanced stone
+                if (this.gameState.player.enhancedSpiritStoneId === item.id) {
+                  flatBonus += effect.value;
+                }
+              } else {
+                // Non-spirit stone flat bonuses always apply
+                flatBonus += effect.value;
+              }
+            }
+          });
+        }
+      });
+    }
+
+    // Also check legacy player items (for backward compatibility during migration)
     this.gameState.player.items.forEach(item => {
       item.effects.forEach(effect => {
         if (effect.type === 'qi_absorption') {
           if (effect.isPercentage) {
             // Percentage bonus to qi gathering
             percentageBonus += effect.value;
+          } else if (item.category === 'spirit_stone') {
+            // Spirit stone flat bonuses only count if this is the enhanced stone
+            if (this.gameState.player.enhancedSpiritStoneId === item.id) {
+              flatBonus += effect.value;
+            }
+            // If no enhanced stone, allow one spirit stone's bonus
+            else if (!this.gameState.player.enhancedSpiritStoneId && enhancedStoneBonus === 0) {
+              flatBonus += effect.value;
+              enhancedStoneBonus = effect.value; // Mark that we've used one stone
+            }
           } else {
-            // Flat qi bonus (for spirit stones)
+            // Non-spirit stone flat bonuses always apply
             flatBonus += effect.value;
           }
         }
@@ -39,8 +145,13 @@ export class ItemEffectProcessor {
           if (effect.isPercentage) {
             // Percentage bonus to qi gathering
             percentageBonus += effect.value;
+          } else if (item.category === 'spirit_stone') {
+            // Spirit stone flat bonuses only count if this is the enhanced stone
+            if (this.gameState.player.enhancedSpiritStoneId === item.id) {
+              flatBonus += effect.value;
+            }
           } else {
-            // Flat qi bonus (for spirit stones)
+            // Non-spirit stone flat bonuses always apply
             flatBonus += effect.value;
           }
         }
@@ -54,7 +165,31 @@ export class ItemEffectProcessor {
   public calculateCultivationSpeedBonus(): number {
     let totalBonus = 0;
 
-    // Check player items
+    // Check player inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      this.gameState.player.inventory.items.forEach(item => {
+        item.effects.forEach(effect => {
+          if (effect.type === 'cultivation_speed' && effect.isPercentage) {
+            totalBonus += effect.value;
+          }
+        });
+      });
+    }
+
+    // Check equipped items (new system)
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.type === 'cultivation_speed' && effect.isPercentage) {
+              totalBonus += effect.value;
+            }
+          });
+        }
+      });
+    }
+
+    // Also check legacy player items (for backward compatibility during migration)
     this.gameState.player.items.forEach(item => {
       item.effects.forEach(effect => {
         if (effect.type === 'cultivation_speed' && effect.isPercentage) {
@@ -81,7 +216,31 @@ export class ItemEffectProcessor {
   public calculateCombatPowerBonus(): number {
     let totalBonus = 0;
 
-    // Check player items
+    // Check player inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      this.gameState.player.inventory.items.forEach(item => {
+        item.effects.forEach(effect => {
+          if (effect.type === 'combat_power' && !effect.isPercentage) {
+            totalBonus += effect.value;
+          }
+        });
+      });
+    }
+
+    // Check equipped items (new system)
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.type === 'combat_power' && !effect.isPercentage) {
+              totalBonus += effect.value;
+            }
+          });
+        }
+      });
+    }
+
+    // Also check legacy player items (for backward compatibility during migration)
     this.gameState.player.items.forEach(item => {
       item.effects.forEach(effect => {
         if (effect.type === 'combat_power' && !effect.isPercentage) {
@@ -108,7 +267,31 @@ export class ItemEffectProcessor {
   public calculateDefenseBonus(): number {
     let totalBonus = 0;
 
-    // Check player items
+    // Check player inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      this.gameState.player.inventory.items.forEach(item => {
+        item.effects.forEach(effect => {
+          if (effect.type === 'defense' && !effect.isPercentage) {
+            totalBonus += effect.value;
+          }
+        });
+      });
+    }
+
+    // Check equipped items (new system)
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.type === 'defense' && !effect.isPercentage) {
+              totalBonus += effect.value;
+            }
+          });
+        }
+      });
+    }
+
+    // Also check legacy player items (for backward compatibility during migration)
     this.gameState.player.items.forEach(item => {
       item.effects.forEach(effect => {
         if (effect.type === 'defense' && !effect.isPercentage) {
@@ -135,7 +318,31 @@ export class ItemEffectProcessor {
   public calculateCriticalChanceBonus(): number {
     let totalBonus = 0;
 
-    // Check player items
+    // Check player inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      this.gameState.player.inventory.items.forEach(item => {
+        item.effects.forEach(effect => {
+          if (effect.type === 'critical_chance' && effect.isPercentage) {
+            totalBonus += effect.value;
+          }
+        });
+      });
+    }
+
+    // Check equipped items (new system)
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.type === 'critical_chance' && effect.isPercentage) {
+              totalBonus += effect.value;
+            }
+          });
+        }
+      });
+    }
+
+    // Also check legacy player items (for backward compatibility during migration)
     this.gameState.player.items.forEach(item => {
       item.effects.forEach(effect => {
         if (effect.type === 'critical_chance' && effect.isPercentage) {
@@ -162,7 +369,47 @@ export class ItemEffectProcessor {
   public calculateElementalBoost(element: Element): number {
     let totalBonus = 0;
 
+    // Check player inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      this.gameState.player.inventory.items.forEach(item => {
+        item.effects.forEach(effect => {
+          if (effect.type === 'element_boost' &&
+              effect.element === element &&
+              effect.isPercentage) {
+            totalBonus += effect.value;
+          }
+        });
+      });
+    }
+
+    // Check equipped items (new system)
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.type === 'element_boost' &&
+                effect.element === element &&
+                effect.isPercentage) {
+              totalBonus += effect.value;
+            }
+          });
+        }
+      });
+    }
+
+    // Also check legacy player items (for backward compatibility during migration)
     this.gameState.player.items.forEach(item => {
+      item.effects.forEach(effect => {
+        if (effect.type === 'element_boost' &&
+            effect.element === element &&
+            effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    });
+
+    // Also check soul items (persistent across reincarnations)
+    this.gameState.soul.items.forEach(item => {
       item.effects.forEach(effect => {
         if (effect.type === 'element_boost' &&
             effect.element === element &&
@@ -181,7 +428,47 @@ export class ItemEffectProcessor {
   public calculateElementalResistance(element: Element): number {
     let totalBonus = 0;
 
+    // Check player inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      this.gameState.player.inventory.items.forEach(item => {
+        item.effects.forEach(effect => {
+          if (effect.type === 'elemental_resistance' &&
+              effect.element === element &&
+              effect.isPercentage) {
+            totalBonus += effect.value;
+          }
+        });
+      });
+    }
+
+    // Check equipped items (new system)
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.type === 'elemental_resistance' &&
+                effect.element === element &&
+                effect.isPercentage) {
+              totalBonus += effect.value;
+            }
+          });
+        }
+      });
+    }
+
+    // Also check legacy player items (for backward compatibility during migration)
     this.gameState.player.items.forEach(item => {
+      item.effects.forEach(effect => {
+        if (effect.type === 'elemental_resistance' &&
+            effect.element === element &&
+            effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    });
+
+    // Also check soul items (persistent across reincarnations)
+    this.gameState.soul.items.forEach(item => {
       item.effects.forEach(effect => {
         if (effect.type === 'elemental_resistance' &&
             effect.element === element &&
@@ -200,7 +487,41 @@ export class ItemEffectProcessor {
   public calculateLuckBonus(): number {
     let totalBonus = 0;
 
+    // Check player inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      this.gameState.player.inventory.items.forEach(item => {
+        item.effects.forEach(effect => {
+          if (effect.type === 'luck' && !effect.isPercentage) {
+            totalBonus += effect.value;
+          }
+        });
+      });
+    }
+
+    // Check equipped items (new system)
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.type === 'luck' && !effect.isPercentage) {
+              totalBonus += effect.value;
+            }
+          });
+        }
+      });
+    }
+
+    // Also check legacy player items (for backward compatibility during migration)
     this.gameState.player.items.forEach(item => {
+      item.effects.forEach(effect => {
+        if (effect.type === 'luck' && !effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    });
+
+    // Also check soul items (persistent across reincarnations)
+    this.gameState.soul.items.forEach(item => {
       item.effects.forEach(effect => {
         if (effect.type === 'luck' && !effect.isPercentage) {
           totalBonus += effect.value;
@@ -217,7 +538,41 @@ export class ItemEffectProcessor {
   public calculateComprehensionBonus(): number {
     let totalBonus = 0;
 
+    // Check player inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      this.gameState.player.inventory.items.forEach(item => {
+        item.effects.forEach(effect => {
+          if (effect.type === 'comprehension' && effect.isPercentage) {
+            totalBonus += effect.value;
+          }
+        });
+      });
+    }
+
+    // Check equipped items (new system)
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.type === 'comprehension' && effect.isPercentage) {
+              totalBonus += effect.value;
+            }
+          });
+        }
+      });
+    }
+
+    // Also check legacy player items (for backward compatibility during migration)
     this.gameState.player.items.forEach(item => {
+      item.effects.forEach(effect => {
+        if (effect.type === 'comprehension' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    });
+
+    // Also check soul items (persistent across reincarnations)
+    this.gameState.soul.items.forEach(item => {
       item.effects.forEach(effect => {
         if (effect.type === 'comprehension' && effect.isPercentage) {
           totalBonus += effect.value;
@@ -234,7 +589,41 @@ export class ItemEffectProcessor {
   public getActiveTemporaryEffects(): ItemEffect[] {
     const activeEffects: ItemEffect[] = [];
 
+    // Check player inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      this.gameState.player.inventory.items.forEach(item => {
+        item.effects.forEach(effect => {
+          if (effect.duration && effect.duration > 0) {
+            activeEffects.push(effect);
+          }
+        });
+      });
+    }
+
+    // Check equipped items (new system)
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.duration && effect.duration > 0) {
+              activeEffects.push(effect);
+            }
+          });
+        }
+      });
+    }
+
+    // Also check legacy player items (for backward compatibility during migration)
     this.gameState.player.items.forEach(item => {
+      item.effects.forEach(effect => {
+        if (effect.duration && effect.duration > 0) {
+          activeEffects.push(effect);
+        }
+      });
+    });
+
+    // Also check soul items (persistent across reincarnations)
+    this.gameState.soul.items.forEach(item => {
       item.effects.forEach(effect => {
         if (effect.duration && effect.duration > 0) {
           activeEffects.push(effect);
@@ -249,7 +638,10 @@ export class ItemEffectProcessor {
    * Process temporary effect duration (called daily)
    */
   public processTemporaryEffects(): void {
-    this.gameState.player.items.forEach(item => {
+    if (!this.gameState.player.inventory?.items) return;
+
+    // Process inventory items (new system)
+    this.gameState.player.inventory.items.forEach(item => {
       item.effects.forEach(effect => {
         if (effect.duration && effect.duration > 0) {
           effect.duration--;
@@ -268,7 +660,80 @@ export class ItemEffectProcessor {
     });
 
     // Clean up items with no effects
+    if (this.gameState.player.inventory) {
+      this.gameState.player.inventory.items = this.gameState.player.inventory.items.filter(item =>
+        item.effects.length > 0
+      );
+    }
+
+    // Also process equipped items (new system)
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          item.effects.forEach(effect => {
+            if (effect.duration && effect.duration > 0) {
+              effect.duration--;
+
+              // Remove effect if duration expires
+              if (effect.duration <= 0) {
+                console.log(`⚡ ${item.name} effect expired: ${effect.type}`);
+              }
+            }
+          });
+
+          // Remove expired effects
+          item.effects = item.effects.filter(effect =>
+            !effect.duration || effect.duration > 0
+          );
+        }
+      });
+    }
+
+    // Also process legacy player items (for backward compatibility during migration)
+    this.gameState.player.items.forEach(item => {
+      item.effects.forEach(effect => {
+        if (effect.duration && effect.duration > 0) {
+          effect.duration--;
+
+          // Remove effect if duration expires
+          if (effect.duration <= 0) {
+            console.log(`⚡ ${item.name} effect expired: ${effect.type}`);
+          }
+        }
+      });
+
+      // Remove expired effects
+      item.effects = item.effects.filter(effect =>
+        !effect.duration || effect.duration > 0
+      );
+    });
+
+    // Clean up legacy player items with no effects
     this.gameState.player.items = this.gameState.player.items.filter(item =>
+      item.effects.length > 0
+    );
+
+    // Also process soul items (persistent across reincarnations)
+    this.gameState.soul.items.forEach(item => {
+      item.effects.forEach(effect => {
+        if (effect.duration && effect.duration > 0) {
+          effect.duration--;
+
+          // Remove effect if duration expires
+          if (effect.duration <= 0) {
+            console.log(`⚡ ${item.name} effect expired: ${effect.type}`);
+          }
+        }
+      });
+
+      // Remove expired effects
+      item.effects = item.effects.filter(effect =>
+        !effect.duration || effect.duration > 0
+      );
+    });
+
+    // Clean up soul items with no effects
+    this.gameState.soul.items = this.gameState.soul.items.filter(item =>
       item.effects.length > 0
     );
   }
@@ -277,26 +742,53 @@ export class ItemEffectProcessor {
    * Use a consumable item (pill, spirit stone, etc.)
    */
   public useConsumableItem(itemId: string): boolean {
-    const itemIndex = this.gameState.player.items.findIndex(item => item.id === itemId);
+    // First try inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      const itemIndex = this.gameState.player.inventory.items.findIndex(item => item.id === itemId);
 
-    if (itemIndex === -1) return false;
+      if (itemIndex !== -1) {
+        const item = this.gameState.player.inventory.items[itemIndex];
 
-    const item = this.gameState.player.items[itemIndex];
+        // Apply immediate effects
+        item.effects.forEach(effect => {
+          this.applyImmediateEffect(effect, item);
+        });
 
-    // Apply immediate effects
-    item.effects.forEach(effect => {
-      this.applyImmediateEffect(effect, item);
-    });
+        // Remove consumed item or reduce quantity
+        if (item.quantity > 1) {
+          item.quantity--;
+        } else {
+          this.gameState.player.inventory.items.splice(itemIndex, 1);
+        }
 
-    // Remove consumed item or reduce quantity
-    if (item.quantity > 1) {
-      item.quantity--;
-    } else {
-      this.gameState.player.items.splice(itemIndex, 1);
+        console.log(`🍽️ Used ${item.name}`);
+        return true;
+      }
     }
 
-    console.log(`🍽️ Used ${item.name}`);
-    return true;
+    // Also try legacy player items (for backward compatibility during migration)
+    const legacyItemIndex = this.gameState.player.items.findIndex(item => item.id === itemId);
+
+    if (legacyItemIndex !== -1) {
+      const item = this.gameState.player.items[legacyItemIndex];
+
+      // Apply immediate effects
+      item.effects.forEach(effect => {
+        this.applyImmediateEffect(effect, item);
+      });
+
+      // Remove consumed item or reduce quantity
+      if (item.quantity > 1) {
+        item.quantity--;
+      } else {
+        this.gameState.player.items.splice(legacyItemIndex, 1);
+      }
+
+      console.log(`🍽️ Used ${item.name}`);
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -338,24 +830,50 @@ export class ItemEffectProcessor {
    * Get equipped items (for future equipment system)
    */
   public getEquippedItems(): Item[] {
-    // For now, all items provide passive effects
-    // Future: distinguish between inventory and equipped items
-    return this.gameState.player.items.filter(item =>
-      item.category === ItemCategory.Armor ||
-      item.category === ItemCategory.Weapon ||
-      item.category === ItemCategory.Charm
-    );
+    // Check equipped items in inventory
+    const equippedItems: Item[] = [];
+    if (this.gameState.player.inventory?.equippedItems) {
+      Object.values(this.gameState.player.inventory.equippedItems).forEach(item => {
+        if (item) {
+          equippedItems.push(item);
+        }
+      });
+    }
+    return equippedItems;
   }
 
   /**
    * Get consumable items
    */
   public getConsumableItems(): Item[] {
-    return this.gameState.player.items.filter(item =>
+    const consumables: Item[] = [];
+
+    // Check inventory items (new system)
+    if (this.gameState.player.inventory?.items) {
+      consumables.push(...this.gameState.player.inventory.items.filter(item =>
+        item.category === ItemCategory.Pill ||
+        item.category === ItemCategory.SpiritStone ||
+        item.category === ItemCategory.Herb ||
+        item.category === ItemCategory.Drug
+      ));
+    }
+
+    // Also check legacy player items (for backward compatibility during migration)
+    consumables.push(...this.gameState.player.items.filter(item =>
       item.category === ItemCategory.Pill ||
       item.category === ItemCategory.SpiritStone ||
       item.category === ItemCategory.Herb ||
       item.category === ItemCategory.Drug
-    );
+    ));
+
+    // Also check soul items (persistent across reincarnations)
+    consumables.push(...this.gameState.soul.items.filter(item =>
+      item.category === ItemCategory.Pill ||
+      item.category === ItemCategory.SpiritStone ||
+      item.category === ItemCategory.Herb ||
+      item.category === ItemCategory.Drug
+    ));
+
+    return consumables;
   }
 }
