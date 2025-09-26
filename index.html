@@ -570,6 +570,79 @@
       justify-content: center;
     }
 
+    /* Mobile-friendly map interactions */
+    .travel-map svg {
+      width: 100%;
+      height: auto;
+      touch-action: manipulation; /* Improve touch responsiveness */
+    }
+
+    .map-location-marker {
+      cursor: pointer;
+      transition: transform 0.2s ease, filter 0.2s ease;
+    }
+
+    .map-location-marker:hover,
+    .map-location-marker:active {
+      transform: scale(1.1);
+    }
+
+    /* Mobile-specific enhancements - much larger dots and text for mobile only */
+    @media (max-width: 768px) {
+      .travel-map {
+        padding: 0.8rem;
+        min-height: 320px;
+      }
+      
+      /* Make dots much larger on mobile */
+      .map-location-marker[r="12"] {
+        r: 32 !important; /* Undiscovered dots: 12 -> 32 (was 24) */
+        stroke-width: 8 !important;
+      }
+      
+      .map-location-marker[r="18"] {
+        r: 38 !important; /* Discovered dots: 18 -> 38 (was 30) */
+        stroke-width: 9 !important;
+      }
+      
+      .map-location-marker[r="20"] {
+        r: 45 !important; /* Current location: 20 -> 45 (was 35) */
+        stroke-width: 10 !important;
+      }
+      
+      /* Make text much larger and more visible on mobile */
+      .travel-map svg text {
+        font-size: 26px !important; /* Increased from 22px */
+        stroke-width: 3.5 !important; /* Increased from 3px */
+      }
+      
+      /* Larger touch targets */
+      .map-location-marker {
+        stroke-width: 15 !important; /* Increased from 12px */
+        stroke: transparent !important;
+      }
+    }
+    
+    /* Smaller mobile devices */
+    @media (max-width: 480px) {
+      .travel-map svg text {
+        font-size: 24px !important; /* Increased from 20px */
+        stroke-width: 3 !important; /* Increased from 2.5px */
+      }
+      
+      .map-location-marker[r="12"] {
+        r: 28 !important; /* Undiscovered: was 20, now 28 */
+      }
+      
+      .map-location-marker[r="18"] {
+        r: 34 !important; /* Discovered: was 26, now 34 */
+      }
+      
+      .map-location-marker[r="20"] {
+        r: 40 !important; /* Current: was 30, now 40 */
+      }
+    }
+
     /* Background image support - uncomment and modify when you have an image */
     /*
     #world-map-background {

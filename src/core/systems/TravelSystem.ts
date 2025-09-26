@@ -75,11 +75,31 @@ export class TravelSystem {
   }
 
   /**
+   * Get the world map locations with current state
+   */
+  public getWorldMap(): Location[] {
+    return this.gameState.worldMap;
+  }
+
+  /**
+   * Get the current location ID from the state
+   */
+  public getCurrentLocationId(): string {
+    return this.gameState.player.currentLocationId;
+  }
+
+  /**
    * Travel to a connected location
    */
   public travelToLocation(targetLocationId: string): { success: boolean; events?: LocationEvent[] } {
+    console.log('TravelSystem: Starting travel to', targetLocationId);
+    console.log('TravelSystem: Current player location ID:', this.gameState.player.currentLocationId);
+    
     const currentLocation = this.gameState.worldMap.find(loc => loc.id === this.gameState.player.currentLocationId);
     const targetLocation = this.gameState.worldMap.find(loc => loc.id === targetLocationId);
+
+    console.log('TravelSystem: Found current location:', currentLocation?.id);
+    console.log('TravelSystem: Found target location:', targetLocation?.id);
 
     if (!currentLocation || !targetLocation) {
       console.log(i18n.t('messages.locationNotFound'));
@@ -106,11 +126,15 @@ export class TravelSystem {
     this.gameState.time += path.travelTime * 60 * 60 * 1000; // Convert hours to milliseconds
 
     // Mark target location as discovered
+    console.log('TravelSystem: Before marking discovered - target location discovered:', targetLocation.discovered);
     targetLocation.discovered = true;
     targetLocation.lastVisited = Date.now();
+    console.log('TravelSystem: After marking discovered - target location discovered:', targetLocation.discovered);
 
     // Update player location
+    console.log('TravelSystem: Before location update - player currentLocationId:', this.gameState.player.currentLocationId);
     this.gameState.player.currentLocationId = targetLocationId;
+    console.log('TravelSystem: After location update - player currentLocationId:', this.gameState.player.currentLocationId);
 
     console.log(i18n.t('messages.arrivedAtLocation', {
       location: targetLocation.name,

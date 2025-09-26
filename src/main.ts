@@ -749,7 +749,7 @@ function updateTravelDisplay() {
   }
 
   // Update travel map (simplified for now)
-  travelMapEl.innerHTML = '<div class="no-map">' + i18n.t('messages.mapLoading') + '</div>';
+  travelMapEl.innerHTML = ''; // Clear existing content first
   updateWorldMap();
 
   // Clear travel controls initially
@@ -760,8 +760,12 @@ function updateWorldMap() {
   if (!game) return;
 
   const travelSystem = game.getTravelSystem();
-  const worldMap = game.getState().worldMap;
-  const currentLocationId = game.getState().player.currentLocationId;
+  // Get both world map and current location from the same state reference
+  const worldMap = travelSystem.getWorldMap();
+  const currentLocationId = travelSystem.getCurrentLocationId();
+  
+  console.log('updateWorldMap called - Current location:', currentLocationId);
+  console.log('World map locations:', worldMap.map((l: any) => `${l.id} (discovered: ${l.discovered})`));
 
   // Create SVG-based world map
   const svgWidth = 800;
@@ -827,49 +831,64 @@ function updateWorldMap() {
     const x = location.position.x * scale + offsetX;
     const y = location.position.y * scale + offsetY;
 
-    // Determine location appearance
+    // Determine location appearance - base sizes for desktop, will be overridden on mobile
     let fillColor = '#666';
     let strokeColor = '#999';
     let strokeWidth = '2';
-    let radius = '12';
+    let radius = '12'; // Back to original desktop size
+
+    console.log(`Processing location ${location.id}: current=${location.id === currentLocationId}, discovered=${location.discovered}`);
 
     if (location.id === currentLocationId) {
       fillColor = '#4CAF50';
       strokeColor = '#66BB6A';
-      strokeWidth = '5';
-      radius = '20';
+      strokeWidth = '5'; // Back to original desktop size
+      radius = '20'; // Back to original desktop size
+      console.log(`Setting ${location.id} as current location (green)`);
     } else if (location.discovered) {
       fillColor = '#2196F3';
       strokeColor = '#64B5F6';
-      strokeWidth = '4';
-      radius = '18';
+      strokeWidth = '4'; // Back to original desktop size
+      radius = '18'; // Back to original desktop size
+      console.log(`Setting ${location.id} as discovered (blue)`);
     } else {
       fillColor = '#666';
       strokeColor = '#999';
-      strokeWidth = '3';
-      radius = '12';
+      strokeWidth = '3'; // Back to original desktop size
+      radius = '12'; // Back to original desktop size
+      console.log(`Setting ${location.id} as undiscovered (gray)`);
     }
 
     // Location circle with name overlay
     svgContent += `<circle cx="${x}" cy="${y}" r="${radius}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" class="map-location-marker" data-location-id="${location.id}" style="cursor: pointer;" />`;
 
     // Location name flowing above the dot
-    if (location.discovered || location.id === currentLocationId) {
-      const fontSize = location.id === currentLocationId ? '16' : '14';
-      const fontWeight = location.id === currentLocationId ? 'bold' : 'bold';
+    // Show names for current location AND all blue dots (discovered locations)
+    const shouldShowName = (location.id === currentLocationId) || 
+                           (location.discovered) || 
+                           (fillColor === '#2196F3'); // Show for all blue dots
+    
+    if (shouldShowName) {
+      // Get the location name, fallback to nameKey or ID if name is missing
+      const locationName = location.name || (location.nameKey ? i18n.t(location.nameKey) : location.id);
+      
+      const fontSize = location.id === currentLocationId ? '16' : '14'; // Back to original desktop sizes
+      const fontWeight = 'bold';
       const textColor = '#ffffff';
       const strokeColor = '#000000';
-      const strokeWidth = location.id === currentLocationId ? '1.2' : '1.0';
+      const strokeWidth = '1.5'; // Back to original desktop size
       
       // Split long names into multiple lines
-      const words = location.name.split(' ');
+      const words = locationName.toString().split(' ');
       const maxCharsPerLine = 15;
       const lines = [];
       let currentLine = '';
       
       words.forEach(word => {
-        if ((currentLine + word).length <= maxCharsPerLine) {
-          currentLine += (currentLine ? ' ' : '') + word;
+        if ((currentLine + word).length <= maxCharsPerLine && currentLine.length > 0) {
+          currentLine += ' ' + word;
+        } else if ((currentLine + word).length <= maxCharsPerLine) {
+          currentLine += word;
         } else {
           if (currentLine) lines.push(currentLine);
           currentLine = word;
@@ -877,12 +896,14 @@ function updateWorldMap() {
       });
       if (currentLine) lines.push(currentLine);
       
-      // Position text above the dot with proper spacing
-      const textStartY = y - parseInt(radius) - 10 - (lines.length - 1) * (parseInt(fontSize) + 2);
+      // Position text above the dot with proper spacing, ensure it stays within SVG bounds
+      const minY = 30; // Minimum Y position to prevent text from going out of bounds
+      const idealTextStartY = y - parseInt(radius) - 10 - (lines.length - 1) * (parseInt(fontSize) + 2);
+      const textStartY = Math.max(minY, idealTextStartY); // Ensure text doesn't go above SVG top
       
       // Render each line of text flowing upward from the dot
       lines.forEach((line, index) => {
-        const lineY = textStartY + index * (parseInt(fontSize) + 4);
+        const lineY = textStartY + index * (parseInt(fontSize) + 2); // Back to original spacing
         svgContent += `<text x="${x}" y="${lineY}" text-anchor="middle" font-size="${fontSize}" font-weight="${fontWeight}" fill="${textColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" font-family="Arial, sans-serif" style="pointer-events: none; user-select: none; paint-order: stroke fill;">${line}</text>`;
       });
     }
@@ -1002,13 +1023,25 @@ function selectLocationForTravel(locationId: string) {
 function travelToLocation(locationId: string) {
   if (!game) return;
 
+  console.log('Attempting to travel to:', locationId);
+  console.log('Current location before travel:', game.getState().player.currentLocationId);
+
   const travelSystem = game.getTravelSystem();
   const result = travelSystem.travelToLocation(locationId);
 
+  console.log('Travel result:', result);
+  
+  // Get the current state after travel (use fresh call to getState)
+  const currentState = game.getState();
+  console.log('Current location after travel:', currentState.player.currentLocationId);
+
   if (result.success) {
     gameOutputEl.textContent += '\n' + i18n.t('messages.travelSuccessful');
+    
+    // Update displays after successful travel
     updateTravelDisplay();
     updateUI();
+    
   } else {
     gameOutputEl.textContent += '\n' + i18n.t('messages.travelFailed');
   }
