@@ -472,7 +472,9 @@
     "showAll": "Show All",
     "showNearby": "Show Nearby",
     "showAccessible": "Show Accessible",
-    "showFavorites": "Show Favorites"
+    "showFavorites": "Show Favorites",
+    "discoveredLocations": "Discovered Locations",
+    "undiscoveredLocations": "Undiscovered Locations"
   },
   "locationTypes": {
     "village": "Village",

@@ -667,7 +667,7 @@ export class I18n {
         // Node.js environment - use fs to read files synchronously
         const fs = require('fs');
         const path = require('path');
-        const filePath = path.join(__dirname, '..', 'locales', `${language}.json`);
+        const filePath = path.join(__dirname, '..', '..', 'public', 'locales', `${language}.json`);
         const fileContent = fs.readFileSync(filePath, 'utf-8');
         translationData = JSON.parse(fileContent);
       } else {

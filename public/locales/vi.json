@@ -472,7 +472,9 @@
     "showAll": "Hiển thị tất cả",
     "showNearby": "Hiển thị gần đây",
     "showAccessible": "Hiển thị khả dụng",
-    "showFavorites": "Hiển thị yêu thích"
+    "showFavorites": "Hiển thị yêu thích",
+    "discoveredLocations": "Địa điểm đã khám phá",
+    "undiscoveredLocations": "Địa điểm chưa khám phá"
   },
   "locationTypes": {
     "village": "Làng",

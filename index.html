@@ -748,6 +748,47 @@
       padding: 2rem;
     }
 
+    /* World Map Legend */
+    .map-legend {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 5px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .legend-marker {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .legend-marker.current {
+      background: #4CAF50;
+      border-color: #66BB6A;
+    }
+
+    .legend-marker.discovered {
+      background: #2196F3;
+      border-color: #64B5F6;
+    }
+
+    .legend-marker.undiscovered {
+      background: #666;
+      border-color: #999;
+    }
+
     /* Tablet and larger screens for travel */
     @media (min-width: 768px) {
       .travel-container {

@@ -722,8 +722,8 @@ function updateTravelDisplay() {
           <p>${location.description}</p>
           <div class="location-details">
             <span class="travel-time">${i18n.t('travelPage.travelTime')}: ${travelInfo?.time || 0} ${i18n.t('travelPage.days')}</span>
-            <span class="travel-cost">${i18n.t('ui.energyCost')}: ${travelInfo?.cost || 0}</span>
-            <span class="danger-level">${i18n.t('ui.dangerLevel')}: ${travelInfo?.danger || 0}/10</span>
+            <span class="travel-cost">${i18n.t('status.energyCost')}: ${travelInfo?.cost || 0}</span>
+            <span class="danger-level">${i18n.t('status.dangerLevel')}: ${travelInfo?.danger || 0}/10</span>
           </div>
           <button class="travel-btn" data-location-id="${location.id}">${i18n.t('ui.travel')}</button>
         </div>
@@ -735,9 +735,164 @@ function updateTravelDisplay() {
 
   // Update travel map (simplified for now)
   travelMapEl.innerHTML = '<div class="no-map">' + i18n.t('messages.mapLoading') + '</div>';
+  updateWorldMap();
 
   // Clear travel controls initially
   travelControlsEl.innerHTML = '<div class="no-travel-target">' + i18n.t('messages.selectLocationToTravel') + '</div>';
+}
+
+function updateWorldMap() {
+  if (!game) return;
+
+  const travelSystem = game.getTravelSystem();
+  const worldMap = game.getState().worldMap;
+  const currentLocationId = game.getState().player.currentLocationId;
+
+  // Create SVG-based world map
+  const svgWidth = 600;
+  const svgHeight = 400;
+  const padding = 40;
+
+  // Calculate bounds for scaling
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  worldMap.forEach(location => {
+    minX = Math.min(minX, location.position.x);
+    maxX = Math.max(maxX, location.position.x);
+    minY = Math.min(minY, location.position.y);
+    maxY = Math.max(maxY, location.position.y);
+  });
+
+  const mapWidth = maxX - minX || 1;
+  const mapHeight = maxY - minY || 1;
+
+  // Scale factor to fit in SVG
+  const scaleX = (svgWidth - 2 * padding) / mapWidth;
+  const scaleY = (svgHeight - 2 * padding) / mapHeight;
+  const scale = Math.min(scaleX, scaleY);
+
+  // Center the map
+  const offsetX = padding + (svgWidth - 2 * padding - mapWidth * scale) / 2 - minX * scale;
+  const offsetY = padding + (svgHeight - 2 * padding - mapHeight * scale) / 2 - minY * scale;
+
+  let svgContent = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" style="width: 100%; height: auto;">`;
+
+  // Draw connections first (behind locations)
+  worldMap.forEach(location => {
+    location.connectedLocations.forEach(connection => {
+      const targetLocation = worldMap.find(loc => loc.id === connection.targetLocationId);
+      if (targetLocation && (location.discovered || targetLocation.discovered)) {
+        const x1 = location.position.x * scale + offsetX;
+        const y1 = location.position.y * scale + offsetY;
+        const x2 = targetLocation.position.x * scale + offsetX;
+        const y2 = targetLocation.position.y * scale + offsetY;
+
+        const strokeColor = (location.discovered && targetLocation.discovered) ? '#4a9eff' : '#666';
+        const strokeWidth = (location.discovered && targetLocation.discovered) ? '2' : '1';
+        const opacity = (location.discovered && targetLocation.discovered) ? '0.6' : '0.3';
+
+        svgContent += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${strokeColor}" stroke-width="${strokeWidth}" opacity="${opacity}" />`;
+      }
+    });
+  });
+
+  // Draw locations
+  worldMap.forEach(location => {
+    const x = location.position.x * scale + offsetX;
+    const y = location.position.y * scale + offsetY;
+
+    // Determine location appearance
+    let fillColor = '#666';
+    let strokeColor = '#999';
+    let strokeWidth = '2';
+    let radius = '8';
+
+    if (location.id === currentLocationId) {
+      fillColor = '#4CAF50';
+      strokeColor = '#66BB6A';
+      strokeWidth = '3';
+      radius = '12';
+    } else if (location.discovered) {
+      fillColor = '#2196F3';
+      strokeColor = '#64B5F6';
+      radius = '10';
+    } else {
+      fillColor = '#666';
+      strokeColor = '#999';
+      radius = '6';
+    }
+
+    // Location circle
+    svgContent += `<circle cx="${x}" cy="${y}" r="${radius}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" class="map-location-marker" data-location-id="${location.id}" style="cursor: pointer;" />`;
+
+    // Location label
+    if (location.discovered || location.id === currentLocationId) {
+      const fontSize = location.id === currentLocationId ? '12' : '10';
+      const fontWeight = location.id === currentLocationId ? 'bold' : 'normal';
+      svgContent += `<text x="${x}" y="${y - 15}" text-anchor="middle" font-size="${fontSize}" font-weight="${fontWeight}" fill="white">${location.name}</text>`;
+    }
+  });
+
+  svgContent += '</svg>';
+
+  // Add location type legend
+  const legendHtml = `
+    <div class="map-legend">
+      <div class="legend-item">
+        <div class="legend-marker current"></div>
+        <span>${i18n.t('travelPage.currentLocation')}</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-marker discovered"></div>
+        <span>${i18n.t('travelPage.discoveredLocations')}</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-marker undiscovered"></div>
+        <span>${i18n.t('travelPage.undiscoveredLocations')}</span>
+      </div>
+    </div>
+  `;
+
+  travelMapEl.innerHTML = svgContent + legendHtml;
+
+  // Add click handlers for location markers
+  document.querySelectorAll('.map-location-marker').forEach(marker => {
+    marker.addEventListener('click', (e) => {
+      const locationId = (e.target as HTMLElement).getAttribute('data-location-id');
+      if (locationId) {
+        selectLocationForTravel(locationId);
+      }
+    });
+  });
+}
+
+function selectLocationForTravel(locationId: string) {
+  if (!game) return;
+
+  const travelSystem = game.getTravelSystem();
+  const location = travelSystem.getLocationInfo(locationId);
+  const travelInfo = travelSystem.getTravelInfo(locationId);
+
+  if (!location || !travelInfo) return;
+
+  // Update travel controls with selected location
+  travelControlsEl.innerHTML = `
+    <div class="travel-target-info">
+      <h4>${i18n.t('travelPage.travelTo')}: ${location.name}</h4>
+      <p>${location.description}</p>
+      <div class="travel-details">
+        <span class="travel-time">${i18n.t('travelPage.travelTime')}: ${travelInfo.time} ${i18n.t('travelPage.days')}</span>
+        <span class="travel-cost">${i18n.t('status.energyCost')}: ${travelInfo.cost}</span>
+        <span class="danger-level">${i18n.t('status.dangerLevel')}: ${travelInfo.danger}/10</span>
+      </div>
+      <button class="travel-btn" data-location-id="${locationId}">${i18n.t('travelPage.travel')}</button>
+    </div>
+  `;
+
+  // Add event listener for the new travel button
+  const travelBtn = travelControlsEl.querySelector('.travel-btn');
+  if (travelBtn) {
+    travelBtn.addEventListener('click', () => travelToLocation(locationId));
+  }
 }
 
 function travelToLocation(locationId: string) {
