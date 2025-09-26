@@ -11,6 +11,7 @@ import { INITIAL_GAME_VALUES, AUTO_SAVE } from '../constants';
 import { ItemSystem } from '../../utils/ItemSystem';
 import { ItemCategory, ItemQuality } from '../../types';
 import { HealthSystem } from './HealthSystem';
+import { TravelSystem } from './TravelSystem';
 
 export class GameController {
   private state: GameState;
@@ -46,7 +47,10 @@ export class GameController {
       elements: this.initializeElementAffinities(),
       talent: INITIAL_GAME_VALUES.TALENT,
       items: [], // Start with no items
-      lifetime: 0
+      lifetime: 0,
+      currentLocationId: 'starting-village', // Start in the village
+      energy: 100, // Start with full travel energy
+      karma: 0 // Start with neutral karma
     };
 
     const soul: Soul = {
@@ -75,12 +79,17 @@ export class GameController {
       soul,
       time: 0,
       isRunning: false,
-      seed: this.random.getSeed()
+      seed: this.random.getSeed(),
+      worldMap: [] // Will be initialized after GameState is created
     };
 
     // Initialize player health using HealthSystem
     const healthSystem = new HealthSystem(gameState);
     healthSystem.initializePlayerHealth(player);
+
+    // Initialize world map using TravelSystem
+    const travelSystem = new TravelSystem(gameState, this.random, null as any, null as any);
+    gameState.worldMap = travelSystem.generateWorldMap();
 
     return gameState;
   }
@@ -349,12 +358,15 @@ export class GameController {
   private deserializeGameState(jsonString: string): GameState {
     const parsed = JSON.parse(jsonString);
 
-    return {
+    const gameState = {
       player: parsed.player || this.initializeGameState().player,
       soul: parsed.soul || this.initializeGameState().soul,
       time: parsed.time ? Math.floor(parsed.time / 86400) : 0,
       isRunning: false,
-      seed: parsed.seed || this.random.getSeed()
+      seed: parsed.seed || this.random.getSeed(),
+      worldMap: parsed.worldMap || this.initializeGameState().worldMap
     };
+
+    return gameState;
   }
 }

@@ -79,6 +79,7 @@ export interface GameState {
   time: number;
   isRunning: boolean;
   seed: number; // For reproducible randomization
+  worldMap: Location[]; // World map locations
 }
 
 // Player Entity
@@ -96,6 +97,9 @@ export interface Player {
   items: Item[]; // New comprehensive item system
   inventory?: Inventory; // Unified inventory system
   lifetime: number; // in days
+  currentLocationId: string; // Current location on world map
+  energy: number; // Travel energy (0-100)
+  karma: number; // Karmic balance affecting events
 }
 
 // Soul Entity (persistent across reincarnations)
@@ -359,4 +363,60 @@ export interface InventoryBag {
   capacity: number;
   items: Item[];
   category: ItemCategory | 'all';
+}
+
+// Location Types for Travel System
+export enum LocationType {
+  Village = 'village',
+  CultivationSite = 'cultivation_site',
+  DangerousArea = 'dangerous_area',
+  SecretRealm = 'secret_realm',
+  AncientRuin = 'ancient_ruin'
+}
+
+// Location Properties
+export interface LocationProperties {
+  safety: number; // 0-1 (how safe the location is)
+  qiDensity: number; // 0-1 (how rich in qi the location is)
+  eventFrequency: number; // 0-1 (how often events occur)
+  merchantPresence: number; // 0-1 (chance of finding merchants)
+  cultivationBonus: number; // 0-1 (bonus to cultivation speed)
+}
+
+// Travel Path between locations
+export interface TravelPath {
+  targetLocationId: string;
+  travelTime: number; // in hours
+  dangerLevel: number; // 0-1 (risk of ambush during travel)
+  description: string;
+}
+
+// Location on the world map
+export interface Location {
+  id: string;
+  type: LocationType;
+  name: string; // Translated location name
+  description: string; // Translated location description
+  nameKey: string; // Translation key for location name
+  descriptionKey: string; // Translation key for location description
+  position: { x: number; y: number };
+  properties: LocationProperties;
+  connectedLocations: TravelPath[];
+  discovered: boolean;
+  lastVisited?: number; // timestamp
+}
+
+// Location Event (things that happen when arriving at a location)
+export interface LocationEvent {
+  id: string;
+  type: 'cultivation' | 'combat' | 'social' | 'merchant' | 'quest' | 'encounter' | 'exploration' | 'danger';
+  title: string;
+  description: string;
+  choices: LocationEventChoice[];
+}
+
+// Event Choice (player decisions in events)
+export interface LocationEventChoice {
+  text: string;
+  effect: () => void;
 }

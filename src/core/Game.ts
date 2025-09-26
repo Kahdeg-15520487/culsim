@@ -16,6 +16,7 @@ import { CombatSystem } from './systems/CombatSystem';
 import { EventSystem } from './systems/EventSystem';
 import { SaveLoadSystem } from './systems/SaveLoadSystem';
 import { HealthSystem } from './systems/HealthSystem';
+import { TravelSystem } from './systems/TravelSystem';
 import { InventorySystem } from '../utils/InventorySystem';
 
 export class Game {
@@ -28,6 +29,7 @@ export class Game {
   private eventSystem: EventSystem;
   private saveLoadSystem: SaveLoadSystem;
   private healthSystem: HealthSystem;
+  private travelSystem: TravelSystem;
   private inventorySystem?: InventorySystem;
 
   constructor(seed?: number, uiUpdateCallback?: () => void, inventorySystem?: InventorySystem) {
@@ -44,9 +46,10 @@ export class Game {
     this.meridianSystem = new MeridianSystem(gameState, random);
     this.elementSystem = new ElementSystem(gameState);
     this.breakthroughSystem = new BreakthroughSystem(gameState, random);
-    this.combatSystem = new CombatSystem(gameState, random, inventorySystem!);
+    this.combatSystem = new CombatSystem(gameState, random, inventorySystem);
     this.eventSystem = new EventSystem(gameState, random);
     this.healthSystem = new HealthSystem(gameState);
+    this.travelSystem = new TravelSystem(gameState, random, this.eventSystem, this.combatSystem);
     this.saveLoadSystem = new SaveLoadSystem();
   }
 
@@ -182,7 +185,7 @@ export class Game {
     this.meridianSystem = new MeridianSystem(gameState, random);
     this.elementSystem = new ElementSystem(gameState);
     this.breakthroughSystem = new BreakthroughSystem(gameState, random);
-    this.combatSystem = new CombatSystem(gameState, random, this.inventorySystem!);
+    this.combatSystem = new CombatSystem(gameState, random, this.inventorySystem);
     this.eventSystem = new EventSystem(gameState, random);
   }
 
@@ -244,6 +247,13 @@ export class Game {
   }
 
   /**
+   * Get the travel system
+   */
+  public getTravelSystem(): TravelSystem {
+    return this.travelSystem;
+  }
+
+  /**
    * Debug methods - delegate to appropriate systems
    */
   public debugAddQi(): void {
@@ -266,10 +276,8 @@ export class Game {
    */
   public updateInventorySystem(inventorySystem: InventorySystem): void {
     this.inventorySystem = inventorySystem;
-    // Recreate combat system with new inventory system
-    const gameState = this.gameController.getStateReference();
-    const random = this.gameController.getRandom();
-    this.combatSystem = new CombatSystem(gameState, random, inventorySystem);
+    // Update combat system with new inventory system
+    this.combatSystem.updateInventorySystem(inventorySystem);
   }
 
 }

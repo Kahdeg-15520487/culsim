@@ -1,6 +1,6 @@
 import { Game } from './core/Game';
 import { Player, Element, Item, ItemCategory, ItemQuality, EquipmentSlot, InventoryFilter, InventorySort, CultivationRealm } from './types/index';
-import { i18n } from './utils/i18n';
+import { i18n, Language } from './utils/i18n';
 import { MERIDIAN_CONSTANTS, PURITY_THRESHOLDS, MERIDIAN_BREAKTHROUGH } from './core/constants';
 import { InventorySystem } from './utils/InventorySystem';
 import { ItemInteractionSystem } from './utils/ItemInteractionSystem';
@@ -609,6 +609,13 @@ languages.forEach(lang => {
   languageSelect.appendChild(option);
 });
 
+// Add event listener for language change
+languageSelect.addEventListener('change', async (event) => {
+  const target = event.target as HTMLSelectElement;
+  const newLanguage = target.value as Language;
+  await i18n.setLanguage(newLanguage);
+});
+
 // Add save/load buttons
 const saveBtn = document.createElement('button');
 saveBtn.textContent = i18n.t('ui.saveGame');
@@ -1193,12 +1200,21 @@ itemGridEl.addEventListener('click', (event) => {
   }
 });
 
-switchPage('overview'); // Start with overview page
-updateUIText();
-updateUI();
+// Wait for translations to load before updating UI
+i18n.waitForTranslations().then(() => {
+  // Set up language change callback to update all UI text
+  i18n.setLanguageChangeCallback(() => {
+    updateUIText();
+    updateUI();
+  });
 
-// Add initial log message to make log visible
-logMessage('🏮 Welcome to CULSIM - Cultivation Simulator');
-logMessage('📜 Game log initialized');
+  switchPage('overview'); // Start with overview page
+  updateUIText();
+  updateUI();
 
-initializeGame();
+  // Add initial log message to make log visible
+  logMessage('🏮 Welcome to CULSIM - Cultivation Simulator');
+  logMessage('📜 Game log initialized');
+
+  initializeGame();
+});

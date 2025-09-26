@@ -200,6 +200,8 @@ export class SaveLoadSystem {
         realm: 0,
         qi: 0,
         maxQi: 100,
+        health: 100, // Add missing health property
+        maxHealth: 100, // Add missing maxHealth property
         meridians: [],
         elements: {
           metal: 0,
@@ -210,7 +212,10 @@ export class SaveLoadSystem {
         },
         talent: 50,
         items: [], // New item system
-        lifetime: 0
+        lifetime: 0,
+        currentLocationId: 'starting-village', // Add missing currentLocationId
+        energy: 100, // Add missing energy property
+        karma: 0 // Add missing karma property
       },
       soul: {
         id: 'soul-1',
@@ -234,7 +239,8 @@ export class SaveLoadSystem {
       },
       time: 0,
       isRunning: false,
-      seed: 0
+      seed: 0,
+      worldMap: [] // Add missing worldMap property
     };
 
     return {
@@ -242,7 +248,8 @@ export class SaveLoadSystem {
       soul: { ...defaultState.soul, ...parsed.soul },
       time: parsed.time || defaultState.time,
       isRunning: false, // Always start stopped
-      seed: parsed.seed || defaultState.seed
+      seed: parsed.seed || defaultState.seed,
+      worldMap: parsed.worldMap || defaultState.worldMap
     };
   }
 

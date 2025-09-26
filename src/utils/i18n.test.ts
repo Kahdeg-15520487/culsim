@@ -40,9 +40,9 @@ describe('I18n', () => {
     expect(i18n.getLanguage()).toBe('vi');
   });
 
-  test('should save language to localStorage when setLanguage is called', () => {
+  test('should save language to localStorage when setLanguage is called', async () => {
     const i18n = new I18n();
-    i18n.setLanguage('vi');
+    await i18n.setLanguage('vi');
     expect(i18n.getLanguage()).toBe('vi');
     expect(localStorageMock.getItem('culsim-language')).toBe('vi');
   });
@@ -74,9 +74,9 @@ describe('I18n', () => {
     expect(i18n.getMeridianName(1)).toBe('Conception Vessel');
   });
 
-  test('should persist language choice across instances', () => {
+  test('should persist language choice across instances', async () => {
     const i18n1 = new I18n();
-    i18n1.setLanguage('vi');
+    await i18n1.setLanguage('vi');
 
     // Create new instance - should load from localStorage
     const i18n2 = new I18n();

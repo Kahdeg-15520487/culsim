@@ -16,17 +16,22 @@ import { HealthSystem } from './HealthSystem';
 
 export class CombatSystem {
   private itemEffectProcessor: ItemEffectProcessor;
-  private inventorySystem: InventorySystem;
+  private inventorySystem?: InventorySystem;
   private healthSystem: HealthSystem;
 
-  constructor(private gameState: GameState, private random: Random, inventorySystem: InventorySystem) {
+  constructor(private gameState: GameState, private random: Random, inventorySystem?: InventorySystem) {
     this.itemEffectProcessor = new ItemEffectProcessor(gameState);
     this.inventorySystem = inventorySystem;
     this.healthSystem = new HealthSystem(gameState);
     
-    if (!this.inventorySystem) {
-      console.error('WARNING: CombatSystem created with undefined inventorySystem!');
-    }
+    // Note: inventorySystem may be undefined initially and set later via updateInventorySystem
+  }
+
+  /**
+   * Update the inventory system reference (called after game initialization)
+   */
+  public updateInventorySystem(inventorySystem: InventorySystem): void {
+    this.inventorySystem = inventorySystem;
   }
 
   /**
@@ -66,6 +71,8 @@ export class CombatSystem {
       realm,
       qi: this.random.int(qiMin, qiMax),
       maxQi: this.random.int(maxQiMin, maxQiMax),
+      health: this.random.int(50, 150), // Add health property
+      maxHealth: this.random.int(100, 200), // Add maxHealth property
       elements: {
         [Element.Metal]: this.random.int(0, 50),
         [Element.Wood]: this.random.int(0, 50),

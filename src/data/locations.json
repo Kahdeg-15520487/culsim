@@ -1,0 +1,139 @@
+{
+  "startingLocationId": "starting-village",
+  "locations": [
+    {
+      "id": "starting-village",
+      "type": "village",
+      "nameKey": "locations.peacefulValleyVillage.name",
+      "descriptionKey": "locations.peacefulValleyVillage.description",
+      "position": { "x": 0, "y": 0 },
+      "properties": {
+        "safety": 0.9,
+        "qiDensity": 0.3,
+        "eventFrequency": 0.7,
+        "merchantPresence": 0.8,
+        "cultivationBonus": 0.1
+      },
+      "connectedLocations": [
+        { "targetLocationId": "bamboo-grove", "travelTime": 2, "dangerLevel": 0.1, "description": "Path to Bamboo Grove" },
+        { "targetLocationId": "mountain-peak", "travelTime": 3, "dangerLevel": 0.2, "description": "Mountain trail to Peak" },
+        { "targetLocationId": "dark-forest", "travelTime": 2, "dangerLevel": 0.4, "description": "Winding path through forest" }
+      ],
+      "discovered": true,
+      "specialFeatures": ["village_center", "starting_point"]
+    },
+    {
+      "id": "bamboo-grove",
+      "type": "cultivation_site",
+      "nameKey": "locations.bambooGrove.name",
+      "descriptionKey": "locations.bambooGrove.description",
+      "position": { "x": 1, "y": 0 },
+      "properties": {
+        "safety": 0.8,
+        "qiDensity": 0.7,
+        "eventFrequency": 0.4,
+        "merchantPresence": 0.1,
+        "cultivationBonus": 0.25
+      },
+      "connectedLocations": [
+        { "targetLocationId": "starting-village", "travelTime": 2, "dangerLevel": 0.1, "description": "Return to village" },
+        { "targetLocationId": "border-town", "travelTime": 3, "dangerLevel": 0.3, "description": "Path to Border Town" }
+      ],
+      "specialFeatures": ["meditation_spot", "bamboo_formation"]
+    },
+    {
+      "id": "mountain-peak",
+      "type": "cultivation_site",
+      "nameKey": "locations.mountainPeak.name",
+      "descriptionKey": "locations.mountainPeak.description",
+      "position": { "x": 0, "y": 1 },
+      "properties": {
+        "safety": 0.6,
+        "qiDensity": 0.8,
+        "eventFrequency": 0.3,
+        "merchantPresence": 0.0,
+        "cultivationBonus": 0.35
+      },
+      "connectedLocations": [
+        { "targetLocationId": "starting-village", "travelTime": 3, "dangerLevel": 0.2, "description": "Descend to village" },
+        { "targetLocationId": "border-town", "travelTime": 2, "dangerLevel": 0.3, "description": "Cross to Border Town" }
+      ],
+      "specialFeatures": ["high_altitude", "wind_formation", "tribulation_site"]
+    },
+    {
+      "id": "dark-forest",
+      "type": "dangerous_area",
+      "nameKey": "locations.darkForest.name",
+      "descriptionKey": "locations.darkForest.description",
+      "position": { "x": -1, "y": 0 },
+      "properties": {
+        "safety": 0.3,
+        "qiDensity": 0.5,
+        "eventFrequency": 0.8,
+        "merchantPresence": 0.0,
+        "cultivationBonus": 0.15
+      },
+      "connectedLocations": [
+        { "targetLocationId": "starting-village", "travelTime": 2, "dangerLevel": 0.4, "description": "Exit the dark forest" },
+        { "targetLocationId": "abandoned-temple", "travelTime": 4, "dangerLevel": 0.6, "description": "Deep into the forest" }
+      ],
+      "specialFeatures": ["dense_foliage", "hidden_groves", "spirit_beasts"]
+    },
+    {
+      "id": "border-town",
+      "type": "village",
+      "nameKey": "locations.borderTown.name",
+      "descriptionKey": "locations.borderTown.description",
+      "position": { "x": 1, "y": 1 },
+      "properties": {
+        "safety": 0.7,
+        "qiDensity": 0.4,
+        "eventFrequency": 0.9,
+        "merchantPresence": 0.7,
+        "cultivationBonus": 0.1
+      },
+      "connectedLocations": [
+        { "targetLocationId": "bamboo-grove", "travelTime": 3, "dangerLevel": 0.3, "description": "Back to Bamboo Grove" },
+        { "targetLocationId": "mountain-peak", "travelTime": 2, "dangerLevel": 0.3, "description": "Up to Mountain Peak" },
+        { "targetLocationId": "spirit-lake", "travelTime": 5, "dangerLevel": 0.5, "description": "Journey to Spirit Lake" }
+      ],
+      "specialFeatures": ["trading_hub", "frontier_post", "adventurer_guild"]
+    },
+    {
+      "id": "abandoned-temple",
+      "type": "ancient_ruin",
+      "nameKey": "locations.abandonedTemple.name",
+      "descriptionKey": "locations.abandonedTemple.description",
+      "position": { "x": -2, "y": 0 },
+      "properties": {
+        "safety": 0.2,
+        "qiDensity": 0.6,
+        "eventFrequency": 0.6,
+        "merchantPresence": 0.0,
+        "cultivationBonus": 0.2
+      },
+      "connectedLocations": [
+        { "targetLocationId": "dark-forest", "travelTime": 4, "dangerLevel": 0.6, "description": "Exit through the forest" }
+      ],
+      "specialFeatures": ["ancient_formation", "hidden_chamber", "cursed_ground"]
+    },
+    {
+      "id": "spirit-lake",
+      "type": "secret_realm",
+      "nameKey": "locations.spiritLake.name",
+      "descriptionKey": "locations.spiritLake.description",
+      "position": { "x": 2, "y": 2 },
+      "properties": {
+        "safety": 0.5,
+        "qiDensity": 0.9,
+        "eventFrequency": 0.5,
+        "merchantPresence": 0.0,
+        "cultivationBonus": 0.4
+      },
+      "connectedLocations": [
+        { "targetLocationId": "border-town", "travelTime": 5, "dangerLevel": 0.5, "description": "Return to Border Town" }
+      ],
+      "specialFeatures": ["spirit_gateway", "water_formation", "realm_entrance"]
+    }
+  ]
+}
