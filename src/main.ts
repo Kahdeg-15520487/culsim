@@ -26,6 +26,7 @@ const navTabs = document.querySelectorAll('.nav-tab');
 const overviewPage = document.querySelector('.game-info')!;
 const combatPage = document.getElementById('combat-page')!;
 const inventoryPage = document.getElementById('inventory-page')!;
+const travelPage = document.getElementById('travel-page')!;
 
 // Combat UI elements
 const enemyDisplayEl = document.getElementById('enemy-display')!;
@@ -48,6 +49,12 @@ const itemGridEl = document.getElementById('item-grid')!;
 const itemDetailsEl = document.getElementById('item-details')!;
 const itemActionsEl = document.getElementById('item-actions')!;
 const equipmentSlotsEl = document.getElementById('equipment-slots')!;
+
+// Travel UI elements
+const currentLocationDisplayEl = document.getElementById('current-location-display')!;
+const travelMapEl = document.getElementById('travel-map')!;
+const locationsListEl = document.getElementById('locations-list')!;
+const travelControlsEl = document.getElementById('travel-controls')!;
 
 // Equipment slot elements (will be populated dynamically)
 const equipmentSlotElements: Record<string, HTMLElement> = {};
@@ -76,16 +83,24 @@ function switchPage(pageName: string) {
   overviewPage.classList.toggle('active', pageName === 'overview');
   combatPage.classList.toggle('active', pageName === 'overview' ? false : true);
   inventoryPage.classList.toggle('active', pageName === 'inventory');
+  travelPage.classList.toggle('active', pageName === 'travel');
 
   // Update page visibility
   (overviewPage as HTMLElement).style.display = pageName === 'overview' ? 'grid' : 'none';
   (combatPage as HTMLElement).style.display = pageName === 'combat' ? 'block' : 'none';
   (inventoryPage as HTMLElement).style.display = pageName === 'inventory' ? 'block' : 'none';
+  (travelPage as HTMLElement).style.display = pageName === 'travel' ? 'block' : 'none';
 
   // Update inventory display when switching to inventory page
   if (pageName === 'inventory') {
     updateInventoryDisplay();
     i18n.applyTranslations(); // Apply translations to inventory page elements
+  }
+
+  // Update travel display when switching to travel page
+  if (pageName === 'travel') {
+    updateTravelDisplay();
+    i18n.applyTranslations(); // Apply translations to travel page elements
   }
 }
 
@@ -674,6 +689,72 @@ let inventorySystem: InventorySystem;
 let itemInteractionSystem: ItemInteractionSystem;
 let lootSystem: LootSystem;
 
+// Travel UI functions
+function updateTravelDisplay() {
+  if (!game) return;
+
+  const travelSystem = game.getTravelSystem();
+  const currentLocation = travelSystem.getLocationInfo(game.getState().player.currentLocationId);
+
+  // Update current location display
+  if (currentLocation) {
+    currentLocationDisplayEl.innerHTML = `
+      <div class="location-info-card">
+        <h4>${currentLocation.name}</h4>
+        <p>${currentLocation.description}</p>
+        <div class="location-properties">
+          <span class="location-type">${i18n.t('travelPage.locationType')}: ${i18n.t(`locationTypes.${currentLocation.type}`)}</span>
+        </div>
+      </div>
+    `;
+  } else {
+    currentLocationDisplayEl.innerHTML = '<div class="no-location">' + i18n.t('messages.noLocationSet') + '</div>';
+  }
+
+  // Update available locations
+  const availableLocations = travelSystem.getAvailableDestinations();
+  if (availableLocations.length > 0) {
+    locationsListEl.innerHTML = availableLocations.map(location => {
+      const travelInfo = travelSystem.getTravelInfo(location.id);
+      return `
+        <div class="location-card" data-location-id="${location.id}">
+          <h4>${location.name}</h4>
+          <p>${location.description}</p>
+          <div class="location-details">
+            <span class="travel-time">${i18n.t('travelPage.travelTime')}: ${travelInfo?.time || 0} ${i18n.t('travelPage.days')}</span>
+            <span class="travel-cost">${i18n.t('ui.energyCost')}: ${travelInfo?.cost || 0}</span>
+            <span class="danger-level">${i18n.t('ui.dangerLevel')}: ${travelInfo?.danger || 0}/10</span>
+          </div>
+          <button class="travel-btn" data-location-id="${location.id}">${i18n.t('ui.travel')}</button>
+        </div>
+      `;
+    }).join('');
+  } else {
+    locationsListEl.innerHTML = '<div class="no-locations">' + i18n.t('messages.noLocationsAvailable') + '</div>';
+  }
+
+  // Update travel map (simplified for now)
+  travelMapEl.innerHTML = '<div class="no-map">' + i18n.t('messages.mapLoading') + '</div>';
+
+  // Clear travel controls initially
+  travelControlsEl.innerHTML = '<div class="no-travel-target">' + i18n.t('messages.selectLocationToTravel') + '</div>';
+}
+
+function travelToLocation(locationId: string) {
+  if (!game) return;
+
+  const travelSystem = game.getTravelSystem();
+  const result = travelSystem.travelToLocation(locationId);
+
+  if (result.success) {
+    gameOutputEl.textContent += '\n' + i18n.t('messages.travelSuccessful');
+    updateTravelDisplay();
+    updateUI();
+  } else {
+    gameOutputEl.textContent += '\n' + i18n.t('messages.travelFailed');
+  }
+}
+
 // Game instance
 let game: Game;
 let isRunning = false;
@@ -741,6 +822,9 @@ function startNewGame() {
   // Recreate game with inventory system
   game = new Game(undefined, updateUI, inventorySystem);
   itemInteractionSystem = new ItemInteractionSystem(inventorySystem);
+
+  // Generate world map
+  game.getTravelSystem().generateWorldMap();
 
   game.start();
   isRunning = true;
@@ -866,9 +950,11 @@ function updateUIText() {
   const overviewTab = document.querySelector('.nav-tab[data-page="overview"]') as HTMLElement;
   const combatTab = document.querySelector('.nav-tab[data-page="combat"]') as HTMLElement;
   const inventoryTab = document.querySelector('.nav-tab[data-page="inventory"]') as HTMLElement;
+  const travelTab = document.querySelector('.nav-tab[data-page="travel"]') as HTMLElement;
   if (overviewTab) overviewTab.textContent = i18n.t('ui.overview');
   if (combatTab) combatTab.textContent = i18n.t('ui.combat');
   if (inventoryTab) inventoryTab.textContent = i18n.t('ui.inventory');
+  if (travelTab) travelTab.textContent = i18n.t('ui.travel');
 
   // Update combat section titles
   const combatArenaTitle = document.querySelector('#combat-page h3[data-i18n="ui.combatArena"]') as HTMLElement;
@@ -1197,6 +1283,14 @@ itemGridEl.addEventListener('click', (event) => {
   const itemCard = target.closest('.item-card') as HTMLElement;
   if (itemCard && itemCard.dataset.itemId) {
     selectItem(itemCard.dataset.itemId);
+  }
+});
+
+// Travel event listeners
+locationsListEl.addEventListener('click', (event) => {
+  const target = event.target as HTMLElement;
+  if (target.classList.contains('travel-btn') && target.dataset.locationId) {
+    travelToLocation(target.dataset.locationId);
   }
 });
 

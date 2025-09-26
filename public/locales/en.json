@@ -60,6 +60,7 @@
     "overview": "Overview",
     "combat": "Combat",
     "inventory": "Inventory",
+    "travel": "Travel",
     "equipment": "Equipment",
     "inventoryStats": "Inventory Stats",
     "items": "Items",
@@ -109,7 +110,9 @@
     "running": "Running",
     "paused": "Paused",
     "type": "Type",
-    "aggression": "Aggression"
+    "aggression": "Aggression",
+    "energyCost": "Energy Cost",
+    "dangerLevel": "Danger Level"
   },
   "combatTypes": {
     "melee": "Melee",
@@ -338,7 +341,12 @@
     "guardianAppears": "👻 An ancient guardian appears: {enemy}!",
     "retreatedSafely": "🏃 You retreated safely from the ruins.",
     "trapDisarmed": "✅ You successfully disarmed the trap!",
-    "trapFailed": "❌ Failed to disarm trap! Took {damage} damage."
+    "trapFailed": "❌ Failed to disarm trap! Took {damage} damage.",
+    "mapLoading": "Loading world map...",
+    "selectLocationToTravel": "Select a location to travel to",
+    "noLocationSet": "No location set",
+    "travelSuccessful": "Travel completed successfully!",
+    "travelFailed": "Travel failed."
   },
   "itemCategories": {
     "weapon": "Weapons",
@@ -423,7 +431,7 @@
     "healthRecovery": "Health Recovery",
     "manaRegeneration": "Mana Regeneration"
   },
-  "travel": {
+  "travelPage": {
     "currentLocation": "Current Location",
     "worldMap": "World Map",
     "availableLocations": "Available Locations",

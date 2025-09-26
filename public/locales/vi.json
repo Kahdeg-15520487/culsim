@@ -60,6 +60,7 @@
     "overview": "Tổng Quan",
     "combat": "Chiến Đấu",
     "inventory": "Túi Đồ",
+    "travel": "Du Hành",
     "equipment": "Trang Bị",
     "inventoryStats": "Thống Kê Túi Đồ",
     "items": "Vật Phẩm",
@@ -109,7 +110,9 @@
     "running": "Đang chạy",
     "paused": "Tạm dừng",
     "type": "Loại",
-    "aggression": "Tấn công"
+    "aggression": "Tấn công",
+    "energyCost": "Chi phí Năng lượng",
+    "dangerLevel": "Mức độ Nguy hiểm"
   },
   "combatTypes": {
     "melee": "Cận chiến",
@@ -338,7 +341,12 @@
     "guardianAppears": "👻 Vị hộ vệ cổ xưa xuất hiện: {enemy}!",
     "retreatedSafely": "🏃 Bạn rút lui an toàn khỏi tàn tích.",
     "trapDisarmed": "✅ Bạn tháo bẫy thành công!",
-    "trapFailed": "❌ Tháo bẫy thất bại! Nhận {damage} sát thương."
+    "trapFailed": "❌ Tháo bẫy thất bại! Nhận {damage} sát thương.",
+    "mapLoading": "Đang tải bản đồ thế giới...",
+    "selectLocationToTravel": "Chọn địa điểm để di chuyển đến",
+    "noLocationSet": "Chưa thiết lập địa điểm",
+    "travelSuccessful": "Di chuyển hoàn thành thành công!",
+    "travelFailed": "Di chuyển thất bại."
   },
   "itemCategories": {
     "weapon": "Vũ khí",
@@ -423,7 +431,7 @@
     "healthRecovery": "Phục hồi sinh lực",
     "manaRegeneration": "Tái tạo linh lực"
   },
-  "travel": {
+  "travelPage": {
     "currentLocation": "Địa điểm hiện tại",
     "worldMap": "Bản đồ thế giới",
     "availableLocations": "Địa điểm khả dụng",
