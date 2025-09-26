@@ -100,6 +100,7 @@ export interface Player {
   currentLocationId: string; // Current location on world map
   energy: number; // Travel energy (0-100)
   karma: number; // Karmic balance affecting events
+  activeLocationEffects?: ItemEffect[]; // Effects from current location
 }
 
 // Soul Entity (persistent across reincarnations)
@@ -404,6 +405,7 @@ export interface Location {
   connectedLocations: TravelPath[];
   discovered: boolean;
   lastVisited?: number; // timestamp
+  locationEffects?: ItemEffect[]; // Effects applied while at this location
 }
 
 // Location Event (things that happen when arriving at a location)

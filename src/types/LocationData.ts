@@ -27,6 +27,13 @@ export interface LocationData {
   }>;
   discovered?: boolean; // defaults to false for non-starting locations
   specialFeatures?: string[]; // optional special features like "hot_spring", "ancient_formation", etc.
+  locationEffects?: Array<{
+    type: string;
+    value: number;
+    element?: string;
+    duration?: number;
+    isPercentage: boolean;
+  }>; // Effects applied while at this location
 }
 
 export interface WorldData {

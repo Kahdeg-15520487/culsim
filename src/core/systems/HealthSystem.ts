@@ -6,13 +6,13 @@
  */
 
 import { GameState, Player, Enemy, CultivationRealm, DamageType } from '../../types';
-import { ItemEffectProcessor } from '../../utils/ItemEffectProcessor';
+import { EffectProcessor } from '../../utils/ItemEffectProcessor';
 
 export class HealthSystem {
-  private itemEffectProcessor: ItemEffectProcessor;
+  private effectProcessor: EffectProcessor;
 
   constructor(private gameState: GameState) {
-    this.itemEffectProcessor = new ItemEffectProcessor(gameState);
+    this.effectProcessor = new EffectProcessor(gameState);
   }
 
   /**
@@ -148,7 +148,7 @@ export class HealthSystem {
 
     // Add item bonuses (only for players)
     if ('talent' in entity) {
-      const itemBonus = this.itemEffectProcessor.calculateHealthRegenerationBonus();
+      const itemBonus = this.effectProcessor.calculateHealthRegenerationBonus();
       regenRate += itemBonus;
     }
 

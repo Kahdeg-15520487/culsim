@@ -6,13 +6,13 @@
 
 import { GameState, CultivationRealm, Element, Meridian } from '../../types';
 import { CULTIVATION_RATES, REALM_QI_GATHERING, MULTIPLIERS, PURITY_THRESHOLDS, MERIDIAN_CONSTANTS, TALENT_DIVISORS } from '../constants';
-import { ItemEffectProcessor } from '../../utils/ItemEffectProcessor';
+import { EffectProcessor } from '../../utils/ItemEffectProcessor';
 
 export class CultivationSystem {
-  private itemEffectProcessor: ItemEffectProcessor;
+  private effectProcessor: EffectProcessor;
 
   constructor(private gameState: GameState) {
-    this.itemEffectProcessor = new ItemEffectProcessor(gameState);
+    this.effectProcessor = new EffectProcessor(gameState);
   }
 
   /**
@@ -167,10 +167,10 @@ export class CultivationSystem {
       }
 
       // Apply item bonuses
-      const cultivationSpeedBonus = this.itemEffectProcessor.calculateCultivationSpeedBonus();
+      const cultivationSpeedBonus = this.effectProcessor.calculateCultivationSpeedBonus();
       qiGain *= (1 + cultivationSpeedBonus / 100);
 
-      const qiAbsorptionBonus = this.itemEffectProcessor.calculateQiAbsorptionBonus();
+      const qiAbsorptionBonus = this.effectProcessor.calculateQiAbsorptionBonus();
       qiGain *= (1 + qiAbsorptionBonus.percentage / 100);
       qiGain += qiAbsorptionBonus.flat;
 
@@ -198,10 +198,10 @@ export class CultivationSystem {
       let qiGain = baseAbsorption * talentMultiplier * meridianBonus * realmMultiplier * karmicBonus;
 
       // Apply item bonuses
-      const cultivationSpeedBonus = this.itemEffectProcessor.calculateCultivationSpeedBonus();
+      const cultivationSpeedBonus = this.effectProcessor.calculateCultivationSpeedBonus();
       qiGain *= (1 + cultivationSpeedBonus / 100);
 
-      const qiAbsorptionBonus = this.itemEffectProcessor.calculateQiAbsorptionBonus();
+      const qiAbsorptionBonus = this.effectProcessor.calculateQiAbsorptionBonus();
       qiGain *= (1 + qiAbsorptionBonus.percentage / 100);
       qiGain += qiAbsorptionBonus.flat;
 

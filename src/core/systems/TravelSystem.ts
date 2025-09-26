@@ -68,7 +68,8 @@ export class TravelSystem {
       properties: locationData.properties,
       connectedLocations: locationData.connectedLocations || [],
       discovered: locationData.discovered || false,
-      lastVisited: locationData.discovered ? Date.now() : undefined
+      lastVisited: locationData.discovered ? Date.now() : undefined,
+      locationEffects: locationData.locationEffects || []
     };
 
     return location;
@@ -141,10 +142,32 @@ export class TravelSystem {
       travelTime: path.travelTime
     }));
 
+    // Apply location effects
+    this.applyLocationEffects(targetLocation);
+
     // Generate location events
     const events = this.generateLocationEvents(targetLocation);
 
     return { success: true, events };
+  }
+
+  /**
+   * Apply location effects when arriving at a location
+   */
+  private applyLocationEffects(location: Location): void {
+    // Initialize activeLocationEffects if not exists
+    if (!this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects = [];
+    }
+
+    // Clear previous location effects
+    this.gameState.player.activeLocationEffects = [];
+
+    // Apply new location effects
+    if (location.locationEffects && location.locationEffects.length > 0) {
+      this.gameState.player.activeLocationEffects = [...location.locationEffects];
+      console.log(`Applied ${location.locationEffects.length} location effects at ${location.name}`);
+    }
   }
 
   /**

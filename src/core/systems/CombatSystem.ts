@@ -9,18 +9,18 @@ import { GameState, Player, Enemy, CombatType, Element, ItemCategory, Item, Loot
 import { Random } from '../../utils/Random';
 import { i18n } from '../../utils/i18n';
 import { CultivationRealm } from '../../types';
-import { ItemEffectProcessor } from '../../utils/ItemEffectProcessor';
+import { EffectProcessor } from '../../utils/ItemEffectProcessor';
 import { ItemSystem } from '../../utils/ItemSystem';
 import { InventorySystem } from '../../utils/InventorySystem';
 import { HealthSystem } from './HealthSystem';
 
 export class CombatSystem {
-  private itemEffectProcessor: ItemEffectProcessor;
+  private effectProcessor: EffectProcessor;
   private inventorySystem?: InventorySystem;
   private healthSystem: HealthSystem;
 
   constructor(private gameState: GameState, private random: Random, inventorySystem?: InventorySystem) {
-    this.itemEffectProcessor = new ItemEffectProcessor(gameState);
+    this.effectProcessor = new EffectProcessor(gameState);
     this.inventorySystem = inventorySystem;
     this.healthSystem = new HealthSystem(gameState);
     
@@ -172,9 +172,9 @@ export class CombatSystem {
     }));
 
     // Calculate combat power with item bonuses
-    const playerCombatBonus = this.itemEffectProcessor.calculateCombatPowerBonus();
-    const playerDefenseBonus = this.itemEffectProcessor.calculateDefenseBonus();
-    const playerCritBonus = this.itemEffectProcessor.calculateCriticalChanceBonus();
+    const playerCombatBonus = this.effectProcessor.calculateCombatPowerBonus();
+    const playerDefenseBonus = this.effectProcessor.calculateDefenseBonus();
+    const playerCritBonus = this.effectProcessor.calculateCriticalChanceBonus();
 
     const playerPower = (player.qi + (player.talent * 2) + (player.realm * 100) + playerCombatBonus) * (1 + playerDefenseBonus / 100);
     const enemyPower = enemy.qi + (enemy.realm * 50);
@@ -246,9 +246,9 @@ export class CombatSystem {
     const player = this.gameState.player;
 
     // Calculate combat power with item bonuses
-    const playerCombatBonus = this.itemEffectProcessor.calculateCombatPowerBonus();
-    const playerDefenseBonus = this.itemEffectProcessor.calculateDefenseBonus();
-    const playerCritBonus = this.itemEffectProcessor.calculateCriticalChanceBonus();
+    const playerCombatBonus = this.effectProcessor.calculateCombatPowerBonus();
+    const playerDefenseBonus = this.effectProcessor.calculateDefenseBonus();
+    const playerCritBonus = this.effectProcessor.calculateCriticalChanceBonus();
 
     const playerPower = (player.qi + (player.talent * 2) + (player.realm * 100) + playerCombatBonus) * (1 + playerDefenseBonus / 100);
     const enemyPower = enemy.qi + (enemy.realm * 50);
@@ -285,7 +285,7 @@ export class CombatSystem {
    */
   public enemyAttack(player: Player, enemy: Enemy): { damage: number; playerDefeated: boolean; playerHealth: number; playerMaxHealth: number } {
     const enemyPower = enemy.qi + (enemy.realm * 50);
-    const playerPower = (player.qi + (player.talent * 2) + (player.realm * 100)) * (1 + this.itemEffectProcessor.calculateDefenseBonus() / 100);
+    const playerPower = (player.qi + (player.talent * 2) + (player.realm * 100)) * (1 + this.effectProcessor.calculateDefenseBonus() / 100);
 
     // Apply elemental bonuses
     const enemyElementBonus = this.calculateElementalCombatBonus(enemy, player);

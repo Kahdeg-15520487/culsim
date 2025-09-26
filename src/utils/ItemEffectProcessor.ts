@@ -1,15 +1,15 @@
 /**
- * Item Effect Processor
+ * Effect Processor
  *
- * Applies item effects to game mechanics and calculates bonuses
- * from equipped/owned items.
+ * Applies all types of effects to game mechanics and calculates bonuses
+ * from equipped items, location effects, and other sources.
  */
 
 import { GameState, Item, ItemEffect, ItemCategory, Element } from '../types';
 import { ItemSystem } from './ItemSystem';
 import { i18n } from './i18n';
 
-export class ItemEffectProcessor {
+export class EffectProcessor {
   constructor(private gameState: GameState) {}
 
   /**
@@ -93,6 +93,11 @@ export class ItemEffectProcessor {
       });
     });
 
+    // Add location effects
+    const locationBonus = this.calculateLocationQiAbsorptionBonus();
+    percentageBonus += locationBonus.percentage;
+    flatBonus += locationBonus.flat;
+
     return { percentage: percentageBonus, flat: flatBonus };
   }
   
@@ -123,6 +128,9 @@ export class ItemEffectProcessor {
         }
       });
     });
+
+    // Add location effects
+    totalBonus += this.calculateLocationCultivationSpeedBonus();
 
     return totalBonus;
   }
@@ -155,6 +163,9 @@ export class ItemEffectProcessor {
       });
     });
 
+    // Add location effects
+    totalBonus += this.calculateLocationCombatPowerBonus();
+
     return totalBonus;
   }
 
@@ -186,6 +197,9 @@ export class ItemEffectProcessor {
       });
     });
 
+    // Add location effects
+    totalBonus += this.calculateLocationDefenseBonus();
+
     return totalBonus;
   }
 
@@ -216,6 +230,9 @@ export class ItemEffectProcessor {
         }
       });
     });
+
+    // Add location effects
+    totalBonus += this.calculateLocationCriticalChanceBonus();
 
     return totalBonus;
   }
@@ -251,6 +268,9 @@ export class ItemEffectProcessor {
         }
       });
     });
+
+    // Add location effects
+    totalBonus += this.calculateLocationElementBoost(element);
 
     return totalBonus;
   }
@@ -318,6 +338,9 @@ export class ItemEffectProcessor {
       });
     });
 
+    // Add location effects
+    totalBonus += this.calculateLocationLuckBonus();
+
     return totalBonus;
   }
 
@@ -348,6 +371,9 @@ export class ItemEffectProcessor {
         }
       });
     });
+
+    // Add location effects
+    totalBonus += this.calculateLocationComprehensionBonus();
 
     return totalBonus;
   }
@@ -602,6 +628,12 @@ export class ItemEffectProcessor {
       });
     });
 
+    // Add location effects
+    const locationBonus = this.calculateLocationHealthRegenerationBonus();
+    if (locationBonus > 0) {
+      totalBonus += (locationBonus / 100) * this.getBaseHealthRegen();
+    }
+
     return totalBonus;
   }
 
@@ -621,5 +653,267 @@ export class ItemEffectProcessor {
     baseRegen *= (1 + player.talent / 200); // Up to 50% bonus at max talent
 
     return baseRegen;
+  }
+
+  // ===== LOCATION EFFECT BONUSES =====
+
+  /**
+   * Calculate total qi absorption bonus from location effects
+   */
+  public calculateLocationQiAbsorptionBonus(): { percentage: number; flat: number } {
+    let percentageBonus = 0;
+    let flatBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'qi_absorption') {
+          if (effect.isPercentage) {
+            percentageBonus += effect.value;
+          } else {
+            flatBonus += effect.value;
+          }
+        }
+      });
+    }
+
+    return { percentage: percentageBonus, flat: flatBonus };
+  }
+
+  /**
+   * Calculate cultivation speed bonus from location effects
+   */
+  public calculateLocationCultivationSpeedBonus(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'cultivation_speed' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate combat power bonus from location effects
+   */
+  public calculateLocationCombatPowerBonus(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'combat_power' && !effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate element boost from location effects
+   */
+  public calculateLocationElementBoost(element: Element): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'element_boost' && effect.element === element && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate defense bonus from location effects
+   */
+  public calculateLocationDefenseBonus(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'defense' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate health regeneration bonus from location effects
+   */
+  public calculateLocationHealthRegenerationBonus(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'health_regen' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate qi regeneration bonus from location effects
+   */
+  public calculateLocationQiRegenerationBonus(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'qi_regen' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate critical chance bonus from location effects
+   */
+  public calculateLocationCriticalChanceBonus(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'critical_chance' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate critical damage bonus from location effects
+   */
+  public calculateLocationCriticalDamageBonus(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'critical_damage' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate comprehension bonus from location effects
+   */
+  public calculateLocationComprehensionBonus(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'comprehension' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate luck bonus from location effects
+   */
+  public calculateLocationLuckBonus(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'luck' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate experience boost from location effects
+   */
+  public calculateLocationExperienceBoost(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'experience_boost' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate meridian purity bonus from location effects
+   */
+  public calculateLocationMeridianPurityBonus(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'meridian_purity' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate lifespan bonus from location effects
+   */
+  public calculateLocationLifespanBonus(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'lifespan' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
+  }
+
+  /**
+   * Calculate talent boost from location effects
+   */
+  public calculateLocationTalentBoost(): number {
+    let totalBonus = 0;
+
+    if (this.gameState.player.activeLocationEffects) {
+      this.gameState.player.activeLocationEffects.forEach(effect => {
+        if (effect.type === 'talent_boost' && effect.isPercentage) {
+          totalBonus += effect.value;
+        }
+      });
+    }
+
+    return totalBonus;
   }
 }

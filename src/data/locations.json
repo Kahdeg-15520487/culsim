@@ -20,7 +20,19 @@
         { "targetLocationId": "dark-forest", "travelTime": 2, "dangerLevel": 0.4, "description": "Winding path through forest" }
       ],
       "discovered": true,
-      "specialFeatures": ["village_center", "starting_point"]
+      "specialFeatures": ["village_center", "starting_point"],
+      "locationEffects": [
+        {
+          "type": "health_regen",
+          "value": 10,
+          "isPercentage": true
+        },
+        {
+          "type": "qi_regen",
+          "value": 5,
+          "isPercentage": true
+        }
+      ]
     },
     {
       "id": "bamboo-grove",
@@ -39,7 +51,25 @@
         { "targetLocationId": "starting-village", "travelTime": 2, "dangerLevel": 0.1, "description": "Return to village" },
         { "targetLocationId": "border-town", "travelTime": 3, "dangerLevel": 0.3, "description": "Path to Border Town" }
       ],
-      "specialFeatures": ["meditation_spot", "bamboo_formation"]
+      "specialFeatures": ["meditation_spot", "bamboo_formation"],
+      "locationEffects": [
+        {
+          "type": "cultivation_speed",
+          "value": 15,
+          "isPercentage": true
+        },
+        {
+          "type": "element_boost",
+          "value": 10,
+          "element": "wood",
+          "isPercentage": true
+        },
+        {
+          "type": "comprehension",
+          "value": 5,
+          "isPercentage": true
+        }
+      ]
     },
     {
       "id": "mountain-peak",
@@ -58,7 +88,30 @@
         { "targetLocationId": "starting-village", "travelTime": 3, "dangerLevel": 0.2, "description": "Descend to village" },
         { "targetLocationId": "border-town", "travelTime": 2, "dangerLevel": 0.3, "description": "Cross to Border Town" }
       ],
-      "specialFeatures": ["high_altitude", "wind_formation", "tribulation_site"]
+      "specialFeatures": ["high_altitude", "wind_formation", "tribulation_site"],
+      "locationEffects": [
+        {
+          "type": "qi_absorption",
+          "value": 20,
+          "isPercentage": true
+        },
+        {
+          "type": "cultivation_speed",
+          "value": 10,
+          "isPercentage": true
+        },
+        {
+          "type": "element_boost",
+          "value": 15,
+          "element": "metal",
+          "isPercentage": true
+        },
+        {
+          "type": "critical_chance",
+          "value": 5,
+          "isPercentage": true
+        }
+      ]
     },
     {
       "id": "dark-forest",
@@ -77,7 +130,30 @@
         { "targetLocationId": "starting-village", "travelTime": 2, "dangerLevel": 0.4, "description": "Exit the dark forest" },
         { "targetLocationId": "abandoned-temple", "travelTime": 4, "dangerLevel": 0.6, "description": "Deep into the forest" }
       ],
-      "specialFeatures": ["dense_foliage", "hidden_groves", "spirit_beasts"]
+      "specialFeatures": ["dense_foliage", "hidden_groves", "spirit_beasts"],
+      "locationEffects": [
+        {
+          "type": "luck",
+          "value": -10,
+          "isPercentage": true
+        },
+        {
+          "type": "defense",
+          "value": -5,
+          "isPercentage": true
+        },
+        {
+          "type": "element_boost",
+          "value": 8,
+          "element": "wood",
+          "isPercentage": true
+        },
+        {
+          "type": "experience_boost",
+          "value": 15,
+          "isPercentage": true
+        }
+      ]
     },
     {
       "id": "border-town",
@@ -97,7 +173,19 @@
         { "targetLocationId": "mountain-peak", "travelTime": 2, "dangerLevel": 0.3, "description": "Up to Mountain Peak" },
         { "targetLocationId": "spirit-lake", "travelTime": 5, "dangerLevel": 0.5, "description": "Journey to Spirit Lake" }
       ],
-      "specialFeatures": ["trading_hub", "frontier_post", "adventurer_guild"]
+      "specialFeatures": ["trading_hub", "frontier_post", "adventurer_guild"],
+      "locationEffects": [
+        {
+          "type": "luck",
+          "value": 8,
+          "isPercentage": true
+        },
+        {
+          "type": "experience_boost",
+          "value": 10,
+          "isPercentage": true
+        }
+      ]
     },
     {
       "id": "abandoned-temple",
@@ -115,7 +203,29 @@
       "connectedLocations": [
         { "targetLocationId": "dark-forest", "travelTime": 4, "dangerLevel": 0.6, "description": "Exit through the forest" }
       ],
-      "specialFeatures": ["ancient_formation", "hidden_chamber", "cursed_ground"]
+      "specialFeatures": ["ancient_formation", "hidden_chamber", "cursed_ground"],
+      "locationEffects": [
+        {
+          "type": "comprehension",
+          "value": 25,
+          "isPercentage": true
+        },
+        {
+          "type": "meridian_purity",
+          "value": 10,
+          "isPercentage": true
+        },
+        {
+          "type": "luck",
+          "value": -15,
+          "isPercentage": true
+        },
+        {
+          "type": "health_regen",
+          "value": -20,
+          "isPercentage": true
+        }
+      ]
     },
     {
       "id": "spirit-lake",
@@ -133,7 +243,35 @@
       "connectedLocations": [
         { "targetLocationId": "border-town", "travelTime": 5, "dangerLevel": 0.5, "description": "Return to Border Town" }
       ],
-      "specialFeatures": ["spirit_gateway", "water_formation", "realm_entrance"]
+      "specialFeatures": ["spirit_gateway", "water_formation", "realm_entrance"],
+      "locationEffects": [
+        {
+          "type": "qi_absorption",
+          "value": 30,
+          "isPercentage": true
+        },
+        {
+          "type": "cultivation_speed",
+          "value": 20,
+          "isPercentage": true
+        },
+        {
+          "type": "element_boost",
+          "value": 20,
+          "element": "water",
+          "isPercentage": true
+        },
+        {
+          "type": "comprehension",
+          "value": 15,
+          "isPercentage": true
+        },
+        {
+          "type": "meridian_purity",
+          "value": 15,
+          "isPercentage": true
+        }
+      ]
     }
   ]
 }
