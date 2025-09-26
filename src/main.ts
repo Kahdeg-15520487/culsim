@@ -170,6 +170,9 @@ function formatDays(days: number): string {
 function updateEnemyDisplay() {
   if (!currentEnemy) {
     enemyDisplayEl.innerHTML = '<div class="no-enemy">' + i18n.t('messages.noEnemyEncountered') + '</div>';
+    // Show find enemy button, hide attack button
+    findEnemyBtn.style.display = 'inline-block';
+    attackBtn.style.display = 'none';
     attackBtn.disabled = true;
     fleeBtn.disabled = true;
     return;
@@ -188,6 +191,9 @@ function updateEnemyDisplay() {
     </div>
   `;
   enemyDisplayEl.innerHTML = enemyHtml;
+  // Hide find enemy button, show attack button
+  findEnemyBtn.style.display = 'none';
+  attackBtn.style.display = 'inline-block';
   attackBtn.disabled = false;
   fleeBtn.disabled = false;
 }
@@ -253,6 +259,12 @@ function findEnemy() {
   updateCombatStats();
   updateCombatLoot();
   console.log(i18n.t('messages.foundEnemy', { enemy: currentEnemy.name }));
+
+  // Switch to attack mode
+  findEnemyBtn.style.display = 'none';
+  attackBtn.style.display = 'inline-block';
+  attackBtn.disabled = false;
+  fleeBtn.disabled = false;
 }
 
 function attackEnemy() {
@@ -279,9 +291,11 @@ function attackEnemy() {
     updateCombatStats();
     updateCombatLoot();
 
-    // Re-enable buttons after victory
-    attackBtn.disabled = false;
-    fleeBtn.disabled = false;
+    // Switch back to find enemy mode
+    findEnemyBtn.style.display = 'inline-block';
+    attackBtn.style.display = 'none';
+    attackBtn.disabled = true;
+    fleeBtn.disabled = true;
     return;
   }
 
@@ -295,12 +309,15 @@ function attackEnemy() {
 
     // Clear current enemy after combat
     currentEnemy = null;
+
+    // Switch back to find enemy mode
+    findEnemyBtn.style.display = 'inline-block';
+    attackBtn.style.display = 'none';
+    attackBtn.disabled = true;
+    fleeBtn.disabled = true;
   }
 
-  // Re-enable buttons after enemy attack
-  attackBtn.disabled = false;
-  fleeBtn.disabled = false;
-
+  // Update UI
   updateEnemyDisplay();
   updateCombatStats();
   updateCombatLoot();
@@ -315,6 +332,12 @@ function fleeFromEnemy() {
   if (fleeSuccess) {
     console.log(i18n.t('messages.successfullyFled', { enemy: currentEnemy.name }));
     currentEnemy = null;
+
+    // Switch back to find enemy mode
+    findEnemyBtn.style.display = 'inline-block';
+    attackBtn.style.display = 'none';
+    attackBtn.disabled = true;
+    fleeBtn.disabled = true;
   } else {
     console.log(i18n.t('messages.failedToFlee', { enemy: currentEnemy.name }));
     // Failed flee - enemy gets a free attack
@@ -325,6 +348,12 @@ function fleeFromEnemy() {
       combatLoot = game.handlePlayerDefeat(currentEnemy);
       console.log(i18n.t('messages.defeatedBy', { enemy: currentEnemy.name }));
       currentEnemy = null;
+
+      // Switch back to find enemy mode
+      findEnemyBtn.style.display = 'inline-block';
+      attackBtn.style.display = 'none';
+      attackBtn.disabled = true;
+      fleeBtn.disabled = true;
     }
   }
 

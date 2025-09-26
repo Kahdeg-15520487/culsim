@@ -397,8 +397,15 @@ export class CombatSystem {
   public handlePlayerDefeat(enemy: Enemy): Item[] {
     const player = this.gameState.player;
 
-    // No longer reduce qi on defeat - health represents physical condition
-    // Qi loss now only happens through specific mechanics (like failed breakthroughs)
+    // Calculate qi loss based on enemy power and player realm difference
+    const enemyPower = enemy.qi + (enemy.realm * 50);
+    const playerPower = player.qi + (player.realm * 100);
+    const powerRatio = enemyPower / Math.max(playerPower, 1);
+    const baseQiLoss = Math.floor(player.maxQi * 0.05 * powerRatio); // 5% base loss, scaled by power ratio
+    const qiLoss = Math.max(10, Math.min(baseQiLoss, Math.floor(player.qi * 0.3))); // Min 10, max 30% of current qi
+
+    // Apply qi loss
+    player.qi = Math.max(0, player.qi - qiLoss);
 
     // Chance of injury affecting cultivation
     if (this.random.chance(0.3)) {
@@ -414,7 +421,8 @@ export class CombatSystem {
     }
 
     console.log(i18n.t('messages.combatDefeat', {
-      enemy: enemy.name
+      enemy: enemy.name,
+      qiLoss: qiLoss
     }));
     
     return []; // No loot on defeat
