@@ -474,7 +474,8 @@
     "showAccessible": "Show Accessible",
     "showFavorites": "Show Favorites",
     "discoveredLocations": "Discovered Locations",
-    "undiscoveredLocations": "Undiscovered Locations"
+    "undiscoveredLocations": "Undiscovered Locations",
+    "mapLegend": "Map Legend"
   },
   "locationTypes": {
     "village": "Village",

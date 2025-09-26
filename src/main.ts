@@ -714,11 +714,26 @@ function updateTravelDisplay() {
   // Update available locations
   const availableLocations = travelSystem.getAvailableDestinations();
   if (availableLocations.length > 0) {
-    locationsListEl.innerHTML = availableLocations.map(location => {
+    locationsListEl.innerHTML = availableLocations.map((location, index) => {
       const travelInfo = travelSystem.getTravelInfo(location.id);
+      
+      // Determine location marker color based on status
+      let markerColor = '#666';
+      let markerSize = '12px';
+      if (location.id === game.getState().player.currentLocationId) {
+        markerColor = '#4CAF50';
+        markerSize = '16px';
+      } else if (location.discovered) {
+        markerColor = '#2196F3';
+        markerSize = '14px';
+      }
+      
       return `
         <div class="location-card" data-location-id="${location.id}">
-          <h4>${location.name}</h4>
+          <div class="location-header">
+            <div class="location-marker" style="background-color: ${markerColor}; width: ${markerSize}; height: ${markerSize}; border-radius: 50%; display: inline-block; margin-right: 8px; border: 2px solid rgba(255,255,255,0.5);"></div>
+            <h4 style="display: inline-block; margin: 0;">${location.name}</h4>
+          </div>
           <p>${location.description}</p>
           <div class="location-details">
             <span class="travel-time">${i18n.t('travelPage.travelTime')}: ${travelInfo?.time || 0} ${i18n.t('travelPage.days')}</span>
@@ -749,9 +764,9 @@ function updateWorldMap() {
   const currentLocationId = game.getState().player.currentLocationId;
 
   // Create SVG-based world map
-  const svgWidth = 600;
-  const svgHeight = 400;
-  const padding = 40;
+  const svgWidth = 800;
+  const svgHeight = 500;
+  const padding = 60;
 
   // Calculate bounds for scaling
   let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -774,7 +789,19 @@ function updateWorldMap() {
   const offsetX = padding + (svgWidth - 2 * padding - mapWidth * scale) / 2 - minX * scale;
   const offsetY = padding + (svgHeight - 2 * padding - mapHeight * scale) / 2 - minY * scale;
 
-  let svgContent = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" style="width: 100%; height: auto;">`;
+  let svgContent = `<svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" style="width: 100%; height: auto;">
+    <!-- Background that can be replaced with an image -->
+    <defs>
+      <pattern id="mapBackground" patternUnits="userSpaceOnUse" width="100" height="100">
+        <rect width="100" height="100" fill="rgba(30, 60, 114, 0.3)"/>
+        <circle cx="20" cy="20" r="1" fill="rgba(255, 255, 255, 0.1)"/>
+        <circle cx="80" cy="40" r="1" fill="rgba(255, 255, 255, 0.1)"/>
+        <circle cx="40" cy="80" r="1" fill="rgba(255, 255, 255, 0.1)"/>
+        <circle cx="60" cy="60" r="1" fill="rgba(255, 255, 255, 0.1)"/>
+      </pattern>
+    </defs>
+    <rect id="world-map-background" width="100%" height="100%" fill="url(#mapBackground)" stroke="rgba(255, 255, 255, 0.2)" stroke-width="2" rx="8"/>
+  `;
 
   // Draw connections first (behind locations)
   worldMap.forEach(location => {
@@ -804,31 +831,60 @@ function updateWorldMap() {
     let fillColor = '#666';
     let strokeColor = '#999';
     let strokeWidth = '2';
-    let radius = '8';
+    let radius = '12';
 
     if (location.id === currentLocationId) {
       fillColor = '#4CAF50';
       strokeColor = '#66BB6A';
-      strokeWidth = '3';
-      radius = '12';
+      strokeWidth = '5';
+      radius = '20';
     } else if (location.discovered) {
       fillColor = '#2196F3';
       strokeColor = '#64B5F6';
-      radius = '10';
+      strokeWidth = '4';
+      radius = '18';
     } else {
       fillColor = '#666';
       strokeColor = '#999';
-      radius = '6';
+      strokeWidth = '3';
+      radius = '12';
     }
 
-    // Location circle
+    // Location circle with name overlay
     svgContent += `<circle cx="${x}" cy="${y}" r="${radius}" fill="${fillColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" class="map-location-marker" data-location-id="${location.id}" style="cursor: pointer;" />`;
 
-    // Location label
+    // Location name flowing above the dot
     if (location.discovered || location.id === currentLocationId) {
-      const fontSize = location.id === currentLocationId ? '12' : '10';
-      const fontWeight = location.id === currentLocationId ? 'bold' : 'normal';
-      svgContent += `<text x="${x}" y="${y - 15}" text-anchor="middle" font-size="${fontSize}" font-weight="${fontWeight}" fill="white">${location.name}</text>`;
+      const fontSize = location.id === currentLocationId ? '16' : '14';
+      const fontWeight = location.id === currentLocationId ? 'bold' : 'bold';
+      const textColor = '#ffffff';
+      const strokeColor = '#000000';
+      const strokeWidth = location.id === currentLocationId ? '1.2' : '1.0';
+      
+      // Split long names into multiple lines
+      const words = location.name.split(' ');
+      const maxCharsPerLine = 15;
+      const lines = [];
+      let currentLine = '';
+      
+      words.forEach(word => {
+        if ((currentLine + word).length <= maxCharsPerLine) {
+          currentLine += (currentLine ? ' ' : '') + word;
+        } else {
+          if (currentLine) lines.push(currentLine);
+          currentLine = word;
+        }
+      });
+      if (currentLine) lines.push(currentLine);
+      
+      // Position text above the dot with proper spacing
+      const textStartY = y - parseInt(radius) - 10 - (lines.length - 1) * (parseInt(fontSize) + 2);
+      
+      // Render each line of text flowing upward from the dot
+      lines.forEach((line, index) => {
+        const lineY = textStartY + index * (parseInt(fontSize) + 4);
+        svgContent += `<text x="${x}" y="${lineY}" text-anchor="middle" font-size="${fontSize}" font-weight="${fontWeight}" fill="${textColor}" stroke="${strokeColor}" stroke-width="${strokeWidth}" font-family="Arial, sans-serif" style="pointer-events: none; user-select: none; paint-order: stroke fill;">${line}</text>`;
+      });
     }
   });
 
@@ -837,17 +893,20 @@ function updateWorldMap() {
   // Add location type legend
   const legendHtml = `
     <div class="map-legend">
-      <div class="legend-item">
-        <div class="legend-marker current"></div>
-        <span>${i18n.t('travelPage.currentLocation')}</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-marker discovered"></div>
-        <span>${i18n.t('travelPage.discoveredLocations')}</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-marker undiscovered"></div>
-        <span>${i18n.t('travelPage.undiscoveredLocations')}</span>
+      <div class="legend-title">${i18n.t('travelPage.mapLegend')}</div>
+      <div class="legend-items">
+        <div class="legend-item">
+          <div class="legend-marker current"></div>
+          <span>${i18n.t('travelPage.currentLocation')}</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-marker discovered"></div>
+          <span>${i18n.t('travelPage.discoveredLocations')}</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-marker undiscovered"></div>
+          <span>${i18n.t('travelPage.undiscoveredLocations')}</span>
+        </div>
       </div>
     </div>
   `;
@@ -859,6 +918,51 @@ function updateWorldMap() {
     marker.addEventListener('click', (e) => {
       const locationId = (e.target as HTMLElement).getAttribute('data-location-id');
       if (locationId) {
+        // Remove previous selection
+        document.querySelectorAll('.location-card').forEach(card => {
+          card.classList.remove('map-highlighted');
+        });
+        document.querySelectorAll('.map-location-marker').forEach(m => {
+          (m as HTMLElement).style.filter = '';
+        });
+        
+        // Add selection to clicked location
+        const locationCard = document.querySelector(`.location-card[data-location-id="${locationId}"]`);
+        if (locationCard) {
+          locationCard.classList.add('map-highlighted');
+        }
+        (e.target as HTMLElement).style.filter = 'brightness(1.5) drop-shadow(0 0 15px currentColor)';
+        
+        selectLocationForTravel(locationId);
+      }
+    });
+  });
+
+  // Add click effects to location cards to highlight map markers
+  document.querySelectorAll('.location-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      const locationId = (e.target as HTMLElement).getAttribute('data-location-id') || 
+                        (e.target as HTMLElement).closest('.location-card')?.getAttribute('data-location-id');
+      if (locationId) {
+        // Remove previous selection
+        document.querySelectorAll('.location-card').forEach(c => {
+          c.classList.remove('map-highlighted');
+        });
+        document.querySelectorAll('.map-location-marker').forEach(marker => {
+          (marker as HTMLElement).style.filter = '';
+        });
+        
+        // Add selection to clicked card
+        const targetCard = (e.target as HTMLElement).closest('.location-card');
+        if (targetCard) {
+          targetCard.classList.add('map-highlighted');
+        }
+        
+        const mapMarker = document.querySelector(`.map-location-marker[data-location-id="${locationId}"]`);
+        if (mapMarker) {
+          (mapMarker as HTMLElement).style.filter = 'brightness(1.5) drop-shadow(0 0 15px currentColor)';
+        }
+        
         selectLocationForTravel(locationId);
       }
     });

@@ -474,7 +474,8 @@
     "showAccessible": "Hiển thị khả dụng",
     "showFavorites": "Hiển thị yêu thích",
     "discoveredLocations": "Địa điểm đã khám phá",
-    "undiscoveredLocations": "Địa điểm chưa khám phá"
+    "undiscoveredLocations": "Địa điểm chưa khám phá",
+    "mapLegend": "Chú thích bản đồ"
   },
   "locationTypes": {
     "village": "Làng",
